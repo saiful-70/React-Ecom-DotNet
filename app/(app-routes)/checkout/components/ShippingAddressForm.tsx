@@ -25,18 +25,15 @@ import { getCountries, getCities } from "@/(app-routes)/checkout/action";
 interface ShippingAddressFormProps {
 	formData: FormData;
 	onInputChange: (field: keyof FormData, value: string | number) => void;
-	onShippingDataChange?: (countryId?: number, cityId?: number) => void;
 	errors?: FormErrors;
 }
 
 export function ShippingAddressForm({
 	formData,
 	onInputChange,
-	onShippingDataChange,
 	errors = {},
 }: ShippingAddressFormProps) {
 	const { t } = useTranslation();
-	const [bdCountryId, setBdCountryId] = useState<number | null>(null);
 	const [cities, setCities] = useState<City[]>([]);
 	const [loadingCities, setLoadingCities] = useState(true);
 
@@ -54,7 +51,6 @@ export function ShippingAddressForm({
 					console.error("Bangladesh not found in countries list");
 					return;
 				}
-				setBdCountryId(bd.id);
 				const citiesRes = await getCities(bd.id);
 				if (cancelled) return;
 				if (citiesRes.success) setCities(citiesRes.data);
@@ -69,13 +65,6 @@ export function ShippingAddressForm({
 			cancelled = true;
 		};
 	}, []);
-
-	// Notify parent when city changes so shipping cost can be recalculated.
-	useEffect(() => {
-		if (bdCountryId && formData.cityId && onShippingDataChange) {
-			onShippingDataChange(bdCountryId, formData.cityId);
-		}
-	}, [bdCountryId, formData.cityId]);
 
 	const handleCityChange = (value: string) => {
 		const selectedCity = cities.find((c) => c.id.toString() === value);

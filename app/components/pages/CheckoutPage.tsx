@@ -2,7 +2,6 @@
 
 import {
 	createPurchaseOrder,
-	getShippingCost,
 	getCheckoutData,
 } from "@/(app-routes)/checkout/action";
 import type {
@@ -15,7 +14,6 @@ import { Button } from "@/components/shared/ui/button";
 import { toast } from "@/components/shared/ui/sonner";
 import { useCart } from "@/contexts/CartContext";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
-import { businessSettingsAtom } from "@/store/ui-atoms";
 import { useAtomValue } from "jotai";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -27,15 +25,11 @@ import { OrderSummary } from "../../(app-routes)/checkout/components/OrderSummar
 import { ShippingAddressForm } from "../../(app-routes)/checkout/components/ShippingAddressForm";
 import { prepareOrderData } from "../../(app-routes)/checkout/helpers/checkout-helpers";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
+import { getDeliveryCharge } from "@/lib/constants/delivery";
 
 export function CheckoutPage() {
 	const { t } = useTranslation();
-	const businessSettings = useAtomValue(businessSettingsAtom);
 	const [isProcessing, setIsProcessing] = useState(false);
-	const [shippingCost, setShippingCost] = useState(0);
-	const [estimatedDelivery, setEstimatedDelivery] = useState(0);
-	const [isShippingFree, setIsShippingFree] = useState(false);
-	const [isLocationBased, setIsLocationBased] = useState(false);
 	const [formErrors, setFormErrors] = useState<FormErrors>({});
 	const [isLoadingPrices, setIsLoadingPrices] = useState(true);
 	const [serverPrices, setServerPrices] = useState<CheckoutDataProduct[]>([]);
@@ -94,60 +88,7 @@ export function CheckoutPage() {
 		fetchCheckoutData();
 	}, [items]);
 
-	const handleShippingDataChange = async (
-		countryId?: number,
-		cityId?: number
-	) => {
-		if (!countryId || !cityId) {
-			setShippingCost(0);
-			setEstimatedDelivery(0);
-			setIsShippingFree(false);
-			setIsLocationBased(false);
-			return;
-		}
-
-		try {
-			const shippingType = businessSettings?.shipping_type || "flat_rate";
-			const freeShippingThreshold = parseInt(
-				businessSettings?.free_shipping_on_over || "0"
-			);
-			const flatCost = parseInt(businessSettings?.flat_cost || "0");
-
-			if (
-				freeShippingThreshold > 0 &&
-				subtotal >= freeShippingThreshold
-			) {
-				setShippingCost(0);
-				setEstimatedDelivery(0);
-				setIsShippingFree(true);
-				setIsLocationBased(false);
-				return;
-			}
-
-			if (shippingType === "flat_rate") {
-				setShippingCost(flatCost);
-				setEstimatedDelivery(0);
-				setIsShippingFree(false);
-				setIsLocationBased(false);
-				return;
-			}
-
-			setIsLocationBased(true);
-			const response = await getShippingCost(countryId, cityId);
-			if (response.success && response.data) {
-				setShippingCost(response.data.shipping_cost);
-				setEstimatedDelivery(response.data.est_delivery_days);
-				setIsShippingFree(false);
-			} else {
-				setShippingCost(0);
-				setIsShippingFree(false);
-			}
-		} catch (error) {
-			console.error("Failed to fetch shipping cost:", error);
-			setShippingCost(0);
-			setIsLocationBased(false);
-		}
-	};
+	const finalShipping = formData.city ? getDeliveryCharge(formData.city) : 0;
 
 	const calculatedSubtotal = useMemo(() => {
 		if (serverPrices.length > 0) {
@@ -185,18 +126,6 @@ export function CheckoutPage() {
 		return tax;
 	}, [serverPrices, items, tax]);
 
-	const freeShippingThreshold = parseInt(
-		businessSettings?.free_shipping_on_over || "0"
-	);
-
-	let finalShipping = shippingCost;
-	if (
-		freeShippingThreshold > 0 &&
-		calculatedSubtotal >= freeShippingThreshold
-	) {
-		finalShipping = 0;
-	}
-
 	const calculatedTotal = calculatedSubtotal + calculatedTax + finalShipping;
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -230,7 +159,6 @@ export function CheckoutPage() {
 					shipping: finalShipping,
 				},
 				shippingMethod: "standard",
-				shippingDuration: estimatedDelivery,
 				serverPrices: serverPrices.length > 0 ? serverPrices : undefined,
 			});
 
@@ -310,7 +238,6 @@ export function CheckoutPage() {
 						<ShippingAddressForm
 							formData={formData}
 							onInputChange={handleInputChange}
-							onShippingDataChange={handleShippingDataChange}
 							errors={formErrors}
 						/>
 					</div>
@@ -320,13 +247,10 @@ export function CheckoutPage() {
 							isProcessing={isProcessing}
 							onSubmit={() => {}}
 							shippingCost={finalShipping}
-							estimatedDelivery={estimatedDelivery}
 							subtotal={calculatedSubtotal}
 							tax={calculatedTax}
 							total={calculatedTotal}
 							isFormValid={!hasFormErrors(formErrors)}
-							isShippingFree={isShippingFree}
-							isLocationBased={isLocationBased}
 							isLoadingPrices={isLoadingPrices}
 						/>
 					</div>

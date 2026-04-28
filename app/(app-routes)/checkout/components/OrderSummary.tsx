@@ -10,9 +10,6 @@ import {
 } from "@/components/shared/ui/card";
 import { Separator } from "@/components/shared/ui/separator";
 import { useCart } from "@/contexts/CartContext";
-import { businessSettingsAtom } from "@/store/ui-atoms";
-import { useAtomValue } from "jotai";
-import { Clock } from "lucide-react";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
 
@@ -20,13 +17,10 @@ interface OrderSummaryProps {
 	isProcessing: boolean;
 	onSubmit: () => void;
 	shippingCost?: number;
-	estimatedDelivery?: number;
 	subtotal?: number;
 	tax?: number;
 	total?: number;
 	isFormValid?: boolean;
-	isShippingFree?: boolean;
-	isLocationBased?: boolean;
 	isLoadingPrices?: boolean;
 }
 
@@ -34,13 +28,10 @@ export function OrderSummary({
 	isProcessing,
 	onSubmit,
 	shippingCost,
-	estimatedDelivery,
 	subtotal: propSubtotal,
 	tax: propTax,
 	total: propTotal,
 	isFormValid = true,
-	isShippingFree = false,
-	isLocationBased = false,
 	isLoadingPrices = false,
 }: OrderSummaryProps) {
 	const { t } = useTranslation();
@@ -51,9 +42,7 @@ export function OrderSummary({
 		subtotal: cartSubtotal,
 		tax: cartTax,
 	} = useCart();
-	const businessSettings = useAtomValue(businessSettingsAtom);
 
-	// Use provided props or fall back to cart context values
 	const subtotal = propSubtotal ?? cartSubtotal;
 	const tax = propTax ?? cartTax;
 	const total = propTotal ?? cartTotal;
@@ -110,56 +99,20 @@ export function OrderSummary({
 					</div>
 
 					<div className="flex justify-between">
-						<span>{t("checkout.shipping") || "Shipping"}</span>
-						<span
-							className={
-								isShippingFree
-									? "text-green-600 font-medium"
-									: "text-foreground"
-							}
-						>
-							{isShippingFree ? (
-								t("checkout.free") || "Free"
-							) : businessSettings?.shipping_type ===
-								"flat_rate" ? (
-								<>
-									<span className="text-sm italic pr-1">
-										({t("checkout.flatRateShipping")})
-									</span>
-									<Price
-										amount={businessSettings.flat_cost}
-									/>
-								</>
-							) : isLocationBased && shippingCost === 0 ? (
-								<span className="text-muted-foreground italic">
-									{t("checkout.locationBased") ||
-										"Location Based"}
-								</span>
+						<span>{t("checkout.shipping")}</span>
+						<span className="text-foreground">
+							{shippingCost && shippingCost > 0 ? (
+								<Price amount={shippingCost} />
 							) : (
-								<Price amount={shippingCost ?? 0} />
+								<span className="text-muted-foreground italic text-sm">
+									{t("checkout.selectCity")}
+								</span>
 							)}
 						</span>
 					</div>
 
-					{/* Estimated Delivery */}
-					{estimatedDelivery && estimatedDelivery > 0 ? (
-						<div className="flex items-center justify-between text-sm text-muted-foreground">
-							<span className="flex items-center gap-1">
-								<Clock className="w-4 h-4" />
-								{t("checkout.estimatedDelivery") ||
-									"Est. Delivery"}
-							</span>
-							<span>
-								{estimatedDelivery}{" "}
-								{estimatedDelivery === 1
-									? t("checkout.day") || "day"
-									: t("checkout.days") || "days"}
-							</span>
-						</div>
-					) : null}
-
 					<div className="flex justify-between">
-						<span>{t("checkout.tax") || "Tax (VAT)"}</span>
+						<span>{t("checkout.tax")}</span>
 						<span>
 							<Price amount={tax} />
 						</span>

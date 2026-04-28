@@ -24,6 +24,7 @@ import {
 	ProductMeta,
 	QuantitySelector,
 	ProductActionButtons,
+	ProductDeliveryInfo,
 	ProductDetailsTabs,
 } from "@/components/product/product-details";
 import type { Product, ProductVariant } from "@/(app-routes)/products/model";
@@ -383,6 +384,8 @@ export function ProductDetails({ product }: ProductDetailsPageProps) {
 							isWishlisted={isWishlisted}
 							isWishlistLoading={isWishlistLoading}
 						/>
+
+						<ProductDeliveryInfo />
 					</div>
 				</div>
 			</div>

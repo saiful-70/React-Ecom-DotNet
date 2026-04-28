@@ -6,5 +6,6 @@ export { ProductPrice } from "./ProductPrice";
 export { ProductMeta } from "./ProductMeta";
 export { QuantitySelector } from "./QuantitySelector";
 export { ProductActionButtons } from "./ProductActionButtons";
+export { ProductDeliveryInfo } from "./ProductDeliveryInfo";
 export { ProductReviews } from "./ProductReviews";
 export { ProductDetailsTabs } from "./ProductDetailsTabs";

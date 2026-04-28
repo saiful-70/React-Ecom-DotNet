@@ -26,48 +26,52 @@ export function ProductActionButtons({
 	const { t } = useTranslation();
 
 	return (
-		<div className="flex flex-row gap-2">
-			<Button
-				onClick={onAddToCart}
-				className="flex-1 h-9 text-xs"
-				disabled={availableStock <= 0}
-				variant="outline"
-			>
-				<ShoppingCart className="size-3.5 mr-1.5 sm:mr-2" />
-				<span className="hidden sm:inline">
-					{availableStock > 0
-						? t("productDetails.addToCart") || "Add to Cart"
-						: t("productDetails.outOfStock") || "Out of Stock"}
-				</span>
-			</Button>
+		<div className="space-y-2">
 			<Button
 				onClick={onBuyNow}
-				className="flex-1 h-9 text-xs"
 				disabled={availableStock <= 0}
+				className="w-full h-10 bg-orange-500 hover:bg-orange-600 text-white"
 			>
-				<ShoppingBag className="size-3.5 mr-1.5 sm:mr-2" />
-				{t("productDetails.buyNow") || "Buy Now"}
+				<ShoppingBag className="size-4 mr-2" />
+				{t("productDetails.buyNow")}
 			</Button>
 			<Button
-				variant="outline"
-				onClick={onToggleWishlist}
-				disabled={isWishlistLoading}
-				className={`h-9 xs:w-auto px-3 ${isWishlisted ? "text-red-500 border-red-500" : ""
+				onClick={onAddToCart}
+				disabled={availableStock <= 0}
+				className="w-full h-10 bg-blue-500 hover:bg-blue-600 text-white"
+			>
+				<ShoppingCart className="size-4 mr-2" />
+				{availableStock > 0
+					? t("productDetails.addToCart")
+					: t("productDetails.outOfStock") || "Out of Stock"}
+			</Button>
+			<div className="flex gap-2 pt-1">
+				<Button
+					variant="outline"
+					onClick={onToggleWishlist}
+					disabled={isWishlistLoading}
+					className={`flex-1 h-9 ${
+						isWishlisted ? "text-red-500 border-red-500" : ""
 					}`}
-				title={t("productDetails.wishlist") || "Add to wishlist"}
-			>
-				<Heart
-					className={`size-3.5 ${isWishlisted ? "fill-current" : ""}`}
-				/>
-			</Button>
-			<Button
-				variant="outline"
-				onClick={onShare}
-				title={t("productDetails.shareProduct") || "Share this product"}
-				className="h-9 xs:w-auto px-3"
-			>
-				<Share2 className="size-3.5" />
-			</Button>
+					title={t("productDetails.wishlist") || "Add to wishlist"}
+				>
+					<Heart
+						className={`size-3.5 mr-1.5 ${
+							isWishlisted ? "fill-current" : ""
+						}`}
+					/>
+					{t("productDetails.wishlist")}
+				</Button>
+				<Button
+					variant="outline"
+					onClick={onShare}
+					title={t("productDetails.shareProduct") || "Share this product"}
+					className="flex-1 h-9"
+				>
+					<Share2 className="size-3.5 mr-1.5" />
+					{t("productDetails.share")}
+				</Button>
+			</div>
 		</div>
 	);
 }

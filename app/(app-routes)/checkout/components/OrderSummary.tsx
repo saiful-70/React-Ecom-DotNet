@@ -1,7 +1,6 @@
 "use client";
 
 import Price from "@/components/shared/Price";
-import { Badge } from "@/components/shared/ui/badge";
 import { Button } from "@/components/shared/ui/button";
 import {
 	Card,
@@ -190,13 +189,7 @@ export function OrderSummary({
 								"Fill required fields"
 								: `${t("checkout.placeOrder") || "Place Order"} - `}
 					{!isProcessing && isFormValid && !isLoadingPrices && <Price amount={total} />}
-				</Button>{" "}
-				<div className="text-center">
-					<Badge variant="secondary" className="text-xs">
-						{t("checkout.freeReturns") ||
-							"Free returns within 30 days"}
-					</Badge>
-				</div>
+				</Button>
 			</CardContent>
 		</Card>
 	);

@@ -97,7 +97,7 @@ export default async function RootLayout({
 	// If maintenance mode is enabled, render only the maintenance page without layout
 	if (maintenanceEnabled) {
 		return (
-			<html lang="en" suppressHydrationWarning>
+			<html lang="bn" suppressHydrationWarning>
 				<body className={inter.className}>
 					<MaintenancePageContent
 						businessSettings={businessSettings}
@@ -112,7 +112,7 @@ export default async function RootLayout({
 
 	// Normal layout with header, footer, and other components
 	return (
-		<html lang="en" suppressHydrationWarning>
+		<html lang="bn" suppressHydrationWarning>
 			<head>
 				{/* Business structured data for SEO */}
 				{renderStructuredData(organizationSchema)}

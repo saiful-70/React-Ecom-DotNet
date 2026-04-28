@@ -1,13 +1,10 @@
 import type {
   FormData,
-  BillingFormData,
-  PaymentMethod,
   PurchaseOrderRequest,
   ShippingMethod,
   CheckoutDataProduct,
 } from "@/(app-routes)/checkout/model";
 
-// Types for cart items (assuming from CartContext)
 interface CartItem {
   id: number;
   quantity: number;
@@ -15,91 +12,56 @@ interface CartItem {
   variant_id?: number;
 }
 
-// Types for totals calculation
 interface CartTotals {
   subtotal: number;
   tax: number | null;
   shipping: number | null;
 }
 
-/**
- * Helper function to prepare shipping address
- */
-export const prepareShippingAddress = (
-  formData: FormData,
-  isBilling: boolean,
-) => {
-  // Merge country code with phone number
-  const fullPhoneNumber = formData.phone
-    ? `${formData.phoneCountryCode}${formData.phone.replace(/\D/g, "")}`
-    : "";
+const BD_DEFAULTS = {
+  country: "Bangladesh",
+  email: "",
+  zip_code: "",
+  address_type: "home",
+  phone_prefix: "+880",
+} as const;
 
-  return {
-    contact_person_name: formData.name.trim(),
-    phone: fullPhoneNumber,
-    email: formData.email,
-    address_type: formData.addressType,
-    country: formData.country,
-    city: formData.city,
-    zip_code: formData.postal,
-    address: formData.address,
-    is_billing: isBilling,
-  };
+const formatBDPhone = (raw: string): string => {
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) return "";
+  // Strip leading 0 from "01XXXXXXXXX" before prepending +880.
+  const local = digits.startsWith("0") ? digits.slice(1) : digits;
+  return `${BD_DEFAULTS.phone_prefix}${local}`;
 };
 
-/**
- * Helper function to prepare billing address
- */
-export const prepareBillingAddress = (
-  formData: FormData,
-  billingData: BillingFormData,
-  sameAsShipping: boolean,
-) => {
-  if (sameAsShipping) {
-    // Merge country code with phone number for shipping data
-    const fullPhoneNumber = formData.phone
-      ? `${formData.phoneCountryCode}${formData.phone.replace(/\D/g, "")}`
-      : "";
+export const prepareShippingAddress = (formData: FormData) => ({
+  contact_person_name: formData.name.trim(),
+  phone: formatBDPhone(formData.phone),
+  email: BD_DEFAULTS.email,
+  address_type: BD_DEFAULTS.address_type,
+  country: BD_DEFAULTS.country,
+  city: formData.city,
+  zip_code: BD_DEFAULTS.zip_code,
+  address: formData.address.trim(),
+  is_billing: false,
+});
 
-    return {
-      contact_person_name: formData.name.trim(),
-      phone: fullPhoneNumber,
-      email: formData.email,
-      address_type: formData.addressType,
-      country: formData.country,
-      city: formData.city,
-      zip_code: formData.postal,
-      address: formData.address,
-    };
-  }
+export const prepareBillingAddress = (formData: FormData) => ({
+  contact_person_name: formData.name.trim(),
+  phone: formatBDPhone(formData.phone),
+  email: BD_DEFAULTS.email,
+  address_type: BD_DEFAULTS.address_type,
+  country: BD_DEFAULTS.country,
+  city: formData.city,
+  zip_code: BD_DEFAULTS.zip_code,
+  address: formData.address.trim(),
+});
 
-  // Merge country code with phone number for billing data
-  const fullPhoneNumber = billingData.phone
-    ? `${billingData.phoneCountryCode}${billingData.phone.replace(/\D/g, "")}`
-    : "";
-
-  return {
-    contact_person_name: billingData.name.trim(),
-    phone: fullPhoneNumber,
-    email: billingData.email,
-    address_type: "Home",
-    country: billingData.country,
-    city: billingData.city,
-    zip_code: billingData.postal,
-    address: billingData.address,
-  };
-};
-
-/**
- * Helper function to prepare order items
- * Uses server prices if available, otherwise falls back to cart prices
- */
 export const prepareOrderItems = (
   cartItems: CartItem[],
   serverPrices?: CheckoutDataProduct[],
 ) => {
   return cartItems.map((item) => {
-    // Try to find server price for this item
     const serverPrice = serverPrices?.find(
       (sp) =>
         sp.product_id === item.id && sp.variant_id === (item.variant_id || 0),
@@ -114,9 +76,6 @@ export const prepareOrderItems = (
   });
 };
 
-/**
- * Helper function to calculate totals
- */
 export const calculateTotals = (cartTotals: CartTotals) => {
   const vatAmount = cartTotals.tax || 0;
   const shippingCost = cartTotals.shipping || 0;
@@ -129,25 +88,16 @@ export const calculateTotals = (cartTotals: CartTotals) => {
   };
 };
 
-/**
- * Main helper function to prepare complete order data
- */
 export const prepareOrderData = (params: {
   formData: FormData;
-  billingData: BillingFormData;
-  sameAsShipping: boolean;
-  paymentMethod: PaymentMethod;
   cartItems: CartItem[];
   cartTotals: CartTotals;
-  shippingMethod: ShippingMethod;
-  shippingDuration: number;
+  shippingMethod?: ShippingMethod;
+  shippingDuration?: number;
   serverPrices?: CheckoutDataProduct[];
 }): PurchaseOrderRequest => {
   const {
     formData,
-    billingData,
-    sameAsShipping,
-    paymentMethod,
     cartItems,
     cartTotals,
     shippingMethod = "standard",
@@ -161,17 +111,13 @@ export const prepareOrderData = (params: {
     total_price: totals.totalPrice,
     order_status: "pending",
     payment_status: "unpaid",
-    payment_method: paymentMethod,
+    payment_method: "cash_on_delivery",
     shipping_method: shippingMethod,
     shipping_cost: totals.shippingCost,
     shipping_duration: shippingDuration,
     total_vat_amount: totals.vatAmount,
-    shipping_address: prepareShippingAddress(formData, sameAsShipping),
-    billing_address: prepareBillingAddress(
-      formData,
-      billingData,
-      sameAsShipping,
-    ),
+    shipping_address: prepareShippingAddress(formData),
+    billing_address: prepareBillingAddress(formData),
     order_items: prepareOrderItems(cartItems, serverPrices),
   };
 };

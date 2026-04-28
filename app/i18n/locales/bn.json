@@ -195,10 +195,11 @@
     "stripeError": "পেমেন্ট ত্রুটি",
     "loadingPrices": "মূল্য লোড হচ্ছে...",
     "placeholders": {
-      "name": "জন ডো",
+      "name": "আপনার সম্পূর্ণ নাম লিখুন",
       "email": "john.doe@example.com",
       "phone": "+১ (৫৫৫) ১২৩-৪৫৬৭",
-      "address": "১২৩ মেইন স্ট্রিট, অ্যাপ্ট ৪বি",
+      "phoneBD": "১১ সংখ্যার মোবাইল নাম্বার (যেমন ০১XXXXXXXXX)",
+      "address": "আপনার সম্পূর্ণ ঠিকানা লিখুন",
       "city": "নিউ ইয়র্ক",
       "postalCode": "১০০০১",
       "country": "যুক্তরাষ্ট্র",
@@ -206,6 +207,13 @@
       "expiryDate": "MM/YY",
       "cvv": "১২৩",
       "nameOnCard": "জন ডো"
+    },
+    "errors": {
+      "nameRequired": "নাম লিখতে হবে",
+      "phoneRequired": "মোবাইল নাম্বার লিখতে হবে",
+      "phoneBD": "১১ সংখ্যার সঠিক মোবাইল নাম্বার লিখুন (যেমন ০১XXXXXXXXX)",
+      "addressRequired": "ঠিকানা লিখতে হবে",
+      "cityRequired": "শহর নির্বাচন করুন"
     }
   },
   "login": {

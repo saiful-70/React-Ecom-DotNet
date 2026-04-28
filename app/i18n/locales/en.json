@@ -196,10 +196,11 @@
     "stripeError": "Payment Error",
     "loadingPrices": "Loading prices...",
     "placeholders": {
-      "name": "John Doe",
+      "name": "Enter your full name",
       "email": "john.doe@example.com",
       "phone": "+1 (555) 123-4567",
-      "address": "123 Main Street, Apt 4B",
+      "phoneBD": "11-digit mobile (e.g. 01XXXXXXXXX)",
+      "address": "Enter your full address",
       "city": "New York",
       "postalCode": "10001",
       "country": "United States",
@@ -207,6 +208,13 @@
       "expiryDate": "MM/YY",
       "cvv": "123",
       "nameOnCard": "John Doe"
+    },
+    "errors": {
+      "nameRequired": "Name is required",
+      "phoneRequired": "Phone number is required",
+      "phoneBD": "Enter a valid 11-digit Bangladeshi mobile (e.g. 01XXXXXXXXX)",
+      "addressRequired": "Address is required",
+      "cityRequired": "Please select a city"
     }
   },
   "login": {

@@ -1,7 +1,6 @@
 import { PropsWithChildren } from "react";
 import { ThemeProvider } from "./theme-provider";
 import { I18nProvider } from "./i18n-provider";
-import { RTLProvider } from "./rtl-provider";
 import { CartProvider } from "@/contexts/CartContext";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { Toaster as Sonner } from "@/components/shared/ui/sonner";
@@ -19,17 +18,15 @@ export default function GlobalProvider({ children }: PropsWithChildren) {
 				disableTransitionOnChange
 			>
 				<I18nProvider>
-					<RTLProvider>
-						<CartProvider>
-							<TooltipProvider>
-								<AuthInitializer />
-								<WishlistSyncProvider>
-									{children}
-								</WishlistSyncProvider>
-								<Sonner />
-							</TooltipProvider>
-						</CartProvider>
-					</RTLProvider>
+					<CartProvider>
+						<TooltipProvider>
+							<AuthInitializer />
+							<WishlistSyncProvider>
+								{children}
+							</WishlistSyncProvider>
+							<Sonner />
+						</TooltipProvider>
+					</CartProvider>
 				</I18nProvider>
 			</ThemeProvider>
 		</JotaiProvider>

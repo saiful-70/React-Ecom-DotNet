@@ -10,6 +10,7 @@ import {
 } from "@/components/shared/ui/card";
 import { Separator } from "@/components/shared/ui/separator";
 import { useCart } from "@/contexts/CartContext";
+import { Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
 
@@ -41,6 +42,7 @@ export function OrderSummary({
 		itemCount,
 		subtotal: cartSubtotal,
 		tax: cartTax,
+		updateQuantity,
 	} = useCart();
 
 	const subtotal = propSubtotal ?? cartSubtotal;
@@ -56,32 +58,82 @@ export function OrderSummary({
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<div className="space-y-3">
-					{items.map((item) => (
-						<div
-							key={item.id + item.name}
-							className="flex items-center space-x-3"
-						>
-							<Image
-								src={item.image}
-								alt={item.name}
-								width={48}
-								height={48}
-								className="w-12 h-12 object-cover rounded"
-							/>
-							<div className="flex-1">
-								<p className="font-medium text-sm">
-									{item.name}
-								</p>
-								<p className="text-sm text-muted-foreground">
-									{t("checkout.quantity") || "Qty"}:{" "}
-									{item.quantity}
+					{items.map((item) => {
+						const atStockLimit =
+							typeof item.stock === "number" &&
+							item.stock > 0 &&
+							item.quantity >= item.stock;
+						const handleDecrease = () => {
+							if (item.quantity > 1) {
+								updateQuantity(
+									item.id,
+									item.quantity - 1,
+									item.variant_id
+								);
+							}
+						};
+						const handleIncrease = () => {
+							if (!atStockLimit) {
+								updateQuantity(
+									item.id,
+									item.quantity + 1,
+									item.variant_id
+								);
+							}
+						};
+						return (
+							<div
+								key={`${item.id}-${item.variant_id ?? "base"}`}
+								className="flex items-center gap-3"
+							>
+								<Image
+									src={item.image}
+									alt={item.name}
+									width={48}
+									height={48}
+									className="w-12 h-12 object-cover rounded shrink-0"
+								/>
+								<div className="flex-1 min-w-0">
+									<p className="font-medium text-sm truncate">
+										{item.name}
+									</p>
+									<p className="text-xs text-muted-foreground">
+										{t("checkout.quantity")}: {item.quantity}
+									</p>
+								</div>
+								<div className="flex items-center gap-1 shrink-0">
+									<Button
+										type="button"
+										variant="outline"
+										size="icon"
+										className="h-7 w-7"
+										onClick={handleDecrease}
+										disabled={item.quantity <= 1}
+										aria-label="decrease quantity"
+									>
+										<Minus className="w-3.5 h-3.5" />
+									</Button>
+									<span className="w-7 text-center text-sm font-medium tabular-nums">
+										{item.quantity}
+									</span>
+									<Button
+										type="button"
+										variant="outline"
+										size="icon"
+										className="h-7 w-7"
+										onClick={handleIncrease}
+										disabled={atStockLimit}
+										aria-label="increase quantity"
+									>
+										<Plus className="w-3.5 h-3.5" />
+									</Button>
+								</div>
+								<p className="font-medium shrink-0 w-20 text-right">
+									<Price amount={item.price * item.quantity} />
 								</p>
 							</div>
-							<p className="font-medium">
-								<Price amount={item.price * item.quantity} />
-							</p>
-						</div>
-					))}
+						);
+					})}
 				</div>
 				<Separator />
 				<div className="space-y-2">

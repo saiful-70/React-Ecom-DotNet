@@ -84,7 +84,7 @@ export function OrderSummary({
 						return (
 							<div
 								key={`${item.id}-${item.variant_id ?? "base"}`}
-								className="flex items-center gap-3"
+								className="flex gap-3 items-start"
 							>
 								<Image
 									src={item.image}
@@ -93,44 +93,43 @@ export function OrderSummary({
 									height={48}
 									className="w-12 h-12 object-cover rounded shrink-0"
 								/>
-								<div className="flex-1 min-w-0">
-									<p className="font-medium text-sm truncate">
+								<div className="flex-1 min-w-0 space-y-2">
+									<p className="font-medium text-sm break-words">
 										{item.name}
 									</p>
-									<p className="text-xs text-muted-foreground">
-										{t("checkout.quantity")}: {item.quantity}
-									</p>
+									<div className="flex items-center justify-between gap-2 flex-wrap">
+										<div className="flex items-center gap-1 shrink-0">
+											<Button
+												type="button"
+												variant="outline"
+												size="icon"
+												className="h-7 w-7"
+												onClick={handleDecrease}
+												disabled={item.quantity <= 1}
+												aria-label="decrease quantity"
+											>
+												<Minus className="w-3.5 h-3.5" />
+											</Button>
+											<span className="w-7 text-center text-sm font-medium tabular-nums">
+												{item.quantity}
+											</span>
+											<Button
+												type="button"
+												variant="outline"
+												size="icon"
+												className="h-7 w-7"
+												onClick={handleIncrease}
+												disabled={atStockLimit}
+												aria-label="increase quantity"
+											>
+												<Plus className="w-3.5 h-3.5" />
+											</Button>
+										</div>
+										<p className="font-medium text-sm shrink-0">
+											<Price amount={item.price * item.quantity} />
+										</p>
+									</div>
 								</div>
-								<div className="flex items-center gap-1 shrink-0">
-									<Button
-										type="button"
-										variant="outline"
-										size="icon"
-										className="h-7 w-7"
-										onClick={handleDecrease}
-										disabled={item.quantity <= 1}
-										aria-label="decrease quantity"
-									>
-										<Minus className="w-3.5 h-3.5" />
-									</Button>
-									<span className="w-7 text-center text-sm font-medium tabular-nums">
-										{item.quantity}
-									</span>
-									<Button
-										type="button"
-										variant="outline"
-										size="icon"
-										className="h-7 w-7"
-										onClick={handleIncrease}
-										disabled={atStockLimit}
-										aria-label="increase quantity"
-									>
-										<Plus className="w-3.5 h-3.5" />
-									</Button>
-								</div>
-								<p className="font-medium shrink-0 w-20 text-right">
-									<Price amount={item.price * item.quantity} />
-								</p>
 							</div>
 						);
 					})}

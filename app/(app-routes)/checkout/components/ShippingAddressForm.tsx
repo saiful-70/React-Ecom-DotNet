@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { useState, useEffect } from "react";
 import {
 	Card,
 	CardContent,
@@ -18,9 +17,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/shared/ui/select";
-import { Truck, Loader2 } from "lucide-react";
-import type { FormData, FormErrors, City } from "@/(app-routes)/checkout/model";
-import { getCountries, getCities } from "@/(app-routes)/checkout/action";
+import { Truck } from "lucide-react";
+import type { FormData, FormErrors } from "@/(app-routes)/checkout/model";
+import { CITY_OPTIONS } from "@/lib/constants/delivery";
 
 interface ShippingAddressFormProps {
 	formData: FormData;
@@ -34,45 +33,6 @@ export function ShippingAddressForm({
 	errors = {},
 }: ShippingAddressFormProps) {
 	const { t } = useTranslation();
-	const [cities, setCities] = useState<City[]>([]);
-	const [loadingCities, setLoadingCities] = useState(true);
-
-	// Resolve Bangladesh's country_id once, then load BD cities.
-	useEffect(() => {
-		let cancelled = false;
-		const load = async () => {
-			try {
-				const countriesRes = await getCountries();
-				if (cancelled || !countriesRes.success) return;
-				const bd = countriesRes.data.find(
-					(c) => c.code === "BD" || c.name === "Bangladesh"
-				);
-				if (!bd) {
-					console.error("Bangladesh not found in countries list");
-					return;
-				}
-				const citiesRes = await getCities(bd.id);
-				if (cancelled) return;
-				if (citiesRes.success) setCities(citiesRes.data);
-			} catch (error) {
-				console.error("Failed to load BD location data:", error);
-			} finally {
-				if (!cancelled) setLoadingCities(false);
-			}
-		};
-		load();
-		return () => {
-			cancelled = true;
-		};
-	}, []);
-
-	const handleCityChange = (value: string) => {
-		const selectedCity = cities.find((c) => c.id.toString() === value);
-		if (selectedCity) {
-			onInputChange("cityId", selectedCity.id);
-			onInputChange("city", selectedCity.name);
-		}
-	};
 
 	const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value.replace(/\D/g, "").slice(0, 11);
@@ -134,32 +94,22 @@ export function ShippingAddressForm({
 						<span className="text-red-500">*</span>
 					</Label>
 					<Select
-						disabled={loadingCities || cities.length === 0}
-						value={formData.cityId?.toString() || ""}
-						onValueChange={handleCityChange}
+						value={formData.city || ""}
+						onValueChange={(value) => onInputChange("city", value)}
 					>
 						<SelectTrigger
 							id="city"
 							className={`w-full ${errors.city ? "border-red-500" : ""}`}
 						>
-							{loadingCities ? (
-								<span className="flex items-center gap-2">
-									<Loader2 className="w-4 h-4 animate-spin" />
-									{t("checkout.loading")}
-								</span>
-							) : (
-								<SelectValue
-									placeholder={t("checkout.selectCity")}
-								/>
-							)}
+							<SelectValue placeholder={t("checkout.selectCity")} />
 						</SelectTrigger>
 						<SelectContent>
-							{cities.map((city) => (
+							{CITY_OPTIONS.map((option) => (
 								<SelectItem
-									key={city.id}
-									value={city.id.toString()}
+									key={option.value}
+									value={option.value}
 								>
-									{city.name}
+									{option.value} - ৳{option.rate}
 								</SelectItem>
 							))}
 						</SelectContent>

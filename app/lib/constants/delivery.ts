@@ -7,8 +7,16 @@ export const CITY_INSIDE_DHAKA = "ঢাকার ভিতরে";
 export const CITY_OUTSIDE_DHAKA = "ঢাকার বাহিরে";
 
 export const CITY_OPTIONS = [
-	{ value: CITY_INSIDE_DHAKA, rate: DELIVERY_RATES.insideDhaka },
-	{ value: CITY_OUTSIDE_DHAKA, rate: DELIVERY_RATES.outsideDhaka },
+	{
+		value: CITY_INSIDE_DHAKA,
+		labelKey: "checkout.cities.insideDhaka",
+		rate: DELIVERY_RATES.insideDhaka,
+	},
+	{
+		value: CITY_OUTSIDE_DHAKA,
+		labelKey: "checkout.cities.outsideDhaka",
+		rate: DELIVERY_RATES.outsideDhaka,
+	},
 ] as const;
 
 export const isInsideDhaka = (cityName: string | undefined): boolean => {

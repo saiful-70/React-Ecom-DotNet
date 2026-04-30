@@ -109,7 +109,7 @@ export function ShippingAddressForm({
 									key={option.value}
 									value={option.value}
 								>
-									{option.value} - {option.rate}
+									{t(option.labelKey)} - {option.rate}
 								</SelectItem>
 							))}
 						</SelectContent>

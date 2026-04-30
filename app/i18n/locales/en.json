@@ -215,6 +215,10 @@
       "phoneBD": "Enter a valid 11-digit Bangladeshi mobile (e.g. 01XXXXXXXXX)",
       "addressRequired": "Address is required",
       "cityRequired": "Please select a city"
+    },
+    "cities": {
+      "insideDhaka": "Inside Dhaka",
+      "outsideDhaka": "Outside Dhaka"
     }
   },
   "login": {

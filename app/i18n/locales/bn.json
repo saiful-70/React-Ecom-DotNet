@@ -214,6 +214,10 @@
       "phoneBD": "১১ সংখ্যার সঠিক মোবাইল নাম্বার লিখুন (যেমন ০১XXXXXXXXX)",
       "addressRequired": "ঠিকানা লিখতে হবে",
       "cityRequired": "শহর নির্বাচন করুন"
+    },
+    "cities": {
+      "insideDhaka": "ঢাকার ভিতরে",
+      "outsideDhaka": "ঢাকার বাহিরে"
     }
   },
   "login": {

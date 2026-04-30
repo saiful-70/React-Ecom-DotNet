@@ -53,13 +53,20 @@ export function MetaPixel() {
 /**
  * Track custom events with Meta Pixel
  * Only tracks if user has consented to marketing
+ *
+ * `eventId` enables CAPI deduplication — pass the same id to /api/meta-capi.
  */
 export const trackMetaEvent = (
   eventName: string,
-  parameters?: Record<string, string | number | boolean | string[]>
+  parameters?: Record<string, string | number | boolean | string[]>,
+  eventId?: string
 ) => {
   if (typeof window !== "undefined" && window.fbq && META_PIXEL_ID) {
-    window.fbq("track", eventName, parameters);
+    if (eventId) {
+      window.fbq("track", eventName, parameters, { eventID: eventId });
+    } else {
+      window.fbq("track", eventName, parameters);
+    }
   }
 };
 
@@ -68,39 +75,50 @@ export const trackMetaEvent = (
  */
 export const trackMetaPurchase = (
   value: number,
-  currency: string = "USD",
+  currency: string = "BDT",
   contentIds: string[] = [],
-  contentType: string = "product"
+  contentType: string = "product",
+  eventId?: string
 ) => {
-  trackMetaEvent("Purchase", {
-    value,
-    currency,
-    content_ids: contentIds,
-    content_type: contentType,
-  });
+  trackMetaEvent(
+    "Purchase",
+    {
+      value,
+      currency,
+      content_ids: contentIds,
+      content_type: contentType,
+    },
+    eventId
+  );
 };
 
 export const trackMetaAddToCart = (
   contentId: string,
   contentName: string,
   value: number,
-  currency: string = "USD"
+  currency: string = "BDT",
+  eventId?: string
 ) => {
-  trackMetaEvent("AddToCart", {
-    content_ids: [contentId],
-    content_name: contentName,
-    content_type: "product",
-    value,
-    currency,
-  });
+  trackMetaEvent(
+    "AddToCart",
+    {
+      content_ids: [contentId],
+      content_name: contentName,
+      content_type: "product",
+      value,
+      currency,
+    },
+    eventId
+  );
 };
 
 export const trackMetaViewContent = (
   contentId: string,
   contentName: string,
   value: number,
-  currency: string = "USD",
-  contentCategory?: string
+  currency: string = "BDT",
+  contentCategory?: string,
+  eventId?: string
 ) => {
   const params: Record<string, string | number | boolean | string[]> = {
     content_ids: [contentId],
@@ -114,7 +132,7 @@ export const trackMetaViewContent = (
     params.content_category = contentCategory;
   }
 
-  trackMetaEvent("ViewContent", params);
+  trackMetaEvent("ViewContent", params, eventId);
 };
 
 export const trackMetaSearch = (searchString: string) => {
@@ -125,17 +143,22 @@ export const trackMetaSearch = (searchString: string) => {
 
 export const trackMetaInitiateCheckout = (
   value: number,
-  currency: string = "USD",
+  currency: string = "BDT",
   contentIds: string[] = [],
-  numItems: number = 0
+  numItems: number = 0,
+  eventId?: string
 ) => {
-  trackMetaEvent("InitiateCheckout", {
-    value,
-    currency,
-    content_ids: contentIds,
-    content_type: "product",
-    num_items: numItems,
-  });
+  trackMetaEvent(
+    "InitiateCheckout",
+    {
+      value,
+      currency,
+      content_ids: contentIds,
+      content_type: "product",
+      num_items: numItems,
+    },
+    eventId
+  );
 };
 
 export const trackMetaLead = () => {
@@ -150,7 +173,7 @@ export const trackMetaAddToWishlist = (
   contentId: string,
   contentName: string,
   value: number,
-  currency: string = "USD"
+  currency: string = "BDT"
 ) => {
   trackMetaEvent("AddToWishlist", {
     content_ids: [contentId],
@@ -167,7 +190,8 @@ declare global {
     fbq: (
       type: string,
       eventName: string,
-      parameters?: Record<string, string | number | boolean | string[]>
+      parameters?: Record<string, string | number | boolean | string[]>,
+      options?: { eventID?: string }
     ) => void;
     _fbq: Record<string, unknown>;
   }

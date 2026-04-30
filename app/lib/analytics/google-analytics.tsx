@@ -87,7 +87,7 @@ export interface GAPurchaseItem {
 export const trackPurchase = (
   transactionId: string,
   value: number,
-  currency: string = "USD",
+  currency: string = "BDT",
   items: GAPurchaseItem[] = []
 ) => {
   trackGAEvent("purchase", {
@@ -105,7 +105,7 @@ export const trackAddToCart = (
   quantity: number = 1
 ) => {
   trackGAEvent("add_to_cart", {
-    currency: "USD",
+    currency: "BDT",
     value: price * quantity,
     items: [
       {
@@ -125,7 +125,7 @@ export const trackViewItem = (
   category?: string
 ) => {
   trackGAEvent("view_item", {
-    currency: "USD",
+    currency: "BDT",
     value: price,
     items: [
       {
@@ -146,7 +146,7 @@ export const trackSearch = (searchTerm: string) => {
 
 export const trackBeginCheckout = (value: number, items: GAPurchaseItem[] = []) => {
   trackGAEvent("begin_checkout", {
-    currency: "USD",
+    currency: "BDT",
     value,
     items: items as unknown as Record<string, unknown>[],
   });

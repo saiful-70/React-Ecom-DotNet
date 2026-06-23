@@ -26,6 +26,23 @@ const config: Config = {
       "2xl": "1536px",
     },
     extend: {
+      fontFamily: {
+        sans: [
+          "var(--font-bengali)",
+          "var(--font-inter)",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
+        display: [
+          "var(--font-display)",
+          "var(--font-bengali)",
+          "ui-serif",
+          "Georgia",
+          "serif",
+        ],
+        bengali: ["var(--font-bengali)", "ui-sans-serif", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

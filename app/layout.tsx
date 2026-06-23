@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Inter } from "next/font/google";
+import { headers } from "next/headers";
+import { Inter, Hind_Siliguri, Noto_Serif_Bengali } from "next/font/google";
 import "./globals.css";
 import GlobalProvider from "./components/shared/providers/global-provider";
 import { HeaderWrapper } from "./components/layout/HeaderWrapper";
@@ -26,7 +27,27 @@ import { ChatWidget } from "./components/chat";
 import { CookieBanner } from "./components/shared/CookieConsent";
 import { GoogleAnalytics, MetaPixel } from "./lib/analytics";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+	subsets: ["latin"],
+	variable: "--font-inter",
+	display: "swap",
+});
+
+const hindSiliguri = Hind_Siliguri({
+	subsets: ["bengali", "latin"],
+	weight: ["300", "400", "500", "600", "700"],
+	variable: "--font-bengali",
+	display: "swap",
+});
+
+const notoSerifBengali = Noto_Serif_Bengali({
+	subsets: ["bengali", "latin"],
+	weight: ["400", "500", "600", "700"],
+	variable: "--font-display",
+	display: "swap",
+});
+
+const fontVariables = `${inter.variable} ${hindSiliguri.variable} ${notoSerifBengali.variable}`;
 
 // Generate metadata using business settings
 export async function generateMetadata(): Promise<Metadata> {
@@ -94,11 +115,15 @@ export default async function RootLayout({
 	// Check if maintenance mode is enabled
 	const maintenanceEnabled = isMaintenanceModeEnabled(businessSettings);
 
+	// Campaign landing pages render without the global chrome (header/nav/footer/etc.)
+	const pathname = (await headers()).get("x-pathname") ?? "";
+	const isBareLayoutRoute = pathname.startsWith("/campaigns");
+
 	// If maintenance mode is enabled, render only the maintenance page without layout
 	if (maintenanceEnabled) {
 		return (
-			<html lang="bn" suppressHydrationWarning>
-				<body className={inter.className}>
+			<html lang="bn" className={fontVariables} suppressHydrationWarning>
+				<body className="font-sans">
 					<MaintenancePageContent
 						businessSettings={businessSettings}
 					/>
@@ -112,7 +137,7 @@ export default async function RootLayout({
 
 	// Normal layout with header, footer, and other components
 	return (
-		<html lang="bn" suppressHydrationWarning>
+		<html lang="bn" className={fontVariables} suppressHydrationWarning>
 			<head>
 				{/* Business structured data for SEO */}
 				{renderStructuredData(organizationSchema)}
@@ -121,7 +146,7 @@ export default async function RootLayout({
 					href={businessSettings?.favicon ?? "/favicon.ico"}
 				/>
 			</head>
-			<body className={inter.className}>
+			<body className="font-sans">
 				<GlobalProvider>
 					<Suspense fallback={null}>
 						<GoogleAnalytics />
@@ -132,13 +157,17 @@ export default async function RootLayout({
 					<HydrateBusinessSettings
 						businessSettings={businessSettings}
 					/>
-					<HeaderWrapper />
-					<Navigation />
-					<BackToTopButton />
-					<ChatWidget />
-					<CookieBanner />
+					{!isBareLayoutRoute && (
+						<>
+							<HeaderWrapper />
+							<Navigation />
+							<BackToTopButton />
+							<ChatWidget />
+							<CookieBanner />
+						</>
+					)}
 					{children}
-					<FooterWrapper />
+					{!isBareLayoutRoute && <FooterWrapper />}
 				</GlobalProvider>
 			</body>
 		</html>

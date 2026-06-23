@@ -149,28 +149,28 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 
 	// Single card layout for both grid and list views
 	return (
-		<Card className="group relative overflow-hidden hover:shadow-lg transition-all duration-300 lg:hover:-translate-y-1 flex flex-col h-full">
-			<div className="relative overflow-hidden">
+		<Card className="group relative overflow-hidden border-border/60 shadow-warm-sm hover:shadow-warm-md hover:border-primary/30 transition-all duration-300 lg:hover:-translate-y-1 flex flex-col h-full bg-card">
+			<div className="relative overflow-hidden bg-muted/40">
 				<Link href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(product.id)}>
 					<Image
 						src={imageSource}
 						alt={product.name}
 						width={400}
 						height={300}
-						className="w-full h-32 sm:h-40 md:h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+						className="w-full h-32 sm:h-40 md:h-48 object-cover transition-transform duration-500 group-hover:scale-110"
 						sizes="(max-width: 1024px) 50vw, 25vw"
 					/>
 				</Link>
 
 				{/* Badges */}
-				<div className="absolute top-1 left-1 sm:top-2 sm:left-2 flex flex-col gap-1">
+				<div className="absolute top-2 left-2 flex flex-col gap-1">
 					{product.is_featured ? (
-						<Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs px-1.5 py-0 sm:px-2.5 sm:py-0.5">
+						<Badge className="bg-saffron-gradient text-accent-foreground border-0 shadow-warm-sm text-[10px] sm:text-xs px-2 py-0.5 font-medium">
 							{t("productCard.featured") || "Featured"}
 						</Badge>
 					) : null}
 					{hasDiscount && discountPercentage > 0 ? (
-						<Badge variant="destructive" className="text-[10px] sm:text-xs px-1.5 py-0 sm:px-2.5 sm:py-0.5">
+						<Badge variant="destructive" className="shadow-warm-sm text-[10px] sm:text-xs px-2 py-0.5 font-semibold">
 							-{discountPercentage}%
 						</Badge>
 					) : null}
@@ -202,9 +202,9 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 				</div>
 
 				{/* Add to Cart Overlay - Desktop only */}
-				<div className="hidden lg:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+				<div className="hidden lg:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-secondary/80 via-secondary/30 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
 					<Button
-						className="w-full bg-background/90 hover:bg-background text-foreground"
+						className="w-full shadow-warm-md font-medium"
 						onClick={handleAddToCart}
 						disabled={isOutOfStock}
 					>
@@ -249,8 +249,8 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 					)}
 
 					{/* Price */}
-					<div className="flex items-center gap-1 sm:gap-2">
-						<span className="font-bold text-sm sm:text-base md:text-lg text-foreground">
+					<div className="flex items-baseline gap-2 pt-1">
+						<span className="font-display font-semibold text-base sm:text-lg md:text-xl text-primary">
 							<Price amount={discountedPrice} />
 						</span>
 						{hasDiscount && (

@@ -86,9 +86,22 @@ export const Footer = ({ categories = [] }: Props) => {
 		}
 	};
 	return (
-		<footer className="bg-card border-t">
-			<div className="container mx-auto px-4 pt-12 pb-6">
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+		<footer className="relative bg-secondary text-secondary-foreground overflow-hidden">
+			<div
+				aria-hidden
+				className="pointer-events-none absolute inset-0 opacity-[0.06]"
+				style={{
+					backgroundImage:
+						"radial-gradient(hsl(var(--accent)) 1px, transparent 1px)",
+					backgroundSize: "32px 32px",
+				}}
+			/>
+			<div
+				aria-hidden
+				className="pointer-events-none absolute -top-px left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent"
+			/>
+			<div className="relative container mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-6">
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-6 lg:gap-8">
 					{/* Company Info */}
 					<div className="space-y-4">
 						{businessSettings?.footer_logo ? (
@@ -106,68 +119,66 @@ export const Footer = ({ categories = [] }: Props) => {
 							</div>
 						) : (
 							<div className="flex items-center space-x-2">
-								<div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-									<span className="text-primary-foreground font-bold text-lg">
-										E
+								<div className="w-9 h-9 bg-saffron-gradient rounded-xl flex items-center justify-center shadow-warm-sm">
+									<span className="text-accent-foreground font-bold text-lg">
+										D
 									</span>
 								</div>
-								<span className="text-xl font-bold">
+								<span className="font-display text-xl font-semibold">
 									DebuggerMind
 								</span>
 							</div>
 						)}
-						<p className="text-muted-foreground text-sm">
+						<p className="text-secondary-foreground/75 text-sm leading-relaxed">
 							{t("footer.company.description")}
 						</p>
-						<div className="flex space-x-2">
-							<Button size="icon" variant="ghost">
-								<Facebook className="w-4 h-4" />
-							</Button>
-							<Button size="icon" variant="ghost">
-								<Twitter className="w-4 h-4" />
-							</Button>
-							<Button size="icon" variant="ghost">
-								<Instagram className="w-4 h-4" />
-							</Button>
-							<Button size="icon" variant="ghost">
-								<Youtube className="w-4 h-4" />
-							</Button>
+						<div className="flex space-x-1">
+							{[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
+								<Button
+									key={i}
+									size="icon"
+									variant="ghost"
+									className="hover:bg-accent/20 hover:text-accent rounded-full"
+								>
+									<Icon className="w-4 h-4" />
+								</Button>
+							))}
 						</div>
 					</div>
 
 					{/* Quick Links */}
 					<div className="space-y-4">
-						<h3 className="font-semibold">
+						<h3 className="font-display text-base font-semibold tracking-tight">
 							{t("footer.quickLinks.title")}
 						</h3>
 						<nav className="space-y-2">
 							<a
 								href="#"
-								className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+								className="block text-sm text-secondary-foreground/70 hover:text-accent transition-colors"
 							>
 								{t("footer.quickLinks.aboutUs")}
 							</a>
 							<a
 								href="#"
-								className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+								className="block text-sm text-secondary-foreground/70 hover:text-accent transition-colors"
 							>
 								{t("footer.quickLinks.contact")}
 							</a>
 							<a
 								href="#"
-								className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+								className="block text-sm text-secondary-foreground/70 hover:text-accent transition-colors"
 							>
 								{t("footer.quickLinks.faq")}
 							</a>
 							<a
 								href="#"
-								className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+								className="block text-sm text-secondary-foreground/70 hover:text-accent transition-colors"
 							>
 								{t("footer.quickLinks.shippingInfo")}
 							</a>
 							<a
 								href="#"
-								className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+								className="block text-sm text-secondary-foreground/70 hover:text-accent transition-colors"
 							>
 								{t("footer.quickLinks.returns")}
 							</a>
@@ -176,7 +187,7 @@ export const Footer = ({ categories = [] }: Props) => {
 
 					{/* Categories */}
 					<div className="space-y-4">
-						<h3 className="font-semibold">
+						<h3 className="font-display text-base font-semibold tracking-tight">
 							{t("footer.categories.title")}
 						</h3>
 						<nav>
@@ -187,7 +198,7 @@ export const Footer = ({ categories = [] }: Props) => {
 											href={ABSOLUTE_ROUTES.PRODUCTS_BY_CATEGORY(
 												category.id
 											)}
-											className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+											className="block text-sm text-secondary-foreground/70 hover:text-accent transition-colors"
 										>
 											{category.name}
 										</Link>
@@ -199,22 +210,22 @@ export const Footer = ({ categories = [] }: Props) => {
 
 					{/* Newsletter & Contact */}
 					<div className="space-y-4">
-						<h3 className="font-semibold">
+						<h3 className="font-display text-base font-semibold tracking-tight">
 							{t("footer.newsletter.title")}
 						</h3>
-						<p className="text-sm text-muted-foreground">
+						<p className="text-sm text-secondary-foreground/70 leading-relaxed">
 							{t("footer.newsletter.description")}
 						</p>
 						<form
 							onSubmit={handleSubscribe}
-							className="flex space-x-2"
+							className="flex flex-col gap-2"
 						>
 							<Input
 								type="email"
 								placeholder={t(
 									"footer.newsletter.emailPlaceholder"
 								)}
-								className="flex-1"
+								className="bg-background/10 border-secondary-foreground/20 text-secondary-foreground placeholder:text-secondary-foreground/40"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								disabled={isSubscribing}
@@ -223,6 +234,7 @@ export const Footer = ({ categories = [] }: Props) => {
 								type="submit"
 								disabled={isSubscribing}
 								onClick={handleSubscribe}
+								className="bg-saffron-gradient text-accent-foreground hover:opacity-90 border-0 shadow-warm-sm"
 							>
 								{isSubscribing
 									? t("footer.newsletter.subscribing") ||
@@ -233,24 +245,24 @@ export const Footer = ({ categories = [] }: Props) => {
 
 						<div className="space-y-2 pt-4">
 							{businessSettings?.contact_phone ? (
-								<div className="flex items-center space-x-2 text-sm text-muted-foreground">
-									<Phone className="w-4 h-4" />
+								<div className="flex items-center space-x-2 text-sm text-secondary-foreground/75">
+									<Phone className="w-4 h-4 text-accent" />
 									<span>
 										{businessSettings.contact_phone}
 									</span>
 								</div>
 							) : null}
 							{businessSettings?.contact_email ? (
-								<div className="flex items-center space-x-2 text-sm text-muted-foreground">
-									<Mail className="w-4 h-4" />
+								<div className="flex items-center space-x-2 text-sm text-secondary-foreground/75">
+									<Mail className="w-4 h-4 text-accent" />
 									<span>
 										{businessSettings.contact_email}
 									</span>
 								</div>
 							) : null}
 							{businessSettings?.address ? (
-								<div className="flex items-center space-x-2 text-sm text-muted-foreground">
-									<MapPin className="w-4 h-4" />
+								<div className="flex items-center space-x-2 text-sm text-secondary-foreground/75">
+									<MapPin className="w-4 h-4 text-accent" />
 									<span>{businessSettings.address}</span>
 								</div>
 							) : null}
@@ -258,26 +270,26 @@ export const Footer = ({ categories = [] }: Props) => {
 					</div>
 				</div>
 
-				<Separator className="my-8" />
+				<Separator className="my-8 bg-secondary-foreground/15" />
 
 				<div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-					<p className="text-sm text-muted-foreground">
+					<p className="text-sm text-secondary-foreground/65">
 						{businessSettings?.copyright_text
 							? businessSettings.copyright_text
 							: `© 2024 DebuggerMind. ${t(
 								"footer.legal.allRightsReserved"
 							)}`}
 					</p>
-					<div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-sm text-muted-foreground">
+					<div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-sm text-secondary-foreground/65">
 						<a
 							href="#"
-							className="hover:text-foreground transition-colors"
+							className="hover:text-accent transition-colors"
 						>
 							{t("footer.legal.privacyPolicy")}
 						</a>
 						<a
 							href="#"
-							className="hover:text-foreground transition-colors"
+							className="hover:text-accent transition-colors"
 						>
 							{t("footer.legal.termsOfService")}
 						</a>

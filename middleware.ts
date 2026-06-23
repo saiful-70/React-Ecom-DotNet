@@ -33,8 +33,12 @@ export async function middleware(request: NextRequest) {
 		return NextResponse.redirect(new URL("/", request.url));
 	}
 
-	// Add pathname to response headers for server components
-	const response = NextResponse.next();
+	// Forward pathname on the *request* headers so server components can read it
+	// via next/headers (response headers are only visible to the browser).
+	const requestHeaders = new Headers(request.headers);
+	requestHeaders.set("x-pathname", pathname);
+
+	const response = NextResponse.next({ request: { headers: requestHeaders } });
 	response.headers.set("x-pathname", pathname);
 
 	return response;

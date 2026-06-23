@@ -185,7 +185,7 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 				<NavigationMenuItem>
 					<Button
 						variant="ghost"
-						className="whitespace-nowrap hover:bg-yellow-500/10 transition-colors"
+						className="whitespace-nowrap hover:bg-accent/10 transition-colors"
 						asChild
 					>
 						<Link
@@ -205,10 +205,10 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 								t("navigation.viewFeaturedProducts") ||
 								"View featured products"
 							}
-							className="text-foreground hover:text-yellow-600"
+							className="text-foreground hover:text-accent"
 						>
 							{t("navigation.featured") || "Featured"}
-							<Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+							<Star className="w-4 h-4 text-accent fill-accent" />
 						</Link>
 					</Button>
 				</NavigationMenuItem>
@@ -217,7 +217,7 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 				<NavigationMenuItem>
 					<Button
 						variant="ghost"
-						className="whitespace-nowrap hover:bg-blue-500/10 transition-colors"
+						className="whitespace-nowrap hover:bg-primary/10 transition-colors"
 						asChild
 					>
 						<Link
@@ -237,10 +237,10 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 								t("navigation.viewTodaysDeals") ||
 								"View today's deals"
 							}
-							className="text-foreground hover:text-blue-600"
+							className="text-foreground hover:text-primary"
 						>
 							{t("navigation.deal") || "Deal"}
-							<Zap className="w-4 h-4 text-blue-500 fill-blue-500" />
+							<Zap className="w-4 h-4 text-primary fill-primary" />
 						</Link>
 					</Button>
 				</NavigationMenuItem>
@@ -249,7 +249,7 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 				<NavigationMenuItem>
 					<Button
 						variant="ghost"
-						className="whitespace-nowrap hover:bg-orange-500/10 transition-colors"
+						className="whitespace-nowrap hover:bg-accent/10 transition-colors"
 						asChild
 					>
 						<Link
@@ -269,7 +269,7 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 								t("navigation.viewTopSellingProducts") ||
 								"View top selling products"
 							}
-							className="text-foreground hover:text-orange-600"
+							className="text-foreground hover:text-accent"
 						>
 							{t("navigation.sale") || "Sale"}
 						</Link>

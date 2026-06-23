@@ -43,6 +43,15 @@
     },
     "imageAlt": "Shopping Experience"
   },
+  "home": {
+    "featuredCategories": {
+      "title": "Featured Categories"
+    }
+  },
+  "topBar": {
+    "tagline": "Best prices · Fast delivery · Easy returns",
+    "customerHelp": "Customer Help"
+  },
   "features": {
     "freeShipping": {
       "title": "Free Shipping",

@@ -85,11 +85,11 @@ export const MobileNavigationClient = ({
 					}
 					className={cn(
 						"flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200",
-						"bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-500/20 active:scale-95 font-medium"
+						"bg-accent/10 text-accent hover:bg-accent/20 active:scale-95 font-medium"
 					)}
 					aria-label="View featured products"
 				>
-					<Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+					<Star className="w-5 h-5 text-accent fill-accent" />
 					<span className="text-sm">Featured</span>
 				</Link>
 
@@ -107,11 +107,11 @@ export const MobileNavigationClient = ({
 					}
 					className={cn(
 						"flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200",
-						"bg-blue-500/10 text-blue-700 dark:text-blue-400 hover:bg-blue-500/20 active:scale-95 font-medium"
+						"bg-primary/10 text-primary hover:bg-primary/20 active:scale-95 font-medium"
 					)}
 					aria-label="View today's deals"
 				>
-					<Zap className="w-5 h-5 text-blue-500 fill-blue-500" />
+					<Zap className="w-5 h-5 text-primary fill-primary" />
 					<span className="text-sm">Deal</span>
 				</Link>
 
@@ -129,11 +129,11 @@ export const MobileNavigationClient = ({
 					}
 					className={cn(
 						"flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200",
-						"bg-orange-500/10 text-orange-700 dark:text-orange-400 hover:bg-orange-500/20 active:scale-95 font-medium"
+						"bg-accent/10 text-accent hover:bg-accent/20 active:scale-95 font-medium"
 					)}
 					aria-label="View top selling products"
 				>
-					<Flame className="w-5 h-5 text-orange-500 fill-orange-500" />
+					<Flame className="w-5 h-5 text-accent fill-accent" />
 					<span className="text-sm">Sale</span>
 				</Link>
 			</div>

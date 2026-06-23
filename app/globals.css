@@ -4,76 +4,76 @@
 
 @layer base {
   :root {
-    /* Warm Bengali palette — terracotta + cream + saffron + forest green */
-    --background: 38 35% 97%;          /* warm cream */
-    --foreground: 20 25% 12%;          /* deep warm brown-black */
-    --card: 38 40% 99%;                /* near-white cream */
-    --card-foreground: 20 25% 12%;
-    --popover: 38 40% 99%;
-    --popover-foreground: 20 25% 12%;
-    --primary: 14 72% 46%;             /* terracotta */
-    --primary-foreground: 38 40% 98%;
-    --secondary: 152 32% 22%;          /* deep forest green */
-    --secondary-foreground: 38 40% 98%;
-    --muted: 35 25% 93%;               /* warm beige */
-    --muted-foreground: 20 12% 40%;
-    --accent: 38 88% 56%;              /* saffron / mustard gold */
-    --accent-foreground: 20 30% 14%;
-    --destructive: 0 72% 48%;
-    --destructive-foreground: 38 40% 98%;
-    --border: 30 22% 86%;              /* warm sand */
-    --input: 30 22% 86%;
-    --ring: 14 72% 46%;
-    --success: 152 50% 36%;
-    --success-foreground: 38 40% 98%;
-    --warning: 38 88% 50%;
-    --warning-foreground: 20 30% 14%;
+    /* Green brand palette — forest green + leaf green + mint/cream neutrals */
+    --background: 140 30% 97%;         /* pale mint-cream */
+    --foreground: 152 30% 10%;         /* deep green-black */
+    --card: 0 0% 100%;                 /* clean white cards */
+    --card-foreground: 152 30% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 152 30% 10%;
+    --primary: 142 56% 30%;            /* rich leaf-forest green */
+    --primary-foreground: 140 30% 98%;
+    --secondary: 152 68% 11%;          /* deep forest green (chrome) */
+    --secondary-foreground: 140 30% 97%;
+    --muted: 140 28% 93%;              /* light mint band */
+    --muted-foreground: 152 12% 38%;
+    --accent: 128 50% 42%;             /* bright leaf green */
+    --accent-foreground: 140 30% 98%;
+    --destructive: 0 72% 48%;          /* red — badges & errors only */
+    --destructive-foreground: 140 30% 98%;
+    --border: 142 18% 85%;             /* soft green-gray */
+    --input: 142 18% 85%;
+    --ring: 142 56% 30%;
+    --success: 142 60% 34%;
+    --success-foreground: 140 30% 98%;
+    --warning: 38 88% 50%;             /* amber kept for warnings only */
+    --warning-foreground: 30 30% 14%;
     --radius: 0.875rem;
-    --sidebar-background: 38 35% 96%;
-    --sidebar-foreground: 20 20% 22%;
-    --sidebar-primary: 14 72% 46%;
-    --sidebar-primary-foreground: 38 40% 98%;
-    --sidebar-accent: 35 25% 91%;
-    --sidebar-accent-foreground: 20 25% 14%;
-    --sidebar-border: 30 22% 84%;
-    --sidebar-ring: 14 72% 46%;
-    /* Warm-tinted shadow base (used by .shadow-warm-* utilities) */
-    --shadow-warm: 20 40% 20%;
+    --sidebar-background: 140 30% 96%;
+    --sidebar-foreground: 152 20% 22%;
+    --sidebar-primary: 142 56% 30%;
+    --sidebar-primary-foreground: 140 30% 98%;
+    --sidebar-accent: 140 28% 91%;
+    --sidebar-accent-foreground: 152 25% 14%;
+    --sidebar-border: 142 18% 84%;
+    --sidebar-ring: 142 56% 30%;
+    /* Green-tinted shadow base (used by .shadow-warm-* utilities) */
+    --shadow-warm: 152 40% 14%;
   }
 
   .dark {
-    --background: 20 22% 8%;           /* deep warm charcoal */
-    --foreground: 38 30% 94%;
-    --card: 20 22% 11%;
-    --card-foreground: 38 30% 94%;
-    --popover: 20 22% 11%;
-    --popover-foreground: 38 30% 94%;
-    --primary: 14 78% 56%;             /* brighter terracotta on dark */
-    --primary-foreground: 20 25% 10%;
-    --secondary: 152 28% 32%;
-    --secondary-foreground: 38 30% 94%;
-    --muted: 20 18% 16%;
-    --muted-foreground: 35 18% 68%;
-    --accent: 38 85% 60%;
-    --accent-foreground: 20 25% 10%;
+    --background: 152 24% 7%;          /* deep green charcoal */
+    --foreground: 140 22% 92%;
+    --card: 152 20% 10%;
+    --card-foreground: 140 22% 92%;
+    --popover: 152 20% 10%;
+    --popover-foreground: 140 22% 92%;
+    --primary: 142 52% 44%;            /* brighter leaf green on dark */
+    --primary-foreground: 152 25% 8%;
+    --secondary: 152 30% 15%;
+    --secondary-foreground: 140 22% 92%;
+    --muted: 152 16% 16%;
+    --muted-foreground: 140 14% 66%;
+    --accent: 128 48% 48%;
+    --accent-foreground: 152 25% 8%;
     --destructive: 0 65% 50%;
-    --destructive-foreground: 38 30% 94%;
-    --border: 20 15% 22%;
-    --input: 20 15% 22%;
-    --ring: 14 78% 56%;
-    --success: 152 55% 48%;
-    --success-foreground: 20 25% 10%;
+    --destructive-foreground: 140 22% 92%;
+    --border: 152 14% 22%;
+    --input: 152 14% 22%;
+    --ring: 142 52% 44%;
+    --success: 142 55% 48%;
+    --success-foreground: 152 25% 8%;
     --warning: 38 85% 56%;
-    --warning-foreground: 20 25% 10%;
-    --sidebar-background: 20 22% 10%;
-    --sidebar-foreground: 38 25% 88%;
-    --sidebar-primary: 14 78% 56%;
-    --sidebar-primary-foreground: 20 25% 10%;
-    --sidebar-accent: 20 18% 18%;
-    --sidebar-accent-foreground: 38 25% 92%;
-    --sidebar-border: 20 15% 22%;
-    --sidebar-ring: 14 78% 56%;
-    --shadow-warm: 14 60% 8%;
+    --warning-foreground: 30 25% 10%;
+    --sidebar-background: 152 22% 9%;
+    --sidebar-foreground: 140 20% 88%;
+    --sidebar-primary: 142 52% 44%;
+    --sidebar-primary-foreground: 152 25% 8%;
+    --sidebar-accent: 152 16% 18%;
+    --sidebar-accent-foreground: 140 22% 92%;
+    --sidebar-border: 152 14% 22%;
+    --sidebar-ring: 142 52% 44%;
+    --shadow-warm: 152 60% 5%;
   }
 }
 
@@ -128,12 +128,12 @@
   .bg-terracotta-gradient {
     background-image: linear-gradient(135deg,
       hsl(var(--primary)) 0%,
-      hsl(14 75% 38%) 50%,
+      hsl(146 60% 24%) 50%,
       hsl(var(--secondary)) 100%);
   }
   .bg-saffron-gradient {
     background-image: linear-gradient(135deg,
-      hsl(38 92% 60%) 0%,
+      hsl(122 52% 50%) 0%,
       hsl(var(--accent)) 50%,
       hsl(var(--primary)) 100%);
   }

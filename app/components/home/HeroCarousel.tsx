@@ -1,0 +1,140 @@
+"use client";
+
+import * as React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
+import {
+	Carousel,
+	CarouselContent,
+	CarouselItem,
+	CarouselPrevious,
+	CarouselNext,
+	type CarouselApi,
+} from "@/components/shared/ui/carousel";
+import { Button } from "@/components/shared/ui/button";
+import { cn } from "@/lib/utils/utils";
+import { HERO_BANNERS } from "./_data/banners";
+
+const AUTOPLAY_MS = 5000;
+
+export const HeroCarousel = () => {
+	const { i18n } = useTranslation();
+	const isBn = i18n.language === "bn";
+
+	const [api, setApi] = React.useState<CarouselApi>();
+	const [selected, setSelected] = React.useState(0);
+	const [paused, setPaused] = React.useState(false);
+
+	const slides = React.useMemo(
+		() => [...HERO_BANNERS].sort((a, b) => a.sort_order - b.sort_order),
+		[]
+	);
+
+	// Track the active slide for the dot indicators.
+	React.useEffect(() => {
+		if (!api) return;
+		const onSelect = () => setSelected(api.selectedScrollSnap());
+		onSelect();
+		api.on("select", onSelect);
+		api.on("reInit", onSelect);
+		return () => {
+			api.off("select", onSelect);
+		};
+	}, [api]);
+
+	// Lightweight autoplay (no extra dependency); pauses on hover/focus.
+	React.useEffect(() => {
+		if (!api || paused) return;
+		const id = setInterval(() => api.scrollNext(), AUTOPLAY_MS);
+		return () => clearInterval(id);
+	}, [api, paused]);
+
+	return (
+		<section
+			className="relative bg-secondary"
+			aria-roledescription="carousel"
+			aria-label={isBn ? "প্রধান ব্যানার" : "Hero banners"}
+			onMouseEnter={() => setPaused(true)}
+			onMouseLeave={() => setPaused(false)}
+			onFocusCapture={() => setPaused(true)}
+			onBlurCapture={() => setPaused(false)}
+		>
+			<Carousel setApi={setApi} opts={{ loop: true }} className="w-full">
+				<CarouselContent className="ml-0">
+					{slides.map((slide, index) => {
+						const title = isBn ? slide.title_bn : slide.title_en;
+						const subtitle = isBn
+							? slide.subtitle_bn
+							: slide.subtitle_en;
+						const ctaLabel = isBn
+							? slide.cta_label_bn
+							: slide.cta_label_en;
+
+						return (
+							<CarouselItem key={slide.id} className="pl-0">
+								<div className="relative h-[300px] sm:h-[400px] lg:h-[480px] w-full overflow-hidden">
+									<Image
+										src={slide.image}
+										alt={title}
+										fill
+										priority={index === 0}
+										sizes="100vw"
+										className="object-cover"
+									/>
+									{/* Forest-green wash so the copy stays legible over any image */}
+									<div className="absolute inset-0 bg-gradient-to-r from-secondary/90 via-secondary/60 to-secondary/10" />
+
+									<div className="relative container mx-auto flex h-full items-center px-4 sm:px-6">
+										<div className="max-w-xl space-y-4 text-secondary-foreground sm:space-y-6">
+											<h2 className="font-display text-3xl font-semibold leading-[1.1] tracking-tight text-balance sm:text-4xl lg:text-5xl xl:text-6xl">
+												{title}
+											</h2>
+											<p className="max-w-lg text-sm leading-relaxed text-secondary-foreground/85 sm:text-base lg:text-lg">
+												{subtitle}
+											</p>
+											<Button
+												asChild
+												size="lg"
+												className="h-11 px-6 text-sm shadow-warm-md hover:shadow-warm-lg sm:h-12 sm:px-8 sm:text-base"
+											>
+												<Link href={slide.cta_href}>
+													{ctaLabel}
+													<ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+												</Link>
+											</Button>
+										</div>
+									</div>
+								</div>
+							</CarouselItem>
+						);
+					})}
+				</CarouselContent>
+
+				<CarouselPrevious className="left-3 h-9 w-9 border-0 bg-background/70 text-foreground backdrop-blur hover:bg-background sm:left-5 sm:h-10 sm:w-10" />
+				<CarouselNext className="right-3 h-9 w-9 border-0 bg-background/70 text-foreground backdrop-blur hover:bg-background sm:right-5 sm:h-10 sm:w-10" />
+			</Carousel>
+
+			{/* Dot indicators */}
+			<div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 sm:bottom-6">
+				{slides.map((slide, i) => (
+					<button
+						key={slide.id}
+						type="button"
+						aria-label={`${isBn ? "স্লাইড" : "Slide"} ${i + 1}`}
+						aria-current={selected === i}
+						onClick={() => api?.scrollTo(i)}
+						className={cn(
+							"h-2 rounded-full transition-all",
+							selected === i
+								? "w-6 bg-primary-foreground"
+								: "w-2 bg-primary-foreground/50 hover:bg-primary-foreground/80"
+						)}
+					/>
+				))}
+			</div>
+		</section>
+	);
+};

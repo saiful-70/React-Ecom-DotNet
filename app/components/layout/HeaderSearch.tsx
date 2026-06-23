@@ -94,7 +94,7 @@ export default function HeaderSearch({ onMobileSearch, placement = "desktop" }: 
 					<SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
 					<Input
 						placeholder={t("header.searchPlaceholder")}
-						className="pl-10 pr-4 bg-muted/50"
+						className="pl-10 pr-4 bg-background border-0 text-foreground placeholder:text-muted-foreground"
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
 						onKeyDown={handleSearchKeyDown}

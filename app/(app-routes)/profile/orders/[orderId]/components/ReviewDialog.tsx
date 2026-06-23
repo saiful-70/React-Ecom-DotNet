@@ -138,7 +138,7 @@ export default function ReviewDialog({
               ))}
             </div>
             {errors.rating && (
-              <p className="text-sm text-red-500 mt-2">{errors.rating}</p>
+              <p className="text-sm text-destructive mt-2">{errors.rating}</p>
             )}
           </div>
 
@@ -166,7 +166,7 @@ export default function ReviewDialog({
               {review.length}/500 {t("common.characters") || "characters"}
             </p>
             {errors.review && (
-              <p className="text-sm text-red-500 mt-2">{errors.review}</p>
+              <p className="text-sm text-destructive mt-2">{errors.review}</p>
             )}
           </div>
 

@@ -1,5 +1,6 @@
 import { Metadata } from "next";
-import { Hero } from "@/components/home/Hero";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { FeaturedCategories } from "@/components/home/FeaturedCategories";
 import { ProductSection } from "@/components/home/ProductSection";
 import { Features } from "@/components/home/Features";
 import { NavigationSchema } from "@/components/layout/NavigationSchema";
@@ -43,7 +44,8 @@ export default async function HomePage() {
 			<div className="min-h-screen bg-background">
 				<NavigationSchema />
 				<main>
-					<Hero />
+					<HeroCarousel />
+					<FeaturedCategories />
 					<ProductSection
 						id="top-selling"
 						type="top-selling"

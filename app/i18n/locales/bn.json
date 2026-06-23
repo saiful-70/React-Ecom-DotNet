@@ -42,6 +42,15 @@
     },
     "imageAlt": "কেনাকাটার অভিজ্ঞতা"
   },
+  "home": {
+    "featuredCategories": {
+      "title": "ফিচার্ড ক্যাটাগরি"
+    }
+  },
+  "topBar": {
+    "tagline": "সেরা দাম · দ্রুত ডেলিভারি · সহজ রিটার্ন",
+    "customerHelp": "কাস্টমার হেল্প"
+  },
   "features": {
     "freeShipping": {
       "title": "বিনামূল্যে ডেলিভারি",

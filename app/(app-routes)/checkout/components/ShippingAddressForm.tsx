@@ -51,17 +51,17 @@ export function ShippingAddressForm({
 				<div>
 					<Label htmlFor="name" className="flex items-center mb-1">
 						{t("checkout.name")}
-						<span className="text-red-500">*</span>
+						<span className="text-destructive">*</span>
 					</Label>
 					<Input
 						id="name"
 						placeholder={t("checkout.placeholders.name")}
 						value={formData.name}
 						onChange={(e) => onInputChange("name", e.target.value)}
-						className={errors.name ? "border-red-500" : ""}
+						className={errors.name ? "border-destructive" : ""}
 					/>
 					{errors.name && (
-						<p className="text-red-500 text-xs mt-1">
+						<p className="text-destructive text-xs mt-1">
 							{t(errors.name)}
 						</p>
 					)}
@@ -70,7 +70,7 @@ export function ShippingAddressForm({
 				<div>
 					<Label htmlFor="phone" className="flex items-center mb-1">
 						{t("checkout.phone")}
-						<span className="text-red-500">*</span>
+						<span className="text-destructive">*</span>
 					</Label>
 					<Input
 						id="phone"
@@ -79,10 +79,10 @@ export function ShippingAddressForm({
 						placeholder={t("checkout.placeholders.phoneBD")}
 						value={formData.phone}
 						onChange={handlePhoneChange}
-						className={errors.phone ? "border-red-500" : ""}
+						className={errors.phone ? "border-destructive" : ""}
 					/>
 					{errors.phone && (
-						<p className="text-red-500 text-xs mt-1">
+						<p className="text-destructive text-xs mt-1">
 							{t(errors.phone)}
 						</p>
 					)}
@@ -91,7 +91,7 @@ export function ShippingAddressForm({
 				<div>
 					<Label htmlFor="city" className="flex items-center mb-1">
 						{t("checkout.city")}
-						<span className="text-red-500">*</span>
+						<span className="text-destructive">*</span>
 					</Label>
 					<Select
 						value={formData.city || ""}
@@ -99,7 +99,7 @@ export function ShippingAddressForm({
 					>
 						<SelectTrigger
 							id="city"
-							className={`w-full ${errors.city ? "border-red-500" : ""}`}
+							className={`w-full ${errors.city ? "border-destructive" : ""}`}
 						>
 							<SelectValue placeholder={t("checkout.selectCity")} />
 						</SelectTrigger>
@@ -115,7 +115,7 @@ export function ShippingAddressForm({
 						</SelectContent>
 					</Select>
 					{errors.city && (
-						<p className="text-red-500 text-xs mt-1">
+						<p className="text-destructive text-xs mt-1">
 							{t(errors.city)}
 						</p>
 					)}
@@ -124,18 +124,18 @@ export function ShippingAddressForm({
 				<div>
 					<Label htmlFor="address" className="flex items-center mb-1">
 						{t("checkout.address")}
-						<span className="text-red-500">*</span>
+						<span className="text-destructive">*</span>
 					</Label>
 					<Textarea
 						id="address"
 						rows={3}
-						className={`min-h-[96px] ${errors.address ? "border-red-500" : ""}`}
+						className={`min-h-[96px] ${errors.address ? "border-destructive" : ""}`}
 						placeholder={t("checkout.placeholders.address")}
 						value={formData.address}
 						onChange={(e) => onInputChange("address", e.target.value)}
 					/>
 					{errors.address && (
-						<p className="text-red-500 text-xs mt-1">
+						<p className="text-destructive text-xs mt-1">
 							{t(errors.address)}
 						</p>
 					)}

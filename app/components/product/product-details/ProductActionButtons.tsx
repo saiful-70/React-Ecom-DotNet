@@ -27,31 +27,34 @@ export function ProductActionButtons({
 
 	return (
 		<div className="space-y-2">
-			<Button
-				onClick={onBuyNow}
-				disabled={availableStock <= 0}
-				className="w-full h-10 bg-orange-500 hover:bg-orange-600 text-white"
-			>
-				<ShoppingBag className="size-4 mr-2" />
-				{t("productDetails.buyNow")}
-			</Button>
-			<Button
-				onClick={onAddToCart}
-				disabled={availableStock <= 0}
-				className="w-full h-10 bg-blue-500 hover:bg-blue-600 text-white"
-			>
-				<ShoppingCart className="size-4 mr-2" />
-				{availableStock > 0
-					? t("productDetails.addToCart")
-					: t("productDetails.outOfStock") || "Out of Stock"}
-			</Button>
+			<div className="flex flex-col sm:flex-row gap-2">
+				<Button
+					onClick={onBuyNow}
+					disabled={availableStock <= 0}
+					className="w-full sm:flex-1 h-10"
+				>
+					<ShoppingBag className="size-4 mr-2" />
+					{t("productDetails.buyNow")}
+				</Button>
+				<Button
+					onClick={onAddToCart}
+					disabled={availableStock <= 0}
+					variant="outline"
+					className="w-full sm:flex-1 h-10 border-primary text-primary hover:bg-primary/10 hover:text-primary"
+				>
+					<ShoppingCart className="size-4 mr-2" />
+					{availableStock > 0
+						? t("productDetails.addToCart")
+						: t("productDetails.outOfStock") || "Out of Stock"}
+				</Button>
+			</div>
 			<div className="flex gap-2 pt-1">
 				<Button
 					variant="outline"
 					onClick={onToggleWishlist}
 					disabled={isWishlistLoading}
 					className={`flex-1 h-9 ${
-						isWishlisted ? "text-red-500 border-red-500" : ""
+						isWishlisted ? "text-destructive border-destructive" : ""
 					}`}
 					title={t("productDetails.wishlist") || "Add to wishlist"}
 				>

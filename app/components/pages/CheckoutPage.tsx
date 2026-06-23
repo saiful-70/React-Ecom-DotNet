@@ -30,6 +30,9 @@ import { getDeliveryCharge } from "@/lib/constants/delivery";
 export function CheckoutPage() {
 	const { t } = useTranslation();
 	const [isProcessing, setIsProcessing] = useState(false);
+	// Once the order succeeds we navigate to the success page; this flag keeps
+	// the "empty cart" guard from flashing while the cart is cleared mid-redirect.
+	const [orderPlaced, setOrderPlaced] = useState(false);
 	const [formErrors, setFormErrors] = useState<FormErrors>({});
 	const [isLoadingPrices, setIsLoadingPrices] = useState(true);
 	const [serverPrices, setServerPrices] = useState<CheckoutDataProduct[]>([]);
@@ -164,7 +167,9 @@ export function CheckoutPage() {
 
 			const response = await createPurchaseOrder(orderData);
 			if (response.success && response.data) {
-				clearCart();
+				// Mark as placed first so clearing the cart doesn't render the
+				// empty-checkout state before the success-page navigation lands.
+				setOrderPlaced(true);
 
 				toast.success(t("checkout.orderPlacedSuccess"), {
 					description: `${
@@ -179,6 +184,7 @@ export function CheckoutPage() {
 						response.data?.order_tracking_number || ""
 					)
 				);
+				clearCart();
 			} else {
 				toast.error(t("checkout.orderFailed"), {
 					description:
@@ -194,6 +200,12 @@ export function CheckoutPage() {
 			setIsProcessing(false);
 		}
 	};
+
+	// While redirecting to the success page (cart just cleared), render nothing
+	// instead of the empty-checkout state.
+	if (orderPlaced) {
+		return null;
+	}
 
 	if (items.length === 0) {
 		return (

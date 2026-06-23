@@ -126,10 +126,15 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 		<NavigationMenu className="py-1">
 			<NavigationMenuList className="flex items-center space-x-1">
 				{/* Categories with Megamenu */}
-				{categories.map((category) => {
+				{categories.map((category, index) => {
 					const hasChildren =
 						category.child_category &&
 						category.child_category.length > 0;
+
+					// Items in the right half open right-aligned so the wide
+					// megamenu panel doesn't overflow the viewport edge.
+					const alignRight =
+						index >= Math.ceil(categories.length / 2);
 
 					if (hasChildren) {
 						return (
@@ -147,7 +152,9 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 										{category.name}
 									</NavigationMenuTrigger>
 								</Link>
-								<NavigationMenuContent>
+								<NavigationMenuContent
+									className={alignRight ? "left-auto right-0" : ""}
+								>
 									<div className="w-[400px] p-4 md:w-[500px] lg:w-[600px] max-h-[500px] overflow-y-auto">
 										<div className="grid gap-4 md:grid-cols-2">
 											{renderCategoryTree(category.child_category)}

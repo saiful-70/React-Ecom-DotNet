@@ -250,11 +250,11 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 
 					{/* Price */}
 					<div className="flex items-baseline gap-2 pt-1">
-						<span className="font-display font-semibold text-base sm:text-lg md:text-xl text-primary">
+						<span className="font-sans font-bold text-base sm:text-lg md:text-xl text-primary tabular-nums tracking-tight">
 							<Price amount={discountedPrice} />
 						</span>
 						{hasDiscount && (
-							<span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground line-through">
+							<span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground line-through tabular-nums">
 								<Price amount={price} />
 							</span>
 						)}

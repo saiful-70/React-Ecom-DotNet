@@ -37,7 +37,7 @@ export function ProductBadges({
 				</Badge>
 			)}
 			{isTodayDeal && (
-				<Badge className="bg-orange-500 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+				<Badge className="bg-accent text-accent-foreground text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
 					{t("productDetails.todaysDeal") || "Today's Deal"}
 				</Badge>
 			)}

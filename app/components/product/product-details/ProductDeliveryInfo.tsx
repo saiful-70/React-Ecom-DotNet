@@ -25,7 +25,7 @@ export function ProductDeliveryInfo() {
 					key={row.label}
 					className="flex items-center justify-between px-4 py-2.5 text-sm"
 				>
-					<span className="text-blue-600 font-medium">{row.label}</span>
+					<span className="text-foreground font-medium">{row.label}</span>
 					<span className="text-foreground font-semibold">
 						<Price amount={row.amount} />
 					</span>

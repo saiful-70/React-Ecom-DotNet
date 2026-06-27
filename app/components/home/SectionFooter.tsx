@@ -15,7 +15,7 @@ export function SectionFooter({
   const { t } = useTranslation();
 
   return (
-    <div className="text-center mt-8">
+    <div className="text-center mt-6 sm:mt-8">
       <Link href={viewAllHref}>
         <Button variant="outline" className="group hover:border-2 hover:border-primary">
           {t("products.viewAll")}

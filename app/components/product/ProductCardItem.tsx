@@ -184,13 +184,18 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 						className="w-8 h-8 rounded-full"
 						onClick={handleToggleWishlist}
 						disabled={isWishlistLoading}
+						aria-label={t("a11y.toggleWishlist")}
+						aria-pressed={isWishlisted}
 					>
 						<Heart
 							className={`w-4 h-4 ${isWishlisted ? "fill-current" : ""
 								}`}
 						/>
 					</Button>
-					<Link href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(product.id)}>
+					<Link
+						href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(product.id)}
+						aria-label={t("a11y.viewProduct")}
+					>
 						<Button
 							size="icon"
 							variant="secondary"

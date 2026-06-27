@@ -14,7 +14,7 @@ export function SectionHeader({
   const { t } = useTranslation();
 
   return (
-    <div className="text-center mb-8 sm:mb-10 lg:mb-12 px-2">
+    <div className="text-center mb-5 sm:mb-9 lg:mb-12 px-2">
       <div className="inline-flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
         <span className="h-px w-6 sm:w-8 bg-primary/40" />
         <span className="font-display text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.25em] text-primary">

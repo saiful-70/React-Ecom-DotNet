@@ -11,8 +11,9 @@ import {
 import { Checkbox } from "@/components/shared/ui/checkbox";
 import { Slider } from "@/components/shared/ui/slider";
 import { cn } from "@/lib/utils/utils";
-import { businessSettingsAtom, filterDrawerOpenAtom } from "@/store/ui-atoms";
-import { useAtom, useAtomValue } from "jotai";
+import Price from "@/components/shared/Price";
+import { filterDrawerOpenAtom } from "@/store/ui-atoms";
+import { useAtom } from "jotai";
 import { Filter, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
@@ -38,7 +39,6 @@ export function ProductFilters({
 	const scrollRef = useRef<number>(0);
 	const isNavigatingRef = useRef<boolean>(false);
 
-	const businessSettings = useAtomValue(businessSettingsAtom);
 	const [isDrawerOpen, setIsDrawerOpen] = useAtom(filterDrawerOpenAtom);
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -405,12 +405,10 @@ export function ProductFilters({
 						/>
 						<div className="flex items-center justify-between text-sm text-muted-foreground">
 							<span>
-								{businessSettings?.currency}
-								{priceRange[0]}
+								<Price amount={priceRange[0]} />
 							</span>
 							<span>
-								{businessSettings?.currency}
-								{priceRange[1]}
+								<Price amount={priceRange[1]} />
 							</span>
 						</div>
 					</div>

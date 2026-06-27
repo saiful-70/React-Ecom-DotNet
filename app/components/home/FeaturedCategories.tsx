@@ -25,9 +25,9 @@ export const FeaturedCategories = ({
 	if (categories.length === 0) return null;
 
 	return (
-		<section className="py-10 sm:py-14 lg:py-16">
+		<section className="py-6 sm:py-12 lg:py-16">
 			<div className="container mx-auto px-4 sm:px-6">
-				<div className="mb-6 text-center sm:mb-10">
+				<div className="mb-4 text-center sm:mb-8 lg:mb-10">
 					<h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
 						{t("home.featuredCategories.title")}
 					</h2>

@@ -1,4 +1,15 @@
 {
+  "a11y": {
+    "toggleWishlist": "উইশলিস্টে যোগ/বাদ দিন",
+    "viewProduct": "পণ্যের বিস্তারিত দেখুন",
+    "decreaseQuantity": "পরিমাণ কমান",
+    "increaseQuantity": "পরিমাণ বাড়ান",
+    "toggleTheme": "ডার্ক মোড পরিবর্তন করুন",
+    "toggleMenu": "মেনু খুলুন/বন্ধ করুন",
+    "changeLanguage": "ভাষা পরিবর্তন করুন",
+    "cart": "কার্ট",
+    "account": "অ্যাকাউন্ট"
+  },
   "header": {
     "searchPlaceholder": "পণ্য খুঁজুন...",
     "categories": "বিভাগসমূহ",

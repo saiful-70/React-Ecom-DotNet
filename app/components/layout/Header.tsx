@@ -10,7 +10,7 @@ import { useAtomValue } from "jotai";
 import { HelpCircle, Leaf, Menu, Moon, Phone, ShoppingCart, Sun, User, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { MobileNavigationClient } from "./MobileNavigationClient";
@@ -27,7 +27,6 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 
 	const { t } = useTranslation();
 	// const setMiniProfile = useSetAtom(miniProfileAtom);
-	const router = useRouter();
 	const pathname = usePathname();
 	const isHome = pathname === "/";
 	const { theme, setTheme } = useTheme();
@@ -83,8 +82,9 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 			<div className="container mx-auto px-3 md:px-4">
 				<div className="flex items-center justify-between h-16">
 					{/* Logo */}
-					<div
-						onClick={() => router.push(ABSOLUTE_ROUTES.HOME)}
+					<Link
+						href={ABSOLUTE_ROUTES.HOME}
+						aria-label={businessSettings?.site_name || "Home"}
 						className="flex items-center gap-2 cursor-pointer"
 					>
 						{businessSettings?.header_logo ? (
@@ -108,7 +108,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 								</span>
 							</>
 						)}
-					</div>
+					</Link>
 
 					{/* Desktop Search Bar */}
 					<Suspense fallback={<div className="w-64" />}>
@@ -131,6 +131,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 								setTheme(theme === "dark" ? "light" : "dark")
 							}
 							className="w-9 h-9"
+							aria-label={t("a11y.toggleTheme")}
 						>
 							{theme === "dark" ? (
 								<Sun className="w-4 h-4" />
@@ -146,7 +147,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 							className="relative"
 							asChild
 						>
-							<Link href="/cart">
+							<Link href="/cart" aria-label={t("a11y.cart")}>
 								<ShoppingCart className="w-5 h-5" />
 								{itemCount > 0 && (
 									<Badge
@@ -166,7 +167,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 							className="hidden sm:flex"
 							asChild
 						>
-							<Link href="/profile">
+							<Link href="/profile" aria-label={t("a11y.account")}>
 								<User className="w-5 h-5" />
 							</Link>
 						</Button>
@@ -192,6 +193,8 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 							size="icon"
 							className="md:hidden"
 							onClick={() => setIsMenuOpen(!isMenuOpen)}
+							aria-label={t("a11y.toggleMenu")}
+							aria-expanded={isMenuOpen}
 						>
 							{isMenuOpen ? (
 								<X className="w-5 h-5" />

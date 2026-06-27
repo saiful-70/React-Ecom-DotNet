@@ -17,14 +17,12 @@ import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/components/shared/ui/sonner";
 import { useTranslation } from "react-i18next";
-import { businessSettingsAtom } from "@/store/ui-atoms";
-import { useAtomValue } from "jotai";
+import Price from "@/components/shared/Price";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 
 export default function WishlistInfo() {
 	const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
 
-	const businessSettings = useAtomValue(businessSettingsAtom);
 	const [loading, setLoading] = useState(true);
 	const { addToCart } = useCart();
 	const { t } = useTranslation();
@@ -163,7 +161,7 @@ export default function WishlistInfo() {
 										<Link href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(item.id)}>
 											<h3 className="font-medium hover:text-primary transition-colors cursor-pointer">{item.name}</h3>
 										</Link>
-										<p className="text-lg font-semibold text-primary">{businessSettings?.currency}{item.price}</p>
+										<p className="text-lg font-semibold text-primary"><Price amount={item.price} /></p>
 									</div>
 									<div className="flex flex-col gap-2">
 										<Button

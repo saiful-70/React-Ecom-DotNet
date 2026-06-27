@@ -41,6 +41,7 @@ export function QuantitySelector({
 					className="h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9"
 					onClick={handleDecrease}
 					disabled={quantity <= 1}
+					aria-label={t("a11y.decreaseQuantity")}
 				>
 					<Minus className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4" />
 				</Button>
@@ -53,6 +54,7 @@ export function QuantitySelector({
 					className="h-7 w-7 sm:h-8 sm:w-8 lg:h-9 lg:w-9"
 					onClick={handleIncrease}
 					disabled={quantity >= stock || stock <= 0}
+					aria-label={t("a11y.increaseQuantity")}
 				>
 					<Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4" />
 				</Button>

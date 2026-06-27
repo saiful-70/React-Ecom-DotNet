@@ -11,6 +11,7 @@ import { Separator } from "@/components/shared/ui/separator";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Price from "@/components/shared/Price";
+import { getCurrencySymbol } from "@/lib/utils/business-settings";
 import Link from "next/link";
 import { Badge } from "../shared/ui/badge";
 import { useAtomValue } from "jotai";
@@ -79,9 +80,9 @@ export function OrderSummary({ subtotal, tax, total }: OrderSummaryProps) {
 				<div className="text-center">
 					<Badge variant="secondary" className="text-xs">
 						{t("cart.freeShippingBadge", {
-							amount: `${businessSettings?.currency +
-								freeShippingThreshold
-								}`,
+							amount: `${getCurrencySymbol(
+								businessSettings?.currency || "BDT"
+							)}${freeShippingThreshold}`,
 						})}
 					</Badge>
 				</div>

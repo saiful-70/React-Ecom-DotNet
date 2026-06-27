@@ -1,4 +1,15 @@
 {
+  "a11y": {
+    "toggleWishlist": "Toggle wishlist",
+    "viewProduct": "View product details",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "toggleTheme": "Toggle dark mode",
+    "toggleMenu": "Toggle menu",
+    "changeLanguage": "Change language",
+    "cart": "Cart",
+    "account": "Account"
+  },
   "header": {
     "searchPlaceholder": "Search products...",
     "categories": "Categories",

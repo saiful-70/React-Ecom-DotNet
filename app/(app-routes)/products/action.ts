@@ -20,8 +20,6 @@ async function fetchFeaturedProductsFromAPI(
     .withParams({ per_page })
     .execute<RawFeaturedProductsApiResponse>();
 
-  console.log(response);
-
   // Normalize response - some endpoints return data directly as array
   if (response.success && Array.isArray(response.data)) {
     return {

@@ -35,7 +35,7 @@ export const Features = () => {
 	];
 	const businessSettings = useAtomValue(businessSettingsAtom);
 	return (
-		<section className="relative py-12 sm:py-16 lg:py-20 bg-muted/40 overflow-hidden">
+		<section className="relative py-8 sm:py-14 lg:py-20 bg-muted/40 overflow-hidden">
 			<div
 				aria-hidden
 				className="pointer-events-none absolute inset-0 opacity-[0.05]"

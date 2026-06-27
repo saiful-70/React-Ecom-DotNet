@@ -10,8 +10,6 @@ import {
 	Carousel,
 	CarouselContent,
 	CarouselItem,
-	CarouselPrevious,
-	CarouselNext,
 	type CarouselApi,
 } from "@/components/shared/ui/carousel";
 import { Button } from "@/components/shared/ui/button";
@@ -113,9 +111,6 @@ export const HeroCarousel = ({ banners }: HeroCarouselProps) => {
 						);
 					})}
 				</CarouselContent>
-
-				<CarouselPrevious className="left-3 h-9 w-9 border-0 bg-background/70 text-foreground backdrop-blur hover:bg-background sm:left-5 sm:h-10 sm:w-10" />
-				<CarouselNext className="right-3 h-9 w-9 border-0 bg-background/70 text-foreground backdrop-blur hover:bg-background sm:right-5 sm:h-10 sm:w-10" />
 			</Carousel>
 
 			{/* Dot indicators */}

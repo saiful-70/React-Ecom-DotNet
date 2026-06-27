@@ -21,6 +21,9 @@ export const LanguageSwitcher = () => {
   const changeLanguage = (languageCode: string) => {
     i18n.changeLanguage(languageCode);
     localStorage.setItem('language', languageCode);
+    // Cookie lets the server render the right language on the next request,
+    // keeping SSR and client hydration in sync (see I18nProvider).
+    document.cookie = `language=${languageCode}; path=/; max-age=31536000; SameSite=Lax`;
   };
 
   return (

@@ -8,7 +8,15 @@ import { AuthInitializer } from "./auth-initializer";
 import { WishlistSyncProvider } from "./wishlist-sync-provider";
 import { Provider as JotaiProvider } from "jotai";
 
-export default function GlobalProvider({ children }: PropsWithChildren) {
+interface GlobalProviderProps extends PropsWithChildren {
+	/** UI language resolved server-side (from cookie) so SSR/CSR match. */
+	language?: string;
+}
+
+export default function GlobalProvider({
+	children,
+	language,
+}: GlobalProviderProps) {
 	return (
 		<JotaiProvider>
 			<ThemeProvider
@@ -17,7 +25,7 @@ export default function GlobalProvider({ children }: PropsWithChildren) {
 				enableSystem
 				disableTransitionOnChange
 			>
-				<I18nProvider>
+				<I18nProvider language={language}>
 					<CartProvider>
 						<TooltipProvider>
 							<AuthInitializer />

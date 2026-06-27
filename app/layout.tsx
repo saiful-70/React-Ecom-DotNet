@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { Inter, Hind_Siliguri, Noto_Serif_Bengali } from "next/font/google";
 import "./globals.css";
 import GlobalProvider from "./components/shared/providers/global-provider";
@@ -119,10 +119,16 @@ export default async function RootLayout({
 	const pathname = (await headers()).get("x-pathname") ?? "";
 	const isBareLayoutRoute = pathname.startsWith("/campaigns");
 
+	// Resolve the UI language server-side from a cookie so SSR and client
+	// hydration render the SAME language (no post-mount switch → no mismatch).
+	// Only `bn`/`en` resources exist; anything else falls back to `bn`.
+	const cookieLang = (await cookies()).get("language")?.value;
+	const lang = cookieLang === "en" ? "en" : "bn";
+
 	// If maintenance mode is enabled, render only the maintenance page without layout
 	if (maintenanceEnabled) {
 		return (
-			<html lang="bn" className={fontVariables} suppressHydrationWarning>
+			<html lang={lang} className={fontVariables} suppressHydrationWarning>
 				<body className="font-sans">
 					<MaintenancePageContent
 						businessSettings={businessSettings}
@@ -137,7 +143,7 @@ export default async function RootLayout({
 
 	// Normal layout with header, footer, and other components
 	return (
-		<html lang="bn" className={fontVariables} suppressHydrationWarning>
+		<html lang={lang} className={fontVariables} suppressHydrationWarning>
 			<head>
 				{/* Business structured data for SEO */}
 				{renderStructuredData(organizationSchema)}
@@ -147,7 +153,7 @@ export default async function RootLayout({
 				/>
 			</head>
 			<body className="font-sans">
-				<GlobalProvider>
+				<GlobalProvider language={lang}>
 					<Suspense fallback={null}>
 						<GoogleAnalytics />
 					</Suspense>

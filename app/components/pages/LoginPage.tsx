@@ -12,13 +12,6 @@ import {
 import { Input } from "@/components/shared/ui/input";
 import { Label } from "@/components/shared/ui/label";
 import { Checkbox } from "@/components/shared/ui/checkbox";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/shared/ui/select";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { loginUser } from "@/(app-routes)/(auth)/action";
@@ -27,44 +20,22 @@ import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { toast } from "sonner";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { useTranslation } from "react-i18next";
-import { COUNTRY_CODES } from "@/lib/constants/country-codes";
 
 const STORAGE_KEY = "loginCredentials";
+
+// Bangladesh-only phone numbers: exactly 11 digits, e.g. 01712345678.
+const BD_PHONE_LENGTH = 11;
 
 interface StoredCredentials {
 	usePhone: boolean;
 	email?: string;
 	phone?: string;
-	countryCode?: string;
 	rememberMe: boolean;
 }
 
-const validatePhoneNumber = (phone: string, countryCode: string): boolean => {
+const validatePhoneNumber = (phone: string): boolean => {
 	const digitsOnly = phone.replace(/\D/g, "");
-	const countryInfo = COUNTRY_CODES.find((cc) => cc.code === countryCode);
-
-	if (!countryInfo) {
-		return digitsOnly.length >= 7;
-	}
-
-	return (
-		digitsOnly.length >= countryInfo.minDigits &&
-		digitsOnly.length <= countryInfo.maxDigits
-	);
-};
-
-const getPhoneValidationMessage = (countryCode: string): string => {
-	const countryInfo = COUNTRY_CODES.find((cc) => cc.code === countryCode);
-
-	if (!countryInfo) {
-		return "Please enter a valid phone number";
-	}
-
-	if (countryInfo.minDigits === countryInfo.maxDigits) {
-		return `${countryInfo.country} phone numbers must be exactly ${countryInfo.minDigits} digits`;
-	}
-
-	return `${countryInfo.country} phone numbers must be between ${countryInfo.minDigits} and ${countryInfo.maxDigits} digits`;
+	return digitsOnly.length === BD_PHONE_LENGTH && digitsOnly.startsWith("01");
 };
 
 const validateEmail = (email: string): boolean => {
@@ -76,7 +47,6 @@ export function LoginPage() {
 	const { t } = useTranslation();
 	const [showPassword, setShowPassword] = useState(false);
 	const [usePhoneNumber, setUsePhoneNumber] = useState(true);
-	const [countryCode, setCountryCode] = useState("+880");
 	const [phoneNumber, setPhoneNumber] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -98,7 +68,6 @@ export function LoginPage() {
 						setUsePhoneNumber(credentials.usePhone);
 						if (credentials.usePhone) {
 							setPhoneNumber(credentials.phone || "");
-							setCountryCode(credentials.countryCode || "+880");
 						} else {
 							setEmail(credentials.email || "");
 						}
@@ -123,8 +92,8 @@ export function LoginPage() {
 	};
 
 	const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		// Only allow digits
-		const value = e.target.value.replace(/\D/g, "");
+		// Only allow digits, capped at the BD 11-digit length.
+		const value = e.target.value.replace(/\D/g, "").slice(0, BD_PHONE_LENGTH);
 		setPhoneNumber(value);
 	};
 
@@ -133,8 +102,11 @@ export function LoginPage() {
 
 		// Validation based on contact method
 		if (usePhoneNumber) {
-			if (!validatePhoneNumber(phoneNumber, countryCode)) {
-				toast.error(getPhoneValidationMessage(countryCode));
+			if (!validatePhoneNumber(phoneNumber)) {
+				toast.error(
+					t("login.invalidPhone") ||
+						"Please enter a valid 11-digit Bangladeshi phone number (e.g. 01712345678)"
+				);
 				return;
 			}
 		} else {
@@ -155,7 +127,6 @@ export function LoginPage() {
 			};
 			if (usePhoneNumber) {
 				credentials.phone = phoneNumber;
-				credentials.countryCode = countryCode;
 			} else {
 				credentials.email = email;
 			}
@@ -169,7 +140,7 @@ export function LoginPage() {
 			try {
 				const loginData = usePhoneNumber
 					? {
-							phone: `${countryCode}${phoneNumber}`,
+							phone: phoneNumber,
 							password,
 							rememberMe,
 					  }
@@ -236,96 +207,49 @@ export function LoginPage() {
 							{/* Phone Number Section */}
 							{usePhoneNumber && (
 								<div className="space-y-2">
-									<Label>
+									<Label htmlFor="phone">
 										{t("login.phoneNumber") ||
 											"Phone Number"}
 									</Label>
-									<div className="flex gap-2">
-										<Select
-											value={countryCode}
-											onValueChange={setCountryCode}
-										>
-											<SelectTrigger className="w-[120px]">
-												<SelectValue />
-											</SelectTrigger>
-											<SelectContent>
-												{COUNTRY_CODES.map(
-													(cc, index) => (
-														<SelectItem
-															key={`${cc.isoCode}-${index}`}
-															value={cc.code}
-														>
-															{cc.isoCode}(
-															{cc.code})
-														</SelectItem>
-													)
-												)}
-											</SelectContent>
-										</Select>
+									<div className="flex">
+										<span className="inline-flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
+											🇧🇩 +880
+										</span>
 										<Input
 											id="phone"
 											name="phone"
 											type="tel"
-											placeholder={
-												t(
-													"login.phoneNumberPlaceholder"
-												) || "Enter phone number"
-											}
+											inputMode="numeric"
+											maxLength={BD_PHONE_LENGTH}
+											placeholder="01712345678"
 											value={phoneNumber}
 											onChange={handlePhoneChange}
-											className="flex-1"
+											className="flex-1 rounded-l-none"
 										/>
 									</div>
 									{phoneNumber && (
-										<div className="text-xs">
-											{(() => {
-												const countryInfo =
-													COUNTRY_CODES.find(
-														(cc) =>
-															cc.code ===
-															countryCode
-													);
-												const digitsOnly =
-													phoneNumber.replace(
-														/\D/g,
-														""
-													);
-
-												if (!countryInfo) {
-													return null;
-												}
-
-												const isValid =
-													digitsOnly.length >=
-														countryInfo.minDigits &&
-													digitsOnly.length <=
-														countryInfo.maxDigits;
-
-												return (
-													<p
-														className={
-															isValid
-																? "text-green-600"
-																: "text-red-500"
-														}
-													>
-														{isValid ? "✓" : "✗"}{" "}
-														{countryInfo.minDigits ===
-														countryInfo.maxDigits
-															? `${countryInfo.country}: ${countryInfo.minDigits} digits`
-															: `${countryInfo.country}: ${countryInfo.minDigits}-${countryInfo.maxDigits} digits`}{" "}
-														({digitsOnly.length})
-													</p>
-												);
-											})()}
-										</div>
+										<p
+											className={
+												validatePhoneNumber(phoneNumber)
+													? "text-xs text-green-600"
+													: "text-xs text-red-500"
+											}
+										>
+											{validatePhoneNumber(phoneNumber)
+												? "✓"
+												: "✗"}{" "}
+											{t("login.phoneHint") ||
+												"11 digits, starts with 01"}{" "}
+											({phoneNumber.length}/
+											{BD_PHONE_LENGTH})
+										</p>
 									)}
 									<div className="flex justify-end mt-2">
 										<Button
 											type="button"
 											variant="ghost"
 											size="sm"
-											className="text-sm underline h-auto p-0 italic text-blue-500 hover:bg-transparent"
+											className="text-sm underline h-auto p-0 italic text-blue-500 hover:text-blue-600 hover:bg-transparent"
 											onClick={handleToggleContactMethod}
 										>
 											{t("login.useEmailInstead") ||
@@ -359,7 +283,7 @@ export function LoginPage() {
 											type="button"
 											variant="ghost"
 											size="sm"
-											className="text-sm underline h-auto p-0 italic text-blue-500 hover:bg-transparent"
+											className="text-sm underline h-auto p-0 italic text-blue-500 hover:text-blue-600 hover:bg-transparent"
 											onClick={handleToggleContactMethod}
 										>
 											{t("login.usePhoneInstead") ||

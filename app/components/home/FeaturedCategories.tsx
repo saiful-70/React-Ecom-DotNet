@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
@@ -12,16 +11,16 @@ import {
 	CarouselPrevious,
 	CarouselNext,
 } from "@/components/shared/ui/carousel";
-import { FEATURED_CATEGORIES } from "./_data/featured-categories";
+import type { FeaturedCategory } from "./_data/types";
 
-export const FeaturedCategories = () => {
-	const { t, i18n } = useTranslation();
-	const isBn = i18n.language === "bn";
+interface FeaturedCategoriesProps {
+	categories: FeaturedCategory[];
+}
 
-	const categories = React.useMemo(
-		() => [...FEATURED_CATEGORIES].sort((a, b) => a.sort_order - b.sort_order),
-		[]
-	);
+export const FeaturedCategories = ({
+	categories,
+}: FeaturedCategoriesProps) => {
+	const { t } = useTranslation();
 
 	if (categories.length === 0) return null;
 
@@ -41,22 +40,20 @@ export const FeaturedCategories = () => {
 				>
 					<CarouselContent className="-ml-3 sm:-ml-4">
 						{categories.map((category) => {
-							const name = isBn
-								? category.name_bn
-								: category.name_en;
+							const name = category.name;
 							return (
 								<CarouselItem
 									key={category.id}
 									className="basis-1/3 pl-3 sm:basis-1/4 sm:pl-4 md:basis-1/5 lg:basis-1/6"
 								>
 									<Link
-										href={category.href}
+										href={`/products?category_id=${category.category_id}`}
 										aria-label={name}
 										className="group flex flex-col items-center gap-3 rounded-2xl border border-border/60 bg-card p-3 text-center shadow-warm-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-warm-md sm:p-5"
 									>
 										<div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted/40">
 											<Image
-												src={category.icon}
+												src={category.icon_url}
 												alt={name}
 												fill
 												sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 160px"

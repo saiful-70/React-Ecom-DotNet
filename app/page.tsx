@@ -11,6 +11,10 @@ import {
 	renderStructuredData,
 } from "@/lib/utils/seo.utils";
 import { getBusinessSettings } from "@/components/shared/actions/business-settings";
+import {
+	getBanners,
+	getFeaturedCategories,
+} from "@/components/home/actions/home-sections";
 
 export async function generateMetadata(): Promise<Metadata> {
 	const businessSettings = await getBusinessSettings();
@@ -37,6 +41,12 @@ export default async function HomePage() {
 	const organizationSchema = generateOrganizationSchema();
 	const websiteSchema = generateWebsiteSchema();
 
+	// Hero + featured-category content is server-rendered for SEO/LCP.
+	const [banners, featuredCategories] = await Promise.all([
+		getBanners(),
+		getFeaturedCategories(),
+	]);
+
 	return (
 		<>
 			{renderStructuredData(organizationSchema)}
@@ -44,8 +54,8 @@ export default async function HomePage() {
 			<div className="min-h-screen bg-background">
 				<NavigationSchema />
 				<main>
-					<HeroCarousel />
-					<FeaturedCategories />
+					<HeroCarousel banners={banners} />
+					<FeaturedCategories categories={featuredCategories} />
 					<ProductSection
 						id="top-selling"
 						type="top-selling"

@@ -11,13 +11,6 @@ import {
 } from "@/components/shared/ui/card";
 import { Input } from "@/components/shared/ui/input";
 import { Label } from "@/components/shared/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/shared/ui/select";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { registerUser } from "@/(app-routes)/(auth)/action";
@@ -26,35 +19,13 @@ import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { COUNTRY_CODES } from "@/lib/constants/country-codes";
 
-// Validation functions
-const validatePhoneNumber = (phone: string, countryCode: string): boolean => {
+// Bangladesh-only phone numbers: exactly 11 digits, e.g. 01712345678.
+const BD_PHONE_LENGTH = 11;
+
+const validatePhoneNumber = (phone: string): boolean => {
 	const digitsOnly = phone.replace(/\D/g, "");
-	const countryInfo = COUNTRY_CODES.find((cc) => cc.code === countryCode);
-
-	if (!countryInfo) {
-		return digitsOnly.length >= 7; // Fallback validation
-	}
-
-	return (
-		digitsOnly.length >= countryInfo.minDigits &&
-		digitsOnly.length <= countryInfo.maxDigits
-	);
-};
-
-const getPhoneValidationMessage = (countryCode: string): string => {
-	const countryInfo = COUNTRY_CODES.find((cc) => cc.code === countryCode);
-
-	if (!countryInfo) {
-		return "Please enter a valid phone number";
-	}
-
-	if (countryInfo.minDigits === countryInfo.maxDigits) {
-		return `${countryInfo.country} phone numbers must be exactly ${countryInfo.minDigits} digits`;
-	}
-
-	return `${countryInfo.country} phone numbers must be between ${countryInfo.minDigits} and ${countryInfo.maxDigits} digits`;
+	return digitsOnly.length === BD_PHONE_LENGTH && digitsOnly.startsWith("01");
 };
 
 const validateEmail = (email: string): boolean => {
@@ -67,7 +38,6 @@ export function RegisterPage() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [usePhoneNumber, setUsePhoneNumber] = useState(true);
-	const [countryCode, setCountryCode] = useState("+880");
 	const [phoneNumber, setPhoneNumber] = useState("");
 	const [formData, setFormData] = useState({
 		name: "",
@@ -102,8 +72,8 @@ export function RegisterPage() {
 	};
 
 	const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		// Only allow digits
-		const value = e.target.value.replace(/\D/g, "");
+		// Only allow digits, capped at the BD 11-digit length.
+		const value = e.target.value.replace(/\D/g, "").slice(0, BD_PHONE_LENGTH);
 		setPhoneNumber(value);
 	};
 
@@ -112,8 +82,11 @@ export function RegisterPage() {
 
 		// Validation based on contact method
 		if (usePhoneNumber) {
-			if (!validatePhoneNumber(phoneNumber, countryCode)) {
-				toast.error(getPhoneValidationMessage(countryCode));
+			if (!validatePhoneNumber(phoneNumber)) {
+				toast.error(
+					t("register.invalidPhone") ||
+						"Please enter a valid 11-digit Bangladeshi phone number (e.g. 01712345678)"
+				);
 				return;
 			}
 		} else {
@@ -136,7 +109,7 @@ export function RegisterPage() {
 		const registrationData = usePhoneNumber
 			? {
 					name: formData.name,
-					phone: `${countryCode}${phoneNumber}`,
+					phone: phoneNumber,
 					password: formData.password,
 					password_confirmation: formData.password_confirmation,
 			  }
@@ -224,96 +197,49 @@ export function RegisterPage() {
 							{/* Phone Number Section */}
 							{usePhoneNumber && (
 								<div className="space-y-2">
-									<Label>
+									<Label htmlFor="phone">
 										{t("register.phoneNumber") ||
 											"Phone Number"}
 									</Label>
-									<div className="flex gap-2">
-										<Select
-											value={countryCode}
-											onValueChange={setCountryCode}
-										>
-											<SelectTrigger className="w-[120px]">
-												<SelectValue />
-											</SelectTrigger>
-											<SelectContent>
-												{COUNTRY_CODES.map(
-													(cc, index) => (
-														<SelectItem
-															key={`${cc.isoCode}-${index}`}
-															value={cc.code}
-														>
-															{cc.isoCode}(
-															{cc.code})
-														</SelectItem>
-													)
-												)}
-											</SelectContent>
-										</Select>
+									<div className="flex">
+										<span className="inline-flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
+											🇧🇩 +880
+										</span>
 										<Input
 											id="phone"
 											name="phone"
 											type="tel"
-											placeholder={
-												t(
-													"register.phoneNumberPlaceholder"
-												) || "Enter phone number"
-											}
+											inputMode="numeric"
+											maxLength={BD_PHONE_LENGTH}
+											placeholder="01712345678"
 											value={phoneNumber}
 											onChange={handlePhoneChange}
-											className="flex-1"
+											className="flex-1 rounded-l-none"
 										/>
 									</div>
 									{phoneNumber && (
-										<div className="text-xs">
-											{(() => {
-												const countryInfo =
-													COUNTRY_CODES.find(
-														(cc) =>
-															cc.code ===
-															countryCode
-													);
-												const digitsOnly =
-													phoneNumber.replace(
-														/\D/g,
-														""
-													);
-
-												if (!countryInfo) {
-													return null;
-												}
-
-												const isValid =
-													digitsOnly.length >=
-														countryInfo.minDigits &&
-													digitsOnly.length <=
-														countryInfo.maxDigits;
-
-												return (
-													<p
-														className={
-															isValid
-																? "text-green-600"
-																: "text-red-500"
-														}
-													>
-														{isValid ? "✓" : "✗"}{" "}
-														{countryInfo.minDigits ===
-														countryInfo.maxDigits
-															? `${countryInfo.country}: ${countryInfo.minDigits} digits`
-															: `${countryInfo.country}: ${countryInfo.minDigits}-${countryInfo.maxDigits} digits`}{" "}
-														({digitsOnly.length})
-													</p>
-												);
-											})()}
-										</div>
+										<p
+											className={
+												validatePhoneNumber(phoneNumber)
+													? "text-xs text-green-600"
+													: "text-xs text-red-500"
+											}
+										>
+											{validatePhoneNumber(phoneNumber)
+												? "✓"
+												: "✗"}{" "}
+											{t("register.phoneHint") ||
+												"11 digits, starts with 01"}{" "}
+											({phoneNumber.length}/
+											{BD_PHONE_LENGTH})
+										</p>
 									)}
 									<div className="flex justify-end mt-2">
 										<Button
 											type="button"
 											variant="ghost"
 											size="sm"
-											className="text-sm underline h-auto p-0 italic text-blue-500 hover:bg-transparent"
+											className="text-sm underline h-auto p-0 italic text-blue-500 hover:text-blue-600 hover:bg-transparent"
 											onClick={handleToggleContactMethod}
 										>
 											{t("register.useEmailInstead") ||
@@ -346,7 +272,7 @@ export function RegisterPage() {
 											type="button"
 											variant="ghost"
 											size="sm"
-											className="text-sm underline h-auto p-0 italic text-blue-500 hover:bg-transparent"
+											className="text-sm underline h-auto p-0 italic text-blue-500 hover:text-blue-600 hover:bg-transparent"
 											onClick={handleToggleContactMethod}
 										>
 											{t("register.usePhoneInstead") ||

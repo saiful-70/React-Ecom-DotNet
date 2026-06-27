@@ -10,7 +10,7 @@ import { useAtomValue } from "jotai";
 import { HelpCircle, Leaf, Menu, Moon, Phone, ShoppingCart, Sun, User, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { MobileNavigationClient } from "./MobileNavigationClient";
@@ -28,6 +28,8 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 	const { t } = useTranslation();
 	// const setMiniProfile = useSetAtom(miniProfileAtom);
 	const router = useRouter();
+	const pathname = usePathname();
+	const isHome = pathname === "/";
 	const { theme, setTheme } = useTheme();
 	const { itemCount } = useCart();
 	const businessSettings = useAtomValue(businessSettingsAtom);
@@ -45,7 +47,8 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 
 	return (
 		<>
-			{/* Top utility bar — phone · tagline · customer help */}
+			{/* Top utility bar — phone · tagline · customer help (home page only) */}
+			{isHome && (
 			<div className="hidden border-b border-secondary-foreground/10 bg-secondary text-secondary-foreground/90 sm:block">
 				<div className="container mx-auto px-4">
 					<div className="flex h-9 items-center justify-between text-xs">
@@ -74,6 +77,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 					</div>
 				</div>
 			</div>
+			)}
 
 			<header className="sticky top-0 z-50 border-b border-secondary-foreground/10 bg-secondary text-secondary-foreground">
 			<div className="container mx-auto px-3 md:px-4">

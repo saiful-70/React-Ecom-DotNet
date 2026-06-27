@@ -16,11 +16,15 @@ import {
 } from "@/components/shared/ui/carousel";
 import { Button } from "@/components/shared/ui/button";
 import { cn } from "@/lib/utils/utils";
-import { HERO_BANNERS } from "./_data/banners";
+import type { Banner } from "./_data/types";
 
 const AUTOPLAY_MS = 5000;
 
-export const HeroCarousel = () => {
+interface HeroCarouselProps {
+	banners: Banner[];
+}
+
+export const HeroCarousel = ({ banners }: HeroCarouselProps) => {
 	const { i18n } = useTranslation();
 	const isBn = i18n.language === "bn";
 
@@ -28,10 +32,9 @@ export const HeroCarousel = () => {
 	const [selected, setSelected] = React.useState(0);
 	const [paused, setPaused] = React.useState(false);
 
-	const slides = React.useMemo(
-		() => [...HERO_BANNERS].sort((a, b) => a.sort_order - b.sort_order),
-		[]
-	);
+	// Banners arrive already filtered (active + in-schedule) and sorted from the
+	// server action; render them as-is.
+	const slides = banners;
 
 	// Track the active slide for the dot indicators.
 	React.useEffect(() => {
@@ -52,6 +55,8 @@ export const HeroCarousel = () => {
 		return () => clearInterval(id);
 	}, [api, paused]);
 
+	if (slides.length === 0) return null;
+
 	return (
 		<section
 			className="relative bg-secondary"
@@ -65,19 +70,15 @@ export const HeroCarousel = () => {
 			<Carousel setApi={setApi} opts={{ loop: true }} className="w-full">
 				<CarouselContent className="ml-0">
 					{slides.map((slide, index) => {
-						const title = isBn ? slide.title_bn : slide.title_en;
-						const subtitle = isBn
-							? slide.subtitle_bn
-							: slide.subtitle_en;
-						const ctaLabel = isBn
-							? slide.cta_label_bn
-							: slide.cta_label_en;
+						const title = slide.title;
+						const subtitle = slide.subtitle;
+						const ctaLabel = slide.cta_label;
 
 						return (
 							<CarouselItem key={slide.id} className="pl-0">
 								<div className="relative h-[300px] sm:h-[400px] lg:h-[480px] w-full overflow-hidden">
 									<Image
-										src={slide.image}
+										src={slide.image_url}
 										alt={title}
 										fill
 										priority={index === 0}
@@ -100,7 +101,7 @@ export const HeroCarousel = () => {
 												size="lg"
 												className="h-11 px-6 text-sm shadow-warm-md hover:shadow-warm-lg sm:h-12 sm:px-8 sm:text-base"
 											>
-												<Link href={slide.cta_href}>
+												<Link href={slide.cta_url}>
 													{ctaLabel}
 													<ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
 												</Link>

@@ -3,7 +3,18 @@
 import { useState } from "react";
 import { Button } from "@/components/shared/ui/button";
 import { Badge } from "@/components/shared/ui/badge";
+import { cn } from "@/lib/utils/utils";
 import type { Product, ProductVariant } from "@/(app-routes)/products/model";
+
+// Selected = filled primary; unselected = subtle border that becomes a primary
+// outline on hover. Shared by the Color and attribute (Fabrics, etc.) options.
+const optionClasses = (isSelected: boolean) =>
+  cn(
+    "h-8 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm whitespace-nowrap transition-all",
+    isSelected
+      ? "border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+      : "border-input bg-background hover:bg-transparent hover:text-foreground hover:border-primary hover:ring-1 hover:ring-primary"
+  );
 
 interface ProductVariantSelectorProps {
   product: Product;
@@ -117,10 +128,9 @@ export function ProductVariantSelector({
                 onClick={() =>
                   handleColorClick(color.value, color.id)
                 }
-                className={`h-8 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm whitespace-nowrap transition-all ${selectedColor === color.value
-                  ? "ring-2 ring-primary"
-                  : ""
-                  }`}
+                className={optionClasses(
+                  selectedColor === color.value
+                )}
                 title={color.value}
               >
                 <div
@@ -135,7 +145,7 @@ export function ProductVariantSelector({
                 {selectedColor === color.value && (
                   <Badge
                     variant="outline"
-                    className="ml-2 text-[10px]"
+                    className="ml-2 text-[10px] border-primary-foreground/40 text-primary-foreground"
                   >
                     ✓
                   </Badge>
@@ -160,16 +170,15 @@ export function ProductVariantSelector({
                 onClick={() =>
                   handleAttrClick(attr.name, value)
                 }
-                className={`h-8 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm whitespace-nowrap transition-all ${selectedAttrs[attr.name] === value
-                  ? "ring-2 ring-primary"
-                  : ""
-                  }`}
+                className={optionClasses(
+                  selectedAttrs[attr.name] === value
+                )}
               >
                 {value}
                 {selectedAttrs[attr.name] === value && (
                   <Badge
                     variant="outline"
-                    className="ml-2 text-[10px]"
+                    className="ml-2 text-[10px] border-primary-foreground/40 text-primary-foreground"
                   >
                     ✓
                   </Badge>

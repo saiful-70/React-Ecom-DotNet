@@ -13,6 +13,8 @@ export const API_ROUTES = {
     FEATURED: "get-featured-products",
     TOP_SELLING: "top-selling-products",
     TODAY_DEAL: "get-today-deal-products",
+    BANNERS: "banners",
+    FEATURED_CATEGORIES: "featured-categories",
   },
   PRODUCTS: {
     BASE_URL: "products",

@@ -8,10 +8,9 @@ import {
 	generateBreadcrumbSchema,
 	renderStructuredData,
 } from "@/lib/utils/seo.utils";
-import { ProductsGrid } from "@/components/product/ProductsGrid";
 import { ProductToolbar } from "@/components/product/ProductToolbar";
 import { ProductFilters } from "@/components/product/ProductFilters";
-import { ProductPagination } from "@/components/product/ProductPagination";
+import { ProductsInfiniteList } from "@/components/product/ProductsInfiniteList";
 import { ProductsEmptyState } from "@/components/product/ProductsEmptyState";
 
 interface SearchParams {
@@ -143,6 +142,14 @@ export default async function Products({
 	if (resolvedSearchParams.search) {
 		query.search_key = resolvedSearchParams.search;
 	}
+	// Remount key: any filter/sort/search change (everything except `page`)
+	// resets the infinite list to a fresh first page.
+	const infiniteListKey = JSON.stringify(
+		Object.fromEntries(
+			Object.entries(query).filter(([key]) => key !== "page")
+		)
+	);
+
 	const productsResponse = await getAllProducts(query);
 
 	const categoriesResponse = await getAllCategories();
@@ -208,15 +215,22 @@ export default async function Products({
 						{products.length === 0 ? (
 							<ProductsEmptyState />
 						) : (
-							<div>
-								<ProductsGrid
-									products={products}
-									viewMode={viewMode}
-								/>
-								{meta && (
-									<ProductPagination pagination={meta} />
-								)}
-							</div>
+							<ProductsInfiniteList
+								key={infiniteListKey}
+								initialProducts={products}
+								initialMeta={
+									meta ?? {
+										current_page: 1,
+										per_page: perPage,
+										total: products.length,
+										last_page: 1,
+										from: 1,
+										to: products.length,
+									}
+								}
+								baseQuery={query}
+								viewMode={viewMode}
+							/>
 						)}
 					</div>
 				</div>

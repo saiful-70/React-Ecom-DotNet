@@ -105,7 +105,9 @@
     "specialOffers": "Special Offers",
     "previous": "Previous",
     "next": "Next",
-    "page": "Page"
+    "page": "Page",
+    "loadingMore": "Loading more...",
+    "endOfResults": "You've reached the end"
   },
   "cart": {
     "title": "Shopping Cart",

@@ -13,14 +13,12 @@ const resources = {
   },
 };
 
-const savedLanguage =
-  typeof window !== "undefined"
-    ? localStorage.getItem("language") || "bn"
-    : "bn";
-
+// Always initialize with the default language so the server and the client's
+// first (hydration) render produce identical markup. The user's saved language
+// is applied after mount in `I18nProvider` to avoid a hydration mismatch.
 i18n.use(initReactI18next).init({
   resources,
-  lng: savedLanguage,
+  lng: "bn",
   fallbackLng: "bn",
   interpolation: {
     escapeValue: false,

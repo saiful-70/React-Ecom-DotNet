@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
@@ -10,8 +11,11 @@ import {
 	CarouselItem,
 	CarouselPrevious,
 	CarouselNext,
+	type CarouselApi,
 } from "@/components/shared/ui/carousel";
 import type { FeaturedCategory } from "./_data/types";
+
+const AUTOPLAY_MS = 3500;
 
 interface FeaturedCategoriesProps {
 	categories: FeaturedCategory[];
@@ -21,6 +25,18 @@ export const FeaturedCategories = ({
 	categories,
 }: FeaturedCategoriesProps) => {
 	const { t } = useTranslation();
+
+	const [api, setApi] = React.useState<CarouselApi>();
+	const [paused, setPaused] = React.useState(false);
+
+	// Lightweight autoplay (no extra dependency); pauses on hover/focus.
+	// Matches the HeroCarousel pattern. Embla disables looping/scrolling when
+	// every slide already fits, so this only advances when there's overflow.
+	React.useEffect(() => {
+		if (!api || paused) return;
+		const id = setInterval(() => api.scrollNext(), AUTOPLAY_MS);
+		return () => clearInterval(id);
+	}, [api, paused]);
 
 	if (categories.length === 0) return null;
 
@@ -35,8 +51,13 @@ export const FeaturedCategories = ({
 				</div>
 
 				<Carousel
-					opts={{ align: "start", slidesToScroll: 2 }}
+					setApi={setApi}
+					opts={{ align: "start", slidesToScroll: 2, loop: true }}
 					className="px-2 sm:px-10"
+					onMouseEnter={() => setPaused(true)}
+					onMouseLeave={() => setPaused(false)}
+					onFocusCapture={() => setPaused(true)}
+					onBlurCapture={() => setPaused(false)}
 				>
 					<CarouselContent className="-ml-3 sm:-ml-4">
 						{categories.map((category) => {

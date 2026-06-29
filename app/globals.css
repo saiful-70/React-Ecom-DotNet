@@ -82,12 +82,17 @@
     @apply border-border;
   }
   html {
-    overflow-x: hidden;
+    /* `clip` (not `hidden`) prevents horizontal scroll without turning the
+       element into a scroll container — `overflow-x: hidden` forces
+       `overflow-y: auto`, which makes portaled Radix popovers (e.g. the
+       checkout City select) extend body scroll height and spawn a stray
+       vertical scrollbar + blank space when opened. */
+    overflow-x: clip;
   }
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "ss01", "cv11";
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   h1, h2, h3, h4, h5 {
     @apply font-display tracking-tight;

@@ -22,14 +22,15 @@ interface RouteParams {
 }
 
 export async function generateStaticParams() {
-	return listCampaignSlugs().map((slug) => ({ slug }));
+	const slugs = await listCampaignSlugs();
+	return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
 	params,
 }: RouteParams): Promise<Metadata> {
 	const { slug } = await params;
-	const campaign = getCampaign(slug);
+	const campaign = await getCampaign(slug);
 	if (!campaign) {
 		return { title: "Campaign not found" };
 	}
@@ -43,7 +44,7 @@ export async function generateMetadata({
 
 export default async function CampaignPage({ params }: RouteParams) {
 	const { slug } = await params;
-	const campaign = getCampaign(slug);
+	const campaign = await getCampaign(slug);
 	if (!campaign) notFound();
 
 	const breadcrumb = generateBreadcrumbSchema([

@@ -23,16 +23,20 @@ const BD_DEFAULTS = {
   email: "",
   zip_code: "",
   address_type: "home",
-  phone_prefix: "+880",
 } as const;
 
-const formatBDPhone = (raw: string): string => {
-  const digits = raw.replace(/\D/g, "");
+// Normalize any BD phone input to the local "01XXXXXXXXX" format, dropping a
+// leading +880/880 country-code prefix that may come from a prefilled profile.
+export const toLocalBDPhone = (raw: string): string => {
+  let digits = (raw || "").replace(/\D/g, "");
   if (!digits) return "";
-  // Strip leading 0 from "01XXXXXXXXX" before prepending +880.
-  const local = digits.startsWith("0") ? digits.slice(1) : digits;
-  return `${BD_DEFAULTS.phone_prefix}${local}`;
+  if (digits.startsWith("880")) {
+    digits = digits.slice(3);
+  }
+  return digits.startsWith("0") ? digits : `0${digits}`;
 };
+
+const formatBDPhone = (raw: string): string => toLocalBDPhone(raw);
 
 export const prepareShippingAddress = (formData: FormData) => ({
   contact_person_name: formData.name.trim(),

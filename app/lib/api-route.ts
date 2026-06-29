@@ -52,4 +52,8 @@ export const API_ROUTES = {
   CHAT: {
     ASK: "ask",
   },
+  CAMPAIGNS: {
+    LIST: "campaigns",
+    DETAILS: (slug: string) => `campaigns/${slug}`,
+  },
 };

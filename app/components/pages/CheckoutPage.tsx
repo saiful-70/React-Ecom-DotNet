@@ -23,7 +23,10 @@ import { useTranslation } from "react-i18next";
 
 import { OrderSummary } from "../../(app-routes)/checkout/components/OrderSummary";
 import { ShippingAddressForm } from "../../(app-routes)/checkout/components/ShippingAddressForm";
-import { prepareOrderData } from "../../(app-routes)/checkout/helpers/checkout-helpers";
+import {
+	prepareOrderData,
+	toLocalBDPhone,
+} from "../../(app-routes)/checkout/helpers/checkout-helpers";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { getDeliveryCharge } from "@/lib/constants/delivery";
 
@@ -42,7 +45,7 @@ export function CheckoutPage() {
 
 	const [formData, setFormData] = useState<FormData>({
 		name: miniProfile?.name || "",
-		phone: miniProfile?.phone || "",
+		phone: toLocalBDPhone(miniProfile?.phone || ""),
 		address: "",
 		city: "",
 		cityId: undefined,

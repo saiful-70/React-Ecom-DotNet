@@ -63,7 +63,9 @@ export function CampaignOrderForm({ campaign }: Props) {
 				image: product.image,
 				stock: product.stock,
 				tax: product.tax ?? 0,
-				tax_type: product.taxType ?? "exclude",
+				// Cart tax math only understands include/exclude; the campaign
+				// API may send other values (e.g. "amount"), so coerce safely.
+				tax_type: product.taxType === "include" ? "include" : "exclude",
 				quantity: 1,
 			});
 

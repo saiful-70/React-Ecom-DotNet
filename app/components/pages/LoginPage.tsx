@@ -211,22 +211,16 @@ export function LoginPage() {
 										{t("login.phoneNumber") ||
 											"Phone Number"}
 									</Label>
-									<div className="flex">
-										<span className="inline-flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
-											🇧🇩 +880
-										</span>
-										<Input
-											id="phone"
-											name="phone"
-											type="tel"
-											inputMode="numeric"
-											maxLength={BD_PHONE_LENGTH}
-											placeholder="01712345678"
-											value={phoneNumber}
-											onChange={handlePhoneChange}
-											className="flex-1 rounded-l-none"
-										/>
-									</div>
+									<Input
+										id="phone"
+										name="phone"
+										type="tel"
+										inputMode="numeric"
+										maxLength={BD_PHONE_LENGTH}
+										placeholder="01712345678"
+										value={phoneNumber}
+										onChange={handlePhoneChange}
+									/>
 									{phoneNumber && (
 										<p
 											className={

@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(.env)",
+      "Write(.env)",
+      "Edit(.env.local)",
+      "Write(.env.local)",
+      "Edit(.env.development)",
+      "Write(.env.development)",
+      "Edit(.env.development.local)",
+      "Write(.env.development.local)",
+      "Edit(.env.production)",
+      "Write(.env.production)",
+      "Edit(.env.production.local)",
+      "Write(.env.production.local)",
+      "Edit(.env.test)",
+      "Write(.env.test)",
+      "Edit(.env.test.local)",
+      "Write(.env.test.local)",
+      "Edit(.env.staging)",
+      "Write(.env.staging)"
+    ]
+  }
+}

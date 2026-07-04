@@ -1,6 +1,7 @@
 import type { TemplateId } from "@/variants/types";
 import type { Template } from "./types";
 import { classicTemplate } from "./classic";
+import { bazarTemplate } from "./bazar";
 
 /**
  * Template registry. Add a paradigm by adding a folder under app/templates/
@@ -11,8 +12,7 @@ import { classicTemplate } from "./classic";
  */
 const TEMPLATES: Record<TemplateId, Template> = {
 	classic: classicTemplate,
-	// Placeholder until the bazar template lands (Task 12 replaces this).
-	bazar: classicTemplate,
+	bazar: bazarTemplate,
 };
 
 export function getTemplate(id: TemplateId): Template {

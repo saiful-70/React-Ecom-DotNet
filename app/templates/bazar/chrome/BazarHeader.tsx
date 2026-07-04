@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useAtomValue } from "jotai";
 import {
 	Heart,
@@ -114,13 +115,17 @@ export function BazarHeader() {
 							</span>
 						)}
 					</Link>
-					<div className="hidden flex-1 md:block">
-						<HeaderSearch placement="desktop" />
-					</div>
+					<Suspense fallback={<div className="w-64" />}>
+						<div className="hidden flex-1 md:block">
+							<HeaderSearch placement="desktop" />
+						</div>
+					</Suspense>
 					<div className="ml-auto flex items-center gap-2 md:gap-3">
-						<span className="md:hidden">
-							<HeaderSearch placement="mobile" />
-						</span>
+						<Suspense fallback={<div className="w-9 h-9" />}>
+							<span className="md:hidden">
+								<HeaderSearch placement="mobile" />
+							</span>
+						</Suspense>
 						<Link
 							href={ABSOLUTE_ROUTES.WISHLIST}
 							className="relative rounded-full border bg-card p-2.5 hover:border-primary"

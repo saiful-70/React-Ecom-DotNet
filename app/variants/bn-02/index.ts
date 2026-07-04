@@ -15,10 +15,10 @@ import type { VariantDescriptor } from "../types";
 const bn02: VariantDescriptor = {
   id: "bn-02",
   market: "bn",
-  template: "classic",
+  template: "bazar",
   name: "Bengali — Lime & Coral",
   description:
-    "Second Bengali demo adapted from the theme-1 reference: lime-green primary, near-black chrome, coral accent.",
+    "Second Bengali demo on the bazar template: contact top bar, department sidebar, ribbon cards with Buy Now, mobile bottom nav.",
   theme: {
     root: {
       background: "0 0% 100%",

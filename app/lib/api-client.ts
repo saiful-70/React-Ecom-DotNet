@@ -201,16 +201,59 @@ export class ApiClient {
     try {
       const response = await fetch(url, config);
 
-      if (!response.ok) {
-        const errorResponse = await response.json();
-        const errorMessage = errorResponse.message || "Unknown error";
-        errorResponse.message = errorMessage;
-        errorResponse.error = new Error(errorMessage);
-
-        return errorResponse;
+      // Read the body once as text, then parse defensively. The upstream API
+      // (or a proxy / misconfigured base URL) can return a non-JSON body —
+      // e.g. an HTML error page — in which case response.json() throws a
+      // cryptic "Unexpected token '<'" SyntaxError. Parsing by hand lets us
+      // fall back to a clean ApiResponse<T> instead (the documented contract:
+      // errors are returned, not thrown).
+      const rawBody = await response.text();
+      let parsedBody: unknown = null;
+      if (rawBody) {
+        try {
+          parsedBody = JSON.parse(rawBody);
+        } catch {
+          parsedBody = null;
+        }
       }
 
-      return await response.json();
+      if (!response.ok) {
+        if (parsedBody && typeof parsedBody === "object") {
+          const errorResponse = parsedBody as Record<string, unknown>;
+          const errorMessage =
+            (errorResponse.message as string) ||
+            `Request failed with status ${response.status}`;
+          errorResponse.message = errorMessage;
+          errorResponse.error = new Error(errorMessage);
+
+          return errorResponse as TResponse;
+        }
+
+        // Non-JSON error body (HTML error page, gateway/proxy error, etc.)
+        const errorMessage =
+          `Request failed with status ${response.status} ${response.statusText}`.trim();
+        return {
+          success: false,
+          message: errorMessage,
+          data: null,
+          error: new Error(errorMessage),
+        } as TResponse;
+      }
+
+      if (parsedBody === null) {
+        // OK status but empty or non-JSON body — mirror the previous
+        // (thrown-then-caught) behaviour with a clearer message.
+        const errorMessage =
+          "Received an invalid (non-JSON) response from the server";
+        return {
+          success: false,
+          message: errorMessage,
+          data: null,
+          error: new Error(errorMessage),
+        } as TResponse;
+      }
+
+      return parsedBody as TResponse;
     } catch (error) {
       const errorMessage = (error as Error).message || "Network error";
       console.error("API request failed:", error);

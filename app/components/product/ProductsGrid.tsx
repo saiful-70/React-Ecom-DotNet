@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentType } from "react";
 import type { Product } from "@/(app-routes)/products/model";
 import { ProductCardItem } from "./ProductCardItem";
 import { cn } from "@/lib/utils/utils";
@@ -7,11 +8,18 @@ import { cn } from "@/lib/utils/utils";
 interface ProductsGridProps {
 	products: Product[];
 	viewMode?: "grid" | "list";
+	/**
+	 * Card renderer override (defaults to ProductCardItem). Only pass this
+	 * from client components — component functions cannot cross the
+	 * server→client serialization boundary.
+	 */
+	CardComponent?: ComponentType<{ product: Product }>;
 }
 
 export function ProductsGrid({
 	products,
 	viewMode = "grid",
+	CardComponent = ProductCardItem,
 }: ProductsGridProps) {
 	return (
 		<div
@@ -25,7 +33,7 @@ export function ProductsGrid({
 			)}
 		>
 			{products.map((product) => (
-				<ProductCardItem key={product.id} product={product} />
+				<CardComponent key={product.id} product={product} />
 			))}
 		</div>
 	);

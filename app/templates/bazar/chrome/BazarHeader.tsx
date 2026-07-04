@@ -115,9 +115,12 @@ export function BazarHeader() {
 						)}
 					</Link>
 					<div className="hidden flex-1 md:block">
-						<HeaderSearch />
+						<HeaderSearch placement="desktop" />
 					</div>
 					<div className="ml-auto flex items-center gap-2 md:gap-3">
+						<span className="md:hidden">
+							<HeaderSearch placement="mobile" />
+						</span>
 						<Link
 							href={ABSOLUTE_ROUTES.WISHLIST}
 							className="relative rounded-full border bg-card p-2.5 hover:border-primary"
@@ -139,10 +142,6 @@ export function BazarHeader() {
 							<Price amount={total} />
 						</span>
 					</div>
-				</div>
-				{/* Mobile search row */}
-				<div className="px-4 pb-3 md:hidden">
-					<HeaderSearch />
 				</div>
 			</div>
 		</header>

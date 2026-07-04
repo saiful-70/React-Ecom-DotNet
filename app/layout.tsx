@@ -202,7 +202,13 @@ export default async function RootLayout({
 						<>
 							<Header />
 							{Navigation && <Navigation />}
-							<BackToTopButton />
+							<BackToTopButton
+								className={
+									MobileNav
+										? "bottom-28 md:bottom-3"
+										: undefined
+								}
+							/>
 							{variant.features.chatWidget && <ChatWidget />}
 							{variant.features.cookieConsent && <CookieBanner />}
 						</>

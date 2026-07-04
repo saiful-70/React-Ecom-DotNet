@@ -3,8 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { ChevronUp } from "lucide-react";
+import { cn } from "@/lib/utils/utils";
 
-export default function BackToTopButton() {
+interface BackToTopButtonProps {
+	className?: string;
+}
+
+export default function BackToTopButton({ className }: BackToTopButtonProps = {}) {
 	const [isVisible, setIsVisible] = useState(false);
 
 	useEffect(() => {
@@ -35,7 +40,10 @@ export default function BackToTopButton() {
 	return (
 		<Button
 			variant={"default"}
-			className="fixed bottom-4 md:bottom-3 right-4 z-50 transition-opacity duration-300 shadow-lg"
+			className={cn(
+				"fixed bottom-4 md:bottom-3 right-4 z-50 transition-opacity duration-300 shadow-lg",
+				className
+			)}
 			onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
 			aria-label="Back to top"
 			size="icon"

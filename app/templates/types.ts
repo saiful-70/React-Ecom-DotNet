@@ -10,8 +10,11 @@ import type { FeatureFlags, TemplateId } from "@/variants/types";
  *
  * A template is a layout PARADIGM: chrome (header/footer/nav) plus page-level
  * layouts. Templates are presentation only — data is fetched by the shared
- * routes/actions and passed in as serializable props. A variant picks a
- * template by id; a client deployment is template × theme × branding × flags.
+ * routes/actions and passed in as serializable props. Exception: page-level
+ * layouts (like chrome slots, see below) MAY be async Server Components that
+ * call the shared cached actions themselves, as BazarHome does. A variant
+ * picks a template by id; a client deployment is template × theme × branding
+ * × flags.
  *
  * Chrome slots take no props: each slot may be an async Server Component that
  * reads its own data through the shared cached actions (the same pattern as

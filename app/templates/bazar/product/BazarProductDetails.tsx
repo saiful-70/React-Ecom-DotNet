@@ -93,6 +93,13 @@ export function BazarProductDetails({ product }: ProductDetailsLayoutProps) {
 	);
 	const availableStock = Math.max(stock - reservedQuantity, 0);
 
+	// Fallback image for products without thumbnails (mirrors classic PDP).
+	const fallbackImage = `https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop&auto=format`;
+	const mainImage =
+		(product.gallery_images && product.gallery_images[0]) ||
+		product.thumbnail_image ||
+		fallbackImage;
+
 	const doAddToCart = (): boolean => {
 		if (availableStock <= 0 || quantity > availableStock) {
 			toast.error(t("products.outOfStock"));
@@ -104,7 +111,7 @@ export function BazarProductDetails({ product }: ProductDetailsLayoutProps) {
 				? `${product.name} - ${selectedVariant.combination_text}`
 				: product.name,
 			price,
-			image: product.thumbnail_image,
+			image: mainImage,
 			variant_id: selectedVariant?.id,
 			stock,
 			quantity,
@@ -268,7 +275,9 @@ export function BazarProductDetails({ product }: ProductDetailsLayoutProps) {
 									: "text-destructive"
 							)}
 						>
-							{availableStock} {t("bazar.inStock")}
+							{availableStock > 0
+								? `${availableStock} ${t("bazar.inStock")}`
+								: t("bazar.stockOut")}
 						</span>
 					</div>
 

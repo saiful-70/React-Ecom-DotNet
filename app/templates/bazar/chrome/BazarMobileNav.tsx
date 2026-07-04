@@ -31,7 +31,7 @@ export function BazarMobileNav() {
 	return (
 		<nav
 			className="fixed inset-x-0 bottom-0 z-50 border-t bg-background md:hidden"
-			aria-label={t("bazar.category")}
+			aria-label={t("bazar.mobileNav")}
 		>
 			<div className="grid h-16 grid-cols-5 items-center">
 				<Link href={ABSOLUTE_ROUTES.PRODUCTS} className={itemClass}>

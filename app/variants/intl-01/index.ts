@@ -10,6 +10,7 @@ import type { VariantDescriptor } from "../types";
 const intl01: VariantDescriptor = {
   id: "intl-01",
   market: "intl",
+  template: "classic",
   name: "International — Violet",
   description:
     "The international storefront: violet accent, neutral grays, English-first UI.",

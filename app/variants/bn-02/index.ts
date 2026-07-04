@@ -15,6 +15,7 @@ import type { VariantDescriptor } from "../types";
 const bn02: VariantDescriptor = {
   id: "bn-02",
   market: "bn",
+  template: "classic",
   name: "Bengali — Lime & Coral",
   description:
     "Second Bengali demo adapted from the theme-1 reference: lime-green primary, near-black chrome, coral accent.",

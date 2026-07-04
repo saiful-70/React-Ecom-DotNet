@@ -10,6 +10,7 @@ import type { VariantDescriptor } from "../types";
 const bn01: VariantDescriptor = {
   id: "bn-01",
   market: "bn",
+  template: "classic",
   name: "Bengali — Leaf & Forest",
   description:
     "The original Bengali storefront: green forest palette, Bengali-first UI, full feature set.",

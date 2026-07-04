@@ -18,6 +18,14 @@ export type Market = "intl" | "bn";
 export type VariantLanguage = "en" | "bn";
 
 /**
+ * Which layout paradigm (template) a variant renders through. A template is a
+ * registry of presentation components (chrome + page layouts) under
+ * app/templates/<id>/. Templates are code; variants select one by id, so this
+ * union — not component imports — is all the variant layer knows about them.
+ */
+export type TemplateId = "classic" | "bazar";
+
+/**
  * Feature flags gate whole pages/sections/functionality per variant.
  * Keep this list flat and typed — no stringly-typed lookups.
  */
@@ -63,6 +71,8 @@ export interface VariantDescriptor {
   /** Stable id, used in URLs (`/demo/<id>`) and env (`ACTIVE_VARIANT=<id>`). */
   id: string;
   market: Market;
+  /** Layout paradigm rendered for this variant (see app/templates/registry.ts). */
+  template: TemplateId;
   /** Human-facing name shown in the showcase gallery/switcher. */
   name: string;
   /** Short blurb for the gallery card. */

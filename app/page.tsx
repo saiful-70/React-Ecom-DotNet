@@ -15,6 +15,7 @@ import {
 	getBanners,
 	getFeaturedCategories,
 } from "@/components/home/actions/home-sections";
+import { getActiveVariant } from "@/variants/server";
 
 export async function generateMetadata(): Promise<Metadata> {
 	const businessSettings = await getBusinessSettings();
@@ -47,6 +48,9 @@ export default async function HomePage() {
 		getFeaturedCategories(),
 	]);
 
+	// Homepage product sections are gated per variant via feature flags.
+	const { features } = await getActiveVariant();
+
 	return (
 		<>
 			{renderStructuredData(organizationSchema)}
@@ -56,31 +60,37 @@ export default async function HomePage() {
 				<main>
 					<HeroCarousel banners={banners} />
 					<FeaturedCategories categories={featuredCategories} />
-					<ProductSection
-						id="top-selling"
-						type="top-selling"
-						titleKey="products.topSelling"
-						descriptionKey="products.topSellingDescription"
-						viewAllHref="/products?top_selling=1"
-						perPage={12}
-						bgClass="bg-muted/30"
-					/>
-					<ProductSection
-						id="featured-products"
-						type="featured"
-						titleKey="products.featured"
-						descriptionKey="products.featuredDescription"
-						viewAllHref="/products?is_featured=1"
-						perPage={12}
-					/>
-					<ProductSection
-						id="today-deals"
-						type="today-deals"
-						titleKey="products.todayDeals"
-						descriptionKey="products.todayDealsDescription"
-						viewAllHref="/products?today_deal=1"
-						perPage={12}
-					/>
+					{features.topSelling && (
+						<ProductSection
+							id="top-selling"
+							type="top-selling"
+							titleKey="products.topSelling"
+							descriptionKey="products.topSellingDescription"
+							viewAllHref="/products?top_selling=1"
+							perPage={12}
+							bgClass="bg-muted/30"
+						/>
+					)}
+					{features.featuredProducts && (
+						<ProductSection
+							id="featured-products"
+							type="featured"
+							titleKey="products.featured"
+							descriptionKey="products.featuredDescription"
+							viewAllHref="/products?is_featured=1"
+							perPage={12}
+						/>
+					)}
+					{features.todaysDeals && (
+						<ProductSection
+							id="today-deals"
+							type="today-deals"
+							titleKey="products.todayDeals"
+							descriptionKey="products.todayDealsDescription"
+							viewAllHref="/products?today_deal=1"
+							perPage={12}
+						/>
+					)}
 					<Features />
 				</main>
 			</div>

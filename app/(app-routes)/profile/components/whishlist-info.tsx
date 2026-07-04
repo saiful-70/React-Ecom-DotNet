@@ -13,7 +13,7 @@ import { Product } from "@/(app-routes)/products/model";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/shared/ui/skeleton";
 import Image from "next/image";
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/components/shared/ui/sonner";
 import { useTranslation } from "react-i18next";

@@ -3,7 +3,7 @@
 import { Button } from "@/components/shared/ui/button";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { CheckIcon, PackageIcon } from "lucide-react";
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useTranslation } from "react-i18next";
 
 interface PaymentSuccessProps {

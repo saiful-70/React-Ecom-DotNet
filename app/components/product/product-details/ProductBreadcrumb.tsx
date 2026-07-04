@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 
 interface ProductBreadcrumbProps {
 	productName: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { useCallback } from "react";
 
 /**

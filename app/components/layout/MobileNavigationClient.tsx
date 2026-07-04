@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { ChevronDown, ChevronRight, Star, Flame, Zap } from "lucide-react";
 import { Button } from "@/components/shared/ui/button";
 import {
@@ -11,7 +11,8 @@ import {
 } from "@/components/shared/ui/collapsible";
 import type { Category } from "@/components/shared/models/category";
 import { API_ROUTES } from "@/lib/api-route";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { cn } from "@/lib/utils/utils";
 
 interface MobileNavigationClientProps {

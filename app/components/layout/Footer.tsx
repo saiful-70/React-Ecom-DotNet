@@ -16,7 +16,7 @@ import { useAtomValue } from "jotai";
 import { businessSettingsAtom } from "@/store/ui-atoms";
 import Image from "next/image";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { toast } from "@/components/shared/ui/sonner";
@@ -125,7 +125,7 @@ export const Footer = ({ categories = [] }: Props) => {
 									</span>
 								</div>
 								<span className="font-display text-xl font-semibold">
-									DebuggerMind
+									{businessSettings?.site_name || "DebuggerMind"}
 								</span>
 							</div>
 						)}
@@ -276,7 +276,7 @@ export const Footer = ({ categories = [] }: Props) => {
 					<p className="text-sm text-secondary-foreground/65">
 						{businessSettings?.copyright_text
 							? businessSettings.copyright_text
-							: `© 2024 DebuggerMind. ${t(
+							: `© ${businessSettings?.site_name || "DebuggerMind"}. ${t(
 								"footer.legal.allRightsReserved"
 							)}`}
 					</p>

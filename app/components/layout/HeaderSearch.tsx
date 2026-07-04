@@ -3,7 +3,8 @@
 import { SearchIcon, X } from "lucide-react";
 import { Input } from "../shared/ui/input";
 import { cn } from "@/lib/utils/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { useEffect, useState, useRef } from "react";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { useTranslation } from "react-i18next";

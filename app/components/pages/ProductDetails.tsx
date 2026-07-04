@@ -7,7 +7,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useAtom } from "jotai";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
-import { useRouter } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
 import { ProductsGrid } from "@/components/product/ProductsGrid";

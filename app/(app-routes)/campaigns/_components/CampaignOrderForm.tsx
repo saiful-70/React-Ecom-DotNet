@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { Loader2, MapPin, ShieldCheck, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/shared/ui/button";
 import { Input } from "@/components/shared/ui/input";

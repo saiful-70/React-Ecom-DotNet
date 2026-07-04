@@ -12,7 +12,7 @@ import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Price from "@/components/shared/Price";
 import { getCurrencySymbol } from "@/lib/utils/business-settings";
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { Badge } from "../shared/ui/badge";
 import { useAtomValue } from "jotai";
 import { businessSettingsAtom } from "@/store/ui-atoms";

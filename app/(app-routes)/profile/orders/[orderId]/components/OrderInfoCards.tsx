@@ -14,7 +14,7 @@ import { formatText } from "@/lib/utils/utils";
 import { Button } from "@/components/shared/ui/button";
 import { useTransition } from "react";
 import { getStripeRedirectLink } from "@/(app-routes)/checkout/action";
-import { useRouter } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { toast } from "sonner";
 
 type Props = { orderDetails: OrderDetailsModel };

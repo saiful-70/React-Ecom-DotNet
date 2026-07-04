@@ -8,7 +8,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/shared/ui/card";
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { OrderResponseModel } from "../orders/model";
 import { useTranslation } from "react-i18next";
 import { ORDER_STATUS } from "@/lib/enums";

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import Image from "next/image";
 import { Heart, ShoppingCart, Star, Eye } from "lucide-react";
 import { useState } from "react";
@@ -15,7 +15,7 @@ import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { useAtom } from "jotai";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
-import { useRouter } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
 import Price from "@/components/shared/Price";
 import { cn } from "@/lib/utils/utils";

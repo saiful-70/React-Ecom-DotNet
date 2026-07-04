@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/shared/ui/button";
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, FileX } from "lucide-react";
 

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import React from "react";
 import { Button } from "@/components/shared/ui/button";
 import { Metadata } from "next";

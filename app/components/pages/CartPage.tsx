@@ -3,7 +3,7 @@
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/components/shared/ui/sonner";
 import { useTranslation } from "react-i18next";
-import { useRouter } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import {
 	EmptyCart,

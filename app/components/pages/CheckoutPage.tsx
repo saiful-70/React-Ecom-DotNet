@@ -16,8 +16,8 @@ import { useCart } from "@/contexts/CartContext";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { useAtomValue } from "jotai";
 import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 

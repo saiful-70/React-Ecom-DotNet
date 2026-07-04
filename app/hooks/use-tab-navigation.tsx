@@ -1,4 +1,5 @@
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 
 /**
  * Custom hook for managing tab navigation with URL parameters

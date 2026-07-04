@@ -12,8 +12,9 @@ import {
 import { Input } from "@/components/shared/ui/input";
 import { Label } from "@/components/shared/ui/label";
 import { Checkbox } from "@/components/shared/ui/checkbox";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { loginUser } from "@/(app-routes)/(auth)/action";
 import { useSetAtom } from "jotai";
 import { miniProfileAtom } from "@/store/mini-profile.atom";

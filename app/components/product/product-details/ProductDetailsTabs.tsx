@@ -9,6 +9,7 @@ import {
 	TabsTrigger,
 } from "@/components/shared/ui/tabs";
 import { ProductReviews } from "./ProductReviews";
+import { useFeature } from "@/components/shared/providers/variant-provider";
 import type { Product } from "@/(app-routes)/products/model";
 
 interface ProductTabsProps {
@@ -17,12 +18,17 @@ interface ProductTabsProps {
 
 export function ProductDetailsTabs({ product }: ProductTabsProps) {
 	const { t } = useTranslation();
+	const showReviews = useFeature("reviews");
 
 	return (
 		<Card className="border-border">
 			<CardContent className="p-3 sm:p-4 lg:p-6">
 				<Tabs defaultValue="description" className="w-full">
-					<TabsList className="grid w-full grid-cols-3 h-8 sm:h-9 lg:h-10">
+					<TabsList
+						className={`grid w-full h-8 sm:h-9 lg:h-10 ${
+							showReviews ? "grid-cols-3" : "grid-cols-2"
+						}`}
+					>
 						<TabsTrigger
 							value="description"
 							className="text-[11px] sm:text-xs lg:text-sm"
@@ -36,12 +42,14 @@ export function ProductDetailsTabs({ product }: ProductTabsProps) {
 							{t("productDetails.specifications") ||
 								"Specifications"}
 						</TabsTrigger>
-						<TabsTrigger
-							value="reviews"
-							className="text-[11px] sm:text-xs lg:text-sm"
-						>
-							{t("productDetails.reviews") || "Reviews"}
-						</TabsTrigger>
+						{showReviews && (
+							<TabsTrigger
+								value="reviews"
+								className="text-[11px] sm:text-xs lg:text-sm"
+							>
+								{t("productDetails.reviews") || "Reviews"}
+							</TabsTrigger>
+						)}
 					</TabsList>
 
 					<TabsContent
@@ -77,17 +85,19 @@ export function ProductDetailsTabs({ product }: ProductTabsProps) {
 						</div>
 					</TabsContent>
 
-					<TabsContent
-						value="reviews"
-						className="mt-3 sm:mt-4 lg:mt-6"
-					>
-						<ProductReviews
-							averageRating={product.average_rating}
-							totalReviews={product.total_reviews}
-							ratingCounts={product.rating_counts}
-							reviews={product.reviews}
-						/>
-					</TabsContent>
+					{showReviews && (
+						<TabsContent
+							value="reviews"
+							className="mt-3 sm:mt-4 lg:mt-6"
+						>
+							<ProductReviews
+								averageRating={product.average_rating}
+								totalReviews={product.total_reviews}
+								ratingCounts={product.rating_counts}
+								reviews={product.reviews}
+							/>
+						</TabsContent>
+					)}
 				</Tabs>
 			</CardContent>
 		</Card>

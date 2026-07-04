@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/shared/ui/button";
 import { useDebounce } from "@/hooks/use-debounce";

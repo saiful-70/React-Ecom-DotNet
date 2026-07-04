@@ -18,6 +18,10 @@ import {
 /**
  * Normalizes business settings from any format into a single BusinessSettingsModel object
  * Handles: BusinessSettingItem[], BusinessSettingsModel[], BusinessSettingsModel, or empty data
+ *
+ * Merge order (later wins): built-in defaults → variant branding → backend API data.
+ * `variantBranding` lets each demo/deployment supply its own name/logo/currency
+ * without needing a separate backend; a real client backend can still override it.
  */
 export function normalizeBusinessSettings(
   apiData:
@@ -25,10 +29,11 @@ export function normalizeBusinessSettings(
     | BusinessSettingsModel[]
     | BusinessSettingsModel
     | null
-    | undefined
+    | undefined,
+  variantBranding?: Partial<BusinessSettingsModel>
 ): BusinessSettingsModel {
   // Create defaults first
-  const defaults: BusinessSettingsModel = {
+  const builtInDefaults: BusinessSettingsModel = {
     site_name: "DebuggerMind",
     contact_email: "support@debuggermind.com",
     contact_phone: "01234567890",
@@ -56,6 +61,11 @@ export function normalizeBusinessSettings(
     support_time: "24/7",
     hero_image: "/hero-image.jpg",
   };
+
+  // Layer variant branding over the built-in defaults (backend data still wins).
+  const defaults: BusinessSettingsModel = variantBranding
+    ? { ...builtInDefaults, ...variantBranding }
+    : builtInDefaults;
 
   // Handle null or undefined
   if (!apiData) {

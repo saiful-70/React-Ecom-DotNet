@@ -12,7 +12,7 @@ import { OrderResponseModel } from "../orders/model";
 import AccountError from "@/components/shared/AccountError";
 import { useTranslation } from "react-i18next";
 import { getBadgeVariant } from "@/lib/utils/utils";
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import Price from "@/components/shared/Price";
 

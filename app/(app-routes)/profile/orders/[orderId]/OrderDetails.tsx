@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { OrderDetailsModel } from "../model";

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { SearchX } from "lucide-react";
 import { Button } from "@/components/shared/ui/button";
 import type { Metadata } from "next";

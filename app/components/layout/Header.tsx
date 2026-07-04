@@ -9,7 +9,9 @@ import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { useAtomValue } from "jotai";
 import { HelpCircle, Leaf, Menu, Moon, Phone, ShoppingCart, Sun, User, X } from "lucide-react";
 import { useTheme } from "next-themes";
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
+import { VariantSwitcher } from "@/components/shared/VariantSwitcher";
+import { useFeature } from "@/components/shared/providers/variant-provider";
 import { usePathname } from "next/navigation";
 import { useState, Suspense } from "react";
 import { useTranslation } from "react-i18next";
@@ -32,6 +34,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 	const { theme, setTheme } = useTheme();
 	const { itemCount } = useCart();
 	const businessSettings = useAtomValue(businessSettingsAtom);
+	const showLanguageSwitcher = useFeature("languageSwitcher");
 
 	// const onLogout = () => {
 	// 	startTransition(async () => {
@@ -120,8 +123,11 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 					{/* Right Actions */}
 					<div className="flex items-center gap-0 sm:gap-1">
 
+						{/* Demo variant switcher (showcase mode only) */}
+						<VariantSwitcher />
+
 						{/* Language Switcher */}
-						<LanguageSwitcher />
+						{showLanguageSwitcher && <LanguageSwitcher />}
 
 						{/* Theme Toggle */}
 						<Button

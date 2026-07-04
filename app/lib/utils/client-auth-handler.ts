@@ -2,7 +2,7 @@
 
 import { useSetAtom } from "jotai";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
-import { useRouter } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 
 /**
  * Hook to handle authentication errors in client components

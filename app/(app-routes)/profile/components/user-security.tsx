@@ -16,7 +16,7 @@ import { logoutUser, changePassword } from "../actions";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { useSetAtom } from "jotai";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { useTranslation } from "react-i18next";
 

@@ -20,6 +20,8 @@ import {
 	normalizeBusinessSettings,
 	isMaintenanceModeEnabled,
 } from "./lib/utils/business-settings";
+import { getActiveVariant } from "./variants/server";
+import { buildVariantThemeCss } from "./variants/theme";
 import { PER_PAGE_PARAMS } from "./lib/enums";
 import { MaintenancePageContent } from "./components/shared/MaintenancePage";
 import FooterWrapper from "./components/layout/FooterWrapper";
@@ -51,6 +53,7 @@ const fontVariables = `${inter.variable} ${hindSiliguri.variable} ${notoSerifBen
 
 // Generate metadata using business settings
 export async function generateMetadata(): Promise<Metadata> {
+	const variant = await getActiveVariant();
 	try {
 		const response = await new ApiClient(API_ROUTES.BUSINESS_SETTINGS)
 			.withMethod("GET")
@@ -58,7 +61,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 		if (response.success && response.data) {
 			// Normalize the entire API response data into a single object
-			const businessSettings = normalizeBusinessSettings(response.data);
+			const businessSettings = normalizeBusinessSettings(
+				response.data,
+				variant.branding
+			);
 
 			return generateSEOMetadata({
 				title: `${businessSettings.site_name} - Premium E-commerce Experience`,
@@ -79,10 +85,10 @@ export async function generateMetadata(): Promise<Metadata> {
 		console.error("Failed to fetch business settings for metadata:", error);
 	}
 
-	// Return fallback metadata with defaults
-	const fallbackSettings = normalizeBusinessSettings([]);
+	// Return fallback metadata with defaults (still variant-branded)
+	const fallbackSettings = normalizeBusinessSettings([], variant.branding);
 	return generateSEOMetadata({
-		title: "DebuggerMind - Premium E-commerce Experience",
+		title: `${fallbackSettings.site_name} - Premium E-commerce Experience`,
 		description:
 			"Discover amazing products at unbeatable prices. Shop the latest trends in electronics, fashion, home & garden.",
 		keywords: [
@@ -102,14 +108,20 @@ export default async function RootLayout({
 }: {
 	children: React.ReactNode;
 }) {
+	// Resolve the active variant (theme/branding/feature flags/default language).
+	const variant = await getActiveVariant();
+	const variantThemeCss = buildVariantThemeCss(variant);
+
 	const response = await new ApiClient(API_ROUTES.BUSINESS_SETTINGS)
 		.withMethod("GET")
 		.withParams({ per_page: PER_PAGE_PARAMS.DEFAULT })
 		.execute<BusinessSettingsResponseModel>();
 
 	// Normalize all business settings data into a single object
+	// (built-in defaults → variant branding → backend data).
 	const businessSettings = normalizeBusinessSettings(
-		response.success ? response.data : null
+		response.success ? response.data : null,
+		variant.branding
 	);
 
 	// Check if maintenance mode is enabled
@@ -121,14 +133,26 @@ export default async function RootLayout({
 
 	// Resolve the UI language server-side from a cookie so SSR and client
 	// hydration render the SAME language (no post-mount switch → no mismatch).
-	// Only `bn`/`en` resources exist; anything else falls back to `bn`.
+	// Only `bn`/`en` resources exist; when there is no cookie yet, fall back to
+	// the active variant's default language (intl → en, bn → bn).
 	const cookieLang = (await cookies()).get("language")?.value;
-	const lang = cookieLang === "en" ? "en" : "bn";
+	const lang =
+		cookieLang === "en" || cookieLang === "bn"
+			? cookieLang
+			: variant.defaultLanguage;
 
 	// If maintenance mode is enabled, render only the maintenance page without layout
 	if (maintenanceEnabled) {
 		return (
 			<html lang={lang} className={fontVariables} suppressHydrationWarning>
+				<head>
+					{variantThemeCss && (
+						<style
+							id="variant-theme"
+							dangerouslySetInnerHTML={{ __html: variantThemeCss }}
+						/>
+					)}
+				</head>
 				<body className="font-sans">
 					<MaintenancePageContent
 						businessSettings={businessSettings}
@@ -145,6 +169,14 @@ export default async function RootLayout({
 	return (
 		<html lang={lang} className={fontVariables} suppressHydrationWarning>
 			<head>
+				{/* Variant theme: CSS-variable overrides layered over globals.css.
+				    Server-injected in <head> so the theme is correct on first paint. */}
+				{variantThemeCss && (
+					<style
+						id="variant-theme"
+						dangerouslySetInnerHTML={{ __html: variantThemeCss }}
+					/>
+				)}
 				{/* Business structured data for SEO */}
 				{renderStructuredData(organizationSchema)}
 				<link
@@ -153,7 +185,7 @@ export default async function RootLayout({
 				/>
 			</head>
 			<body className="font-sans">
-				<GlobalProvider language={lang}>
+				<GlobalProvider language={lang} variant={variant}>
 					<Suspense fallback={null}>
 						<GoogleAnalytics />
 					</Suspense>
@@ -168,8 +200,8 @@ export default async function RootLayout({
 							<HeaderWrapper />
 							<Navigation />
 							<BackToTopButton />
-							<ChatWidget />
-							<CookieBanner />
+							{variant.features.chatWidget && <ChatWidget />}
+							{variant.features.cookieConsent && <CookieBanner />}
 						</>
 					)}
 					{children}

@@ -19,7 +19,7 @@ import {
 	AvatarImage,
 } from "@/components/shared/ui/avatar";
 import { User, Settings, LogOut, Package } from "lucide-react";
-import Link from "next/link";
+import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useTranslation } from "react-i18next";
 import { useSetAtom } from "jotai";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";

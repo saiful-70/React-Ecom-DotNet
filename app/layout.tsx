@@ -4,8 +4,6 @@ import { headers, cookies } from "next/headers";
 import { Inter, Hind_Siliguri, Noto_Serif_Bengali } from "next/font/google";
 import "./globals.css";
 import GlobalProvider from "./components/shared/providers/global-provider";
-import { HeaderWrapper } from "./components/layout/HeaderWrapper";
-import { Navigation } from "./components/layout/Navigation";
 import BackToTopButton from "./components/shared/BackToTopButton";
 import { ApiClient } from "./lib/api-client";
 import { API_ROUTES } from "./lib/api-route";
@@ -24,10 +22,10 @@ import { getActiveVariant } from "./variants/server";
 import { buildVariantThemeCss } from "./variants/theme";
 import { PER_PAGE_PARAMS } from "./lib/enums";
 import { MaintenancePageContent } from "./components/shared/MaintenancePage";
-import FooterWrapper from "./components/layout/FooterWrapper";
 import { ChatWidget } from "./components/chat";
 import { CookieBanner } from "./components/shared/CookieConsent";
 import { GoogleAnalytics, MetaPixel } from "./lib/analytics";
+import { getTemplate } from "./templates/registry";
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -111,6 +109,11 @@ export default async function RootLayout({
 	// Resolve the active variant (theme/branding/feature flags/default language).
 	const variant = await getActiveVariant();
 	const variantThemeCss = buildVariantThemeCss(variant);
+
+	// Resolve the layout paradigm (chrome + page layouts) for this variant.
+	const template = getTemplate(variant.template);
+	const { Header, Navigation, Footer, MobileNav, FloatingActions } =
+		template.chrome;
 
 	const response = await new ApiClient(API_ROUTES.BUSINESS_SETTINGS)
 		.withMethod("GET")
@@ -197,15 +200,21 @@ export default async function RootLayout({
 					/>
 					{!isBareLayoutRoute && (
 						<>
-							<HeaderWrapper />
-							<Navigation />
+							<Header />
+							{Navigation && <Navigation />}
 							<BackToTopButton />
 							{variant.features.chatWidget && <ChatWidget />}
 							{variant.features.cookieConsent && <CookieBanner />}
 						</>
 					)}
 					{children}
-					{!isBareLayoutRoute && <FooterWrapper />}
+					{!isBareLayoutRoute && (
+						<>
+							<Footer />
+							{MobileNav && <MobileNav />}
+							{FloatingActions && <FloatingActions />}
+						</>
+					)}
 				</GlobalProvider>
 			</body>
 		</html>

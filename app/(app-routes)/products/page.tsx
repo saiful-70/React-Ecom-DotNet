@@ -8,10 +8,8 @@ import {
 	generateBreadcrumbSchema,
 	renderStructuredData,
 } from "@/lib/utils/seo.utils";
-import { ProductToolbar } from "@/components/product/ProductToolbar";
-import { ProductFilters } from "@/components/product/ProductFilters";
-import { ProductsInfiniteList } from "@/components/product/ProductsInfiniteList";
-import { ProductsEmptyState } from "@/components/product/ProductsEmptyState";
+import { getActiveVariant } from "@/variants/server";
+import { getTemplate } from "@/templates/registry";
 
 interface SearchParams {
 	category_id?: string;
@@ -188,53 +186,32 @@ export default async function Products({
 
 	const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
 
+	const variant = await getActiveVariant();
+	const template = getTemplate(variant.template);
+
+	// Breadcrumb label for templates that show "Home > <Category>": only when
+	// exactly one category filter is active.
+	const selectedCategoryName =
+		categoryParam && !String(categoryParam).includes(",")
+			? categories.find((c) => String(c.id) === String(categoryParam))
+					?.name ?? null
+			: null;
+
 	return (
 		<>
 			{renderStructuredData(breadcrumbSchema)}
-
-			<main className="container mx-auto px-4 py-8">
-				<ProductToolbar
-					totalProducts={meta?.total || 0}
-					displayedProducts={products.length}
-					filterButton={
-						<ProductFilters
-							categories={categories}
-							brands={brands}
-							activeFiltersCount={activeFiltersCount}
-							buttonOnly
-						/>
-					}
-				/>
-				<div className="flex flex-col lg:flex-row gap-6 lg:items-start">
-					<ProductFilters
-						categories={categories}
-						brands={brands}
-						activeFiltersCount={activeFiltersCount}
-					/>
-					<div className="flex-1 min-w-0">
-						{products.length === 0 ? (
-							<ProductsEmptyState />
-						) : (
-							<ProductsInfiniteList
-								key={infiniteListKey}
-								initialProducts={products}
-								initialMeta={
-									meta ?? {
-										current_page: 1,
-										per_page: perPage,
-										total: products.length,
-										last_page: 1,
-										from: 1,
-										to: products.length,
-									}
-								}
-								baseQuery={query}
-								viewMode={viewMode}
-							/>
-						)}
-					</div>
-				</div>
-			</main>
+			<template.ProductListingLayout
+				products={products}
+				meta={meta ?? null}
+				categories={categories}
+				brands={brands}
+				activeFiltersCount={activeFiltersCount}
+				baseQuery={query}
+				infiniteListKey={infiniteListKey}
+				viewMode={viewMode}
+				perPage={perPage}
+				selectedCategoryName={selectedCategoryName}
+			/>
 		</>
 	);
 }

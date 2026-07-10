@@ -4,30 +4,6 @@ Get up and running in 5 minutes!
 
 ## ⚡ Installation
 
-### Option 1: Automated Setup (Recommended)
-
-#### Linux/Mac:
-
-```bash
-chmod +x scripts/setup.sh
-./scripts/setup.sh
-```
-
-#### Windows:
-
-```bash
-scripts\setup.bat
-```
-
-The script will:
-
-- ✅ Install all dependencies
-- ✅ Create `.env.local` from template
-- ✅ Verify environment setup
-- ✅ Start development server
-
-### Option 2: Manual Setup
-
 ```bash
 # 1. Install dependencies
 npm install --legacy-peer-deps

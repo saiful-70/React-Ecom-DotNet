@@ -1,20 +1,25 @@
 #!/bin/bash
-# Deploy — STAGING (same server as production, different app directory)
+# Deploy — STAGING (showcase server)
 #
-# Builds the Linux standalone LOCALLY (in WSL), rsyncs ./deploy to the server,
-# and restarts. Never builds on the server. Never uploads/deletes .env.production
-# — the server owns its runtime env; NEXT_PUBLIC_* are baked in from the local
-# build (uses local .env.staging if present, else .env.production).
+# Builds the Linux standalone LOCALLY (in WSL), rsyncs ./deploy-staging to the
+# server, and restarts. Never builds on the server. The local .env.staging is the
+# single source of truth: used for the build (NEXT_PUBLIC_* baked in) AND uploaded
+# to the server as .env.production (runtime vars). Other local .env* never upload.
+#
+# Each target uses its OWN build folder (deploy-<target>) so targets can never
+# cross-contaminate env or compiled code, even with --skip-build.
 #
 # Usage (from WSL): ./scripts/deploy-staging.sh [--skip-build] [--no-restart]
 set -euo pipefail
 
 # ── config ──────────────────────────────────────────────────────────────────
 TARGET="staging"
-HOST="bdbazar"            # same server / same ssh alias as production
-DIR="nextapp/staging"     # different working directory (set the Enhance staging
-                          # Node app's working dir to match this)
+HOST="showcase"           # ~/.ssh/config alias for the staging/showcase server
+DIR="nextapp/staging"     # Enhance working directory (relative to website home)
 # ────────────────────────────────────────────────────────────────────────────
+
+DEPLOY_DIR="deploy-$TARGET"   # local build output for this target
+BUILD_ENV=".env.$TARGET"      # local env (build-time + uploaded as .env.production)
 
 SKIP_BUILD=0; RESTART=1
 for arg in "$@"; do
@@ -35,22 +40,24 @@ case "$(uname -s)" in Linux) ;; *)
   exit 1 ;;
 esac
 command -v node >/dev/null 2>&1 || { echo "❌ node not found in this WSL shell." >&2; exit 1; }
+[ -f "$BUILD_ENV" ] || { echo "❌ $BUILD_ENV not found — create it locally with this target's env." >&2; exit 1; }
 
 # ── local build ─────────────────────────────────────────────────────────────
 if [ "$SKIP_BUILD" = 0 ]; then
-  # Build-time env: per-target override (.env.<target>) if present, else .env.production.
-  BUILD_ENV=".env.production"
-  [ -f ".env.$TARGET" ] && BUILD_ENV=".env.$TARGET"
-  [ -f "$BUILD_ENV" ] || { echo "❌ $BUILD_ENV needed locally for the build (NEXT_PUBLIC_* are baked in)." >&2; exit 1; }
-  echo "== build ($TARGET)  node $(node -v)  build-env $BUILD_ENV"
+  echo "== build ($TARGET)  node $(node -v)  env $BUILD_ENV"
 
+  # Next reads .env.production at build time (NODE_ENV=production); stage our
+  # target env as .env.production for the build, and keep .env.local from
+  # overriding it. Both are restored afterwards.
   STAGED=0; LOCAL_MOVED=0
-  if [ "$BUILD_ENV" != ".env.production" ]; then
-    [ -f .env.production ] && mv .env.production .env.production.deploybak
-    cp "$BUILD_ENV" .env.production
-    STAGED=1
-  fi
+  [ -f .env.production ] && mv .env.production .env.production.deploybak
+  cp "$BUILD_ENV" .env.production
+  STAGED=1
   if [ -f .env.local ]; then mv .env.local .env.local.deploybak; LOCAL_MOVED=1; fi
+
+  # Remove any stale build artifact before building — a leftover build folder has
+  # .ts files Next would type-check (tsconfig also excludes it).
+  rm -rf "$DEPLOY_DIR"
 
   cleanup() {
     [ "$LOCAL_MOVED" = 1 ] && mv -f .env.local.deploybak .env.local 2>/dev/null || true
@@ -68,54 +75,50 @@ if [ "$SKIP_BUILD" = 0 ]; then
 
   cleanup; trap - EXIT
 
-  echo "== assemble ./deploy"
-  rm -rf deploy
-  cp -r .next/standalone deploy
-  mkdir -p deploy/.next
-  cp -r .next/static deploy/.next/static
-  [ -d public ] && cp -r public deploy/public
-  rm -f deploy/.env.production deploy/.env.local deploy/.env.*   # never ship env files
+  echo "== assemble ./$DEPLOY_DIR"
+  rm -rf "$DEPLOY_DIR"
+  cp -r .next/standalone "$DEPLOY_DIR"
+  mkdir -p "$DEPLOY_DIR/.next"
+  cp -r .next/static "$DEPLOY_DIR/.next/static"
+  [ -d public ] && cp -r public "$DEPLOY_DIR/public"
 fi
 
-[ -f deploy/server.js ] || { echo "❌ deploy/server.js missing — run without --skip-build first." >&2; exit 1; }
+[ -f "$DEPLOY_DIR/server.js" ] || { echo "❌ $DEPLOY_DIR/server.js missing — run without --skip-build first." >&2; exit 1; }
 
-# ── upload (deploy files only; server keeps its own .env.production) ─────────
-echo "== rsync ./deploy -> $HOST:$DIR"
-ssh "$HOST" "mkdir -p '$DIR'"
-rsync -az --delete \
-  --exclude '.env.production' \
-  --exclude '.env.local' \
-  --exclude '.env.*' \
-  --exclude 'npm-debug.log*' \
-  deploy/ "$HOST:$DIR/"
+# Always (re)write this target's env into the build folder before upload, so a
+# reused folder (--skip-build) can never carry another target's env.
+rm -f "$DEPLOY_DIR"/.env.*
+cp "$BUILD_ENV" "$DEPLOY_DIR/.env.production"
 
-# ── restart on the server ───────────────────────────────────────────────────
-if [ "$RESTART" = 1 ]; then
-  echo "== restart on $HOST ($DIR)"
-  ssh "$HOST" DIR="$DIR" 'bash -s' <<'EOF'
+# ── upload: clean atomic swap so NO stale files (e.g. old chunks) remain ─────
+# Upload into <dir>.new, then swap it into place with one mv, then drop the old
+# dir. Guarantees the live dir contains exactly this build — nothing stale.
+echo "== upload ./$DEPLOY_DIR -> $HOST:$DIR (clean swap)"
+ssh "$HOST" "rm -rf '$DIR.new' && mkdir -p '$DIR.new'"
+rsync -az --exclude 'npm-debug.log*' "$DEPLOY_DIR/" "$HOST:$DIR.new/"
+
+echo "== swap in new build & restart on $HOST"
+ssh "$HOST" DIR="$DIR" RESTART="$RESTART" 'bash -s' <<'EOF'
 set -euo pipefail
-APP_DIR="$HOME/$DIR"
-if [ ! -f "$APP_DIR/.env.production" ]; then
-  echo "⚠️  $APP_DIR/.env.production not found on the server."
-  echo "    Create it once with this server's runtime vars (API_BASE_URL, etc.)."
+rm -rf "$DIR.old"
+[ -d "$DIR" ] && mv "$DIR" "$DIR.old"
+mv "$DIR.new" "$DIR"
+
+if [ "$RESTART" = "1" ]; then
+  # One Node app per Enhance website container — kill every node the user owns
+  # so Automatic mode respawns it fresh with cwd = the new $DIR.
+  PIDS="$(pgrep -u "$(id -u)" -x node 2>/dev/null || true)"
+  if [ -n "$PIDS" ]; then
+    kill $PIDS 2>/dev/null || true
+    echo "♻️  restarted (killed node: $(echo $PIDS | tr '\n' ' '))"
+  else
+    echo "ℹ️  no running Node app found. First deploy? In Enhance → Advanced → Node.js set:"
+    echo "      Startup command  : node server.js"
+    echo "      Working directory: $DIR"
+    echo "      Port <staging port>, Path blank, Mode Automatic → Deploy."
+  fi
 fi
-# Enhance runs the app in Automatic mode (respawns on exit). Kill the running
-# process whose cwd is this app dir so it restarts with the fresh build.
-APP_PID=""
-for pid in $(pgrep -u "$(id -u)" node 2>/dev/null || true); do
-  if [ "$(readlink -f "/proc/$pid/cwd" 2>/dev/null)" = "$APP_DIR" ]; then APP_PID="$pid"; break; fi
-done
-if [ -n "$APP_PID" ]; then
-  echo "♻️  restarting app (pid $APP_PID)…"
-  kill "$APP_PID"
-  echo "✅ restarted — Automatic mode will bring it back with the new build."
-else
-  echo "ℹ️  app not running yet. In Enhance → Advanced → Node.js set:"
-  echo "      Startup command  : node server.js"
-  echo "      Working directory: $DIR"
-  echo "      Port <staging port>, Path blank, Mode Automatic → Deploy."
-fi
+rm -rf "$DIR.old"
 EOF
-fi
 
 echo "✅ $TARGET deployed."

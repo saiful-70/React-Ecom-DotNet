@@ -243,3 +243,18 @@
     @apply bg-muted font-semibold;
   }
 }
+
+/* Radix scroll-lock gap fix — must stay UNLAYERED and higher-specificity than the
+   library rule. When a Radix Select/DropdownMenu/Popover/Dialog opens, react-remove-scroll
+   tags <body> with `data-scroll-locked` and injects (into <head>, at runtime, unlayered,
+   !important) a compensating `margin-right`/`padding-right` equal to the scrollbar width.
+   That compensation assumes the removed scrollbar lived on <body>. Here the viewport
+   scrollbar lives on <html> (overflow-x:clip leaves overflow-y:visible — see the html rule
+   above), so it is never removed: the compensation only pushes content left, leaving a
+   blank gap before the still-present scrollbar on every dropdown, app-wide. Zero it out.
+   `html body[...]` beats the library's `body[...]` on specificity regardless of source
+   order; keeping it out of @layer beats the library's unlayered origin. */
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+}

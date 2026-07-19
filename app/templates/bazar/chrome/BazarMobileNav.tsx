@@ -8,6 +8,7 @@ import {
 	ShoppingCart,
 	User,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useCart } from "@/contexts/CartContext";
@@ -24,6 +25,13 @@ export function BazarMobileNav() {
 	const { itemCount } = useCart();
 	const settings = useAtomValue(businessSettingsAtom);
 	const profile = useAtomValue(miniProfileAtom);
+	// Cart count is localStorage-backed (0 on the server); gate the badge on
+	// hydration to keep the first client render matching the server.
+	const [isHydrated, setIsHydrated] = useState(false);
+
+	useEffect(() => {
+		setIsHydrated(true);
+	}, []);
 
 	const itemClass =
 		"flex flex-col items-center justify-center gap-0.5 text-[11px] font-medium uppercase";
@@ -61,7 +69,7 @@ export function BazarMobileNav() {
 				<Link href={ABSOLUTE_ROUTES.CART} className={itemClass}>
 					<span className="relative">
 						<ShoppingCart className="h-5 w-5" />
-						{itemCount > 0 && (
+						{isHydrated && itemCount > 0 && (
 							<span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
 								{itemCount}
 							</span>

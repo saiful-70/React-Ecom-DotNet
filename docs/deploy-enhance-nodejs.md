@@ -129,17 +129,19 @@ Host bdbazar
 
 > **Staging on the same server:** it uses the same `HOST` alias but a different `DIR` (`nextapp/staging`). Create a separate Enhance Node app (usually on a staging subdomain) whose **Working directory** matches that `DIR` and give it its own port.
 
-### Environment variables — server-owned
+### Environment variables — single local file per target
 
-- **Runtime vars** (`API_BASE_URL`, `API_BASE_URL_V1`, secrets): live in **`.env.production` on each server** and are read at runtime. The script **never uploads or deletes** that file — you manage it manually per server. Create it once at `~/<dir>/.env.production` (e.g. `~/nextapp/app/.env.production`).
-- **Build-time vars** (`NEXT_PUBLIC_*`, e.g. `NEXT_PUBLIC_SITE_URL`): **baked into the JS at build time** — cannot be changed on the server. If they differ per target, keep a local git-ignored **`.env.<target>`** (e.g. `.env.bdbazar`); the script uses it for that target's build. If they're the same everywhere, a single local `.env.production` is enough for building.
+Each target has one git-ignored file **`.env.<target>`** at the repo root (`.env.bdbazar`, `.env.staging`) that holds **both**:
+- **Build-time vars** (`NEXT_PUBLIC_*`) — baked into the JS during the local build.
+- **Runtime vars** (`API_BASE_URL`, `API_BASE_URL_V1`, secrets) — read by the server at runtime.
 
-What the script does: picks the build-env (`.env.<target>` if present, else `.env.production`), moves `.env.local` aside so it can't override it, `npm install` + `npm run build`, assembles `./deploy` (standalone + static + public, **no** env files), rsyncs to the server with `--delete` but **excluding** `.env.production`, then restarts the app.
+The script uses `.env.<target>` for the build **and uploads it to the server as `.env.production`**, so it is the single source of truth. To change a server's env, edit the local `.env.<target>` and redeploy (a `NEXT_PUBLIC_*` change needs a rebuild anyway; runtime-only changes still upload the new file and restart).
+
+What the script does: stages `.env.<target>` as `.env.production` for the build, moves `.env.local` aside so it can't override it, `npm install` + `npm run build`, assembles `./deploy` (standalone + static + public) with `.env.production` = `.env.<target>`, rsyncs the whole folder to the server (`--delete`), then restarts the app. No other local `.env*` files are uploaded.
 
 ### First run per server (one-time)
 
-1. Create `~/<dir>/.env.production` on the server with that server's runtime vars.
-2. Configure the Enhance Node app — **Advanced → Node.js → Deploy app**:
+1. Configure the Enhance Node app — **Advanced → Node.js → Deploy app**:
    - Startup command: **`node server.js`**
    - Working directory: **`nextapp/app`** — ⚠️ **relative to the website home** (`/var/www/<website-id>/`). The panel rejects a leading slash. Do **not** enter the full `/var/www/<id>/nextapp/app` — that doubles the path → app starts in a nonexistent dir → 500.
    - Port `3000`, Path blank, Mode Automatic → Deploy.

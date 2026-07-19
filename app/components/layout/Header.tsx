@@ -13,7 +13,7 @@ import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { VariantSwitcher } from "@/components/shared/VariantSwitcher";
 import { useFeature } from "@/components/shared/providers/variant-provider";
 import { usePathname } from "next/navigation";
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { MobileNavigationClient } from "./MobileNavigationClient";
 import { businessSettingsAtom } from "@/store/ui-atoms";
@@ -26,6 +26,9 @@ interface HeaderProps {
 
 export const Header = ({ categories = [] }: HeaderProps) => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	// Cart state comes from localStorage, so the count is 0 on the server and
+	// only known after mount. Gate the badge on hydration to avoid a mismatch.
+	const [isHydrated, setIsHydrated] = useState(false);
 
 	const { t } = useTranslation();
 	// const setMiniProfile = useSetAtom(miniProfileAtom);
@@ -35,6 +38,10 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 	const { itemCount } = useCart();
 	const businessSettings = useAtomValue(businessSettingsAtom);
 	const showLanguageSwitcher = useFeature("languageSwitcher");
+
+	useEffect(() => {
+		setIsHydrated(true);
+	}, []);
 
 	// const onLogout = () => {
 	// 	startTransition(async () => {
@@ -155,7 +162,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 						>
 							<Link href="/cart" aria-label={t("a11y.cart")}>
 								<ShoppingCart className="w-5 h-5" />
-								{itemCount > 0 && (
+								{isHydrated && itemCount > 0 && (
 									<Badge
 										variant="destructive"
 										className="absolute -top-2 -right-2 w-5 h-5 text-xs flex items-center justify-center p-0"

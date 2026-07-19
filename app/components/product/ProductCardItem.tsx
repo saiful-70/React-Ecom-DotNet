@@ -150,14 +150,14 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 	// Single card layout for both grid and list views
 	return (
 		<Card className="group relative overflow-hidden border-border/60 shadow-warm-sm hover:shadow-warm-md hover:border-primary/30 transition-all duration-300 lg:hover:-translate-y-1 flex flex-col h-full bg-card">
-			<div className="relative overflow-hidden bg-muted/40">
+			<div className="relative aspect-square overflow-hidden bg-muted/40">
 				<Link href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(product.id)}>
 					<Image
 						src={imageSource}
 						alt={product.name}
 						width={400}
-						height={300}
-						className="w-full h-32 sm:h-40 md:h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+						height={400}
+						className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
 						sizes="(max-width: 1024px) 50vw, 25vw"
 					/>
 				</Link>

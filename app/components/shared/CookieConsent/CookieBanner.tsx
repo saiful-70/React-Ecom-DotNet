@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAtom } from "jotai";
 import { cookieConsentAtom } from "@/store/cookie-consent.atom";
 import { Button } from "@/components/shared/ui/button";
@@ -14,11 +14,33 @@ export function CookieBanner() {
   const [showBanner, setShowBanner] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [cookieConsent, setCookieConsent] = useAtom(cookieConsentAtom);
+  const bannerRef = useRef<HTMLDivElement>(null);
 
   // Only mount on client side
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Publish the banner's real height as a CSS variable so other fixed-bottom
+  // controls (e.g. the back-to-top button) can sit clear of it instead of being
+  // overlapped. Tracks content/viewport changes via ResizeObserver.
+  useEffect(() => {
+    const el = bannerRef.current;
+    const root = document.documentElement;
+    if (!showBanner || !el) {
+      root.style.removeProperty("--cookie-banner-height");
+      return;
+    }
+    const setVar = () =>
+      root.style.setProperty("--cookie-banner-height", `${el.offsetHeight}px`);
+    setVar();
+    const observer = new ResizeObserver(setVar);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--cookie-banner-height");
+    };
+  }, [showBanner]);
 
   // Check consent status after mount
   useEffect(() => {
@@ -74,7 +96,10 @@ export function CookieBanner() {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 z-50 animate-in slide-in-from-bottom duration-500">
+      <div
+        ref={bannerRef}
+        className="fixed bottom-0 left-0 right-0 z-50 animate-in slide-in-from-bottom duration-500"
+      >
         <div className="mx-auto max-w-7xl p-4">
           <div className="rounded-lg border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-lg">
             <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">

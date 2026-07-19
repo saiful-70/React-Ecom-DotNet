@@ -17,6 +17,7 @@ set -euo pipefail
 TARGET="bdbazar"
 HOST="bdbazar"        # ~/.ssh/config alias (key auth, no password)
 DIR="nextapp/app"     # Enhance working directory (relative to website home)
+APP_PORT="3000"       # port the Enhance Node app listens on (matches the panel)
 # ────────────────────────────────────────────────────────────────────────────
 
 DEPLOY_DIR="deploy-$TARGET"   # local build output for this target
@@ -99,24 +100,34 @@ ssh "$HOST" "rm -rf '$DIR.new' && mkdir -p '$DIR.new'"
 rsync -az --exclude 'npm-debug.log*' "$DEPLOY_DIR/" "$HOST:$DIR.new/"
 
 echo "== swap in new build & restart on $HOST"
-ssh "$HOST" DIR="$DIR" RESTART="$RESTART" 'bash -s' <<'EOF'
+ssh "$HOST" DIR="$DIR" RESTART="$RESTART" APP_PORT="$APP_PORT" 'bash -s' <<'EOF'
 set -euo pipefail
 rm -rf "$DIR.old"
 [ -d "$DIR" ] && mv "$DIR" "$DIR.old"
 mv "$DIR.new" "$DIR"
 
 if [ "$RESTART" = "1" ]; then
-  # One Node app per Enhance website container — kill every node the user owns
-  # so Automatic mode respawns it fresh with cwd = the new $DIR.
+  # Enhance's Automatic mode only auto-restarts on an UNEXPECTED exit. A graceful
+  # SIGTERM looks like an intentional stop (no respawn) — send SIGKILL to force a
+  # crash-exit that triggers the restart, then confirm the app actually came back.
   PIDS="$(pgrep -u "$(id -u)" -x node 2>/dev/null || true)"
   if [ -n "$PIDS" ]; then
-    kill $PIDS 2>/dev/null || true
-    echo "♻️  restarted (killed node: $(echo $PIDS | tr '\n' ' '))"
+    kill -9 $PIDS 2>/dev/null || true
+    echo "killed node ($(echo $PIDS | tr '\n' ' ')); waiting for Automatic respawn…"
+    up=0
+    for _ in $(seq 1 30); do
+      sleep 1
+      if curl -sf -o /dev/null "http://127.0.0.1:$APP_PORT/"; then up=1; break; fi
+    done
+    if [ "$up" = 1 ]; then
+      echo "✅ back up on :$APP_PORT with the new build."
+    else
+      echo "⚠️  did NOT respawn within 30s — in Enhance → Advanced → Node.js toggle"
+      echo "    Start mode Manual → Automatic once to force it."
+    fi
   else
     echo "ℹ️  no running Node app found. First deploy? In Enhance → Advanced → Node.js set:"
-    echo "      Startup command  : node server.js"
-    echo "      Working directory: $DIR"
-    echo "      Port 3000, Path blank, Mode Automatic → Deploy."
+    echo "      Startup: node server.js   Working dir: $DIR   Port $APP_PORT   Automatic → Deploy."
   fi
 fi
 rm -rf "$DIR.old"

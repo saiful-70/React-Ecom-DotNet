@@ -107,27 +107,26 @@ rm -rf "$DIR.old"
 mv "$DIR.new" "$DIR"
 
 if [ "$RESTART" = "1" ]; then
-  # Enhance's Automatic mode only auto-restarts on an UNEXPECTED exit. A graceful
-  # SIGTERM looks like an intentional stop (no respawn) — send SIGKILL to force a
-  # crash-exit that triggers the restart, then confirm the app actually came back.
-  PIDS="$(pgrep -u "$(id -u)" -x node 2>/dev/null || true)"
-  if [ -n "$PIDS" ]; then
-    kill -9 $PIDS 2>/dev/null || true
-    echo "killed node ($(echo $PIDS | tr '\n' ' ')); waiting for Automatic respawn…"
-    up=0
-    for _ in $(seq 1 30); do
-      sleep 1
-      if curl -sf -o /dev/null "http://127.0.0.1:$APP_PORT/"; then up=1; break; fi
-    done
-    if [ "$up" = 1 ]; then
-      echo "✅ back up on :$APP_PORT with the new build."
-    else
-      echo "⚠️  did NOT respawn within 30s — in Enhance → Advanced → Node.js toggle"
-      echo "    Start mode Manual → Automatic once to force it."
-    fi
+  # The Enhance Node app must be set to Start mode = MANUAL. This script owns the
+  # process — Automatic mode does not reliably respawn on kill on this platform,
+  # and if left Automatic it would fight this script for the port.
+  export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+  pkill -9 -u "$(id -u)" -x node 2>/dev/null || true
+  sleep 1
+  cd "$HOME/$DIR"
+  # start detached so it survives this SSH session; logs to app.log
+  PORT="$APP_PORT" HOSTNAME=0.0.0.0 setsid nohup node server.js > "$HOME/$DIR/app.log" 2>&1 < /dev/null &
+  echo "started node server.js (Manual mode); waiting for :$APP_PORT…"
+  up=0
+  for _ in $(seq 1 30); do
+    sleep 1
+    if curl -sf -o /dev/null "http://127.0.0.1:$APP_PORT/"; then up=1; break; fi
+  done
+  if [ "$up" = 1 ]; then
+    echo "✅ up on :$APP_PORT with the new build."
   else
-    echo "ℹ️  no running Node app found. First deploy? In Enhance → Advanced → Node.js set:"
-    echo "      Startup: node server.js   Working dir: $DIR   Port $APP_PORT   Automatic → Deploy."
+    echo "⚠️  not up after 30s — last log lines:"
+    tail -n 20 "$HOME/$DIR/app.log" 2>/dev/null || true
   fi
 fi
 rm -rf "$DIR.old"

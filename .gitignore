@@ -28,6 +28,13 @@ yarn-error.log*
 .env*.local
 .env*.production
 .env
+.env.*
+!.env.example
+*.deploybak
+
+# Deploy build output (assembled by scripts/deploy-*.sh)
+/deploy/
+/deploy-*/
 
 # Vercel
 .vercel

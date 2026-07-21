@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import {
@@ -87,7 +86,7 @@ export default function DemoGalleryPage() {
 								{variants.map((variant) => {
 									const c = previewColors(variant);
 									return (
-										<Link
+										<a
 											key={variant.id}
 											href={`${DEMO_PREFIX}/${variant.id}`}
 											className="group focus-visible:outline-none"
@@ -133,7 +132,7 @@ export default function DemoGalleryPage() {
 													</span>
 												</CardContent>
 											</Card>
-										</Link>
+										</a>
 									);
 								})}
 							</div>

@@ -1,4 +1,3 @@
-import { Footer } from "@/components/layout/Footer";
 import {
   Card,
   CardContent,
@@ -166,7 +165,6 @@ export default function OrderDetailsLoading() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

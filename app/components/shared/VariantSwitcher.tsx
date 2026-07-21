@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Check, FlaskConical } from "lucide-react";
 import { Button } from "@/components/shared/ui/button";
 import {
@@ -52,8 +51,13 @@ export function VariantSwitcher() {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-64">
 				<DropdownMenuLabel>Demo variants</DropdownMenuLabel>
+				{/* Switching variant needs a fresh server render (theme injected in
+				    <head>, default language, branding all resolve on the server from
+				    the middleware's x-variant header). A client-side next/link nav
+				    would not re-run the root layout, leaving the theme/language stale
+				    — so use plain anchors to force a full navigation. */}
 				<DropdownMenuItem asChild>
-					<Link href={DEMO_PREFIX}>All demos gallery</Link>
+					<a href={DEMO_PREFIX}>All demos gallery</a>
 				</DropdownMenuItem>
 				{markets.map((market) => (
 					<div key={market}>
@@ -63,7 +67,7 @@ export function VariantSwitcher() {
 						</DropdownMenuLabel>
 						{listVariants(market).map((v) => (
 							<DropdownMenuItem key={v.id} asChild>
-								<Link
+								<a
 									href={`${DEMO_PREFIX}/${v.id}`}
 									className="flex items-center justify-between"
 								>
@@ -71,7 +75,7 @@ export function VariantSwitcher() {
 									{v.id === active.id && (
 										<Check className="h-4 w-4 shrink-0" />
 									)}
-								</Link>
+								</a>
 							</DropdownMenuItem>
 						))}
 					</div>

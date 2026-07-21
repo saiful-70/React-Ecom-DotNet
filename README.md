@@ -116,23 +116,6 @@ app/
 
 ### Installation
 
-#### Option 1: Automated Setup (Recommended)
-
-**On Linux/Mac:**
-
-```bash
-chmod +x scripts/setup.sh
-./scripts/setup.sh
-```
-
-**On Windows:**
-
-```bash
-scripts\setup.bat
-```
-
-#### Option 2: Manual Setup
-
 ```bash
 # 1. Clone the repository
 git clone <YOUR_GIT_URL>

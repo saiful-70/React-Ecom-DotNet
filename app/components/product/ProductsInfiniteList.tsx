@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import type { ComponentType } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -18,6 +19,8 @@ interface ProductsInfiniteListProps {
 	/** Active filters/sort/search (without an appended-page concern). */
 	baseQuery: ProductsQuery;
 	viewMode: "grid" | "list";
+	/** Card renderer override, forwarded to ProductsGrid (client-only prop). */
+	CardComponent?: ComponentType<{ product: Product }>;
 }
 
 /**
@@ -30,6 +33,7 @@ export function ProductsInfiniteList({
 	initialMeta,
 	baseQuery,
 	viewMode,
+	CardComponent,
 }: ProductsInfiniteListProps) {
 	const { t } = useTranslation();
 
@@ -81,7 +85,11 @@ export function ProductsInfiniteList({
 
 	return (
 		<div>
-			<ProductsGrid products={products} viewMode={viewMode} />
+			<ProductsGrid
+				products={products}
+				viewMode={viewMode}
+				CardComponent={CardComponent}
+			/>
 
 			{/* Sentinel + loading / end-of-list states */}
 			<div

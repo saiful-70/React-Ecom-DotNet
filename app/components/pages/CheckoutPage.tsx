@@ -9,7 +9,11 @@ import type {
 	FormErrors,
 	CheckoutDataProduct,
 } from "@/(app-routes)/checkout/model";
-import { hasFormErrors, validateFormData } from "@/(app-routes)/checkout/model";
+import {
+	hasFormErrors,
+	validateFormData,
+	validateInternationalFormData,
+} from "@/(app-routes)/checkout/model";
 import { Button } from "@/components/shared/ui/button";
 import { toast } from "@/components/shared/ui/sonner";
 import { useCart } from "@/contexts/CartContext";
@@ -23,12 +27,15 @@ import { useTranslation } from "react-i18next";
 
 import { OrderSummary } from "../../(app-routes)/checkout/components/OrderSummary";
 import { ShippingAddressForm } from "../../(app-routes)/checkout/components/ShippingAddressForm";
+import { GlobalShippingAddressForm } from "../../(app-routes)/checkout/components/GlobalShippingAddressForm";
 import {
 	prepareOrderData,
 	toLocalBDPhone,
 } from "../../(app-routes)/checkout/helpers/checkout-helpers";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
-import { getDeliveryCharge } from "@/lib/constants/delivery";
+import { getDeliveryCharge, getGlobalDeliveryCharge } from "@/lib/constants/delivery";
+import { useVariant } from "@/components/shared/providers/variant-provider";
+import { findCountry, DEFAULT_COUNTRY_CODE } from "@/lib/data/countries";
 
 export function CheckoutPage() {
 	const { t } = useTranslation();
@@ -42,13 +49,23 @@ export function CheckoutPage() {
 	const { items, clearCart, subtotal, tax } = useCart();
 	const router = useRouter();
 	const miniProfile = useAtomValue(miniProfileAtom);
+	// The global template uses the international checkout (country selector,
+	// international phone, flat shipping); other variants keep the BD flow.
+	const variant = useVariant();
+	const isGlobal = variant.template === "global";
 
 	const [formData, setFormData] = useState<FormData>({
 		name: miniProfile?.name || "",
-		phone: toLocalBDPhone(miniProfile?.phone || ""),
+		phone: isGlobal
+			? miniProfile?.phone || ""
+			: toLocalBDPhone(miniProfile?.phone || ""),
 		address: "",
 		city: "",
 		cityId: undefined,
+		country: isGlobal
+			? findCountry(DEFAULT_COUNTRY_CODE)?.name ?? ""
+			: undefined,
+		zip: isGlobal ? "" : undefined,
 	});
 
 	const handleInputChange = (
@@ -94,8 +111,6 @@ export function CheckoutPage() {
 		fetchCheckoutData();
 	}, [items]);
 
-	const finalShipping = formData.city ? getDeliveryCharge(formData.city) : 0;
-
 	const calculatedSubtotal = useMemo(() => {
 		if (serverPrices.length > 0) {
 			return items.reduce((total, item) => {
@@ -132,12 +147,20 @@ export function CheckoutPage() {
 		return tax;
 	}, [serverPrices, items, tax]);
 
+	const finalShipping = isGlobal
+		? getGlobalDeliveryCharge(calculatedSubtotal)
+		: formData.city
+			? getDeliveryCharge(formData.city)
+			: 0;
+
 	const calculatedTotal = calculatedSubtotal + calculatedTax + finalShipping;
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		const errors = validateFormData(formData);
+		const errors = isGlobal
+			? validateInternationalFormData(formData)
+			: validateFormData(formData);
 		if (hasFormErrors(errors)) {
 			setFormErrors(errors);
 			toast.error(t("checkout.validationError"), {
@@ -166,6 +189,7 @@ export function CheckoutPage() {
 				},
 				shippingMethod: "standard",
 				serverPrices: serverPrices.length > 0 ? serverPrices : undefined,
+				international: isGlobal,
 			});
 
 			const response = await createPurchaseOrder(orderData);
@@ -250,11 +274,19 @@ export function CheckoutPage() {
 			<form onSubmit={handleSubmit}>
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 					<div className="space-y-6">
-						<ShippingAddressForm
-							formData={formData}
-							onInputChange={handleInputChange}
-							errors={formErrors}
-						/>
+						{isGlobal ? (
+							<GlobalShippingAddressForm
+								formData={formData}
+								onInputChange={handleInputChange}
+								errors={formErrors}
+							/>
+						) : (
+							<ShippingAddressForm
+								formData={formData}
+								onInputChange={handleInputChange}
+								errors={formErrors}
+							/>
+						)}
 					</div>
 
 					<div>

@@ -1,9 +1,4 @@
 import { Metadata } from "next";
-import { HeroCarousel } from "@/components/home/HeroCarousel";
-import { FeaturedCategories } from "@/components/home/FeaturedCategories";
-import { ProductSection } from "@/components/home/ProductSection";
-import { Features } from "@/components/home/Features";
-import { NavigationSchema } from "@/components/layout/NavigationSchema";
 import {
 	generateMetadata as genMeta,
 	generateOrganizationSchema,
@@ -16,6 +11,7 @@ import {
 	getFeaturedCategories,
 } from "@/components/home/actions/home-sections";
 import { getActiveVariant } from "@/variants/server";
+import { getTemplate } from "@/templates/registry";
 
 export async function generateMetadata(): Promise<Metadata> {
 	const businessSettings = await getBusinessSettings();
@@ -48,52 +44,18 @@ export default async function HomePage() {
 		getFeaturedCategories(),
 	]);
 
-	// Homepage product sections are gated per variant via feature flags.
-	const { features } = await getActiveVariant();
+	const variant = await getActiveVariant();
+	const template = getTemplate(variant.template);
 
 	return (
 		<>
 			{renderStructuredData(organizationSchema)}
 			{renderStructuredData(websiteSchema)}
-			<div className="min-h-screen bg-background">
-				<NavigationSchema />
-				<main>
-					<HeroCarousel banners={banners} />
-					<FeaturedCategories categories={featuredCategories} />
-					{features.topSelling && (
-						<ProductSection
-							id="top-selling"
-							type="top-selling"
-							titleKey="products.topSelling"
-							descriptionKey="products.topSellingDescription"
-							viewAllHref="/products?top_selling=1"
-							perPage={12}
-							bgClass="bg-muted/30"
-						/>
-					)}
-					{features.featuredProducts && (
-						<ProductSection
-							id="featured-products"
-							type="featured"
-							titleKey="products.featured"
-							descriptionKey="products.featuredDescription"
-							viewAllHref="/products?is_featured=1"
-							perPage={12}
-						/>
-					)}
-					{features.todaysDeals && (
-						<ProductSection
-							id="today-deals"
-							type="today-deals"
-							titleKey="products.todayDeals"
-							descriptionKey="products.todayDealsDescription"
-							viewAllHref="/products?today_deal=1"
-							perPage={12}
-						/>
-					)}
-					<Features />
-				</main>
-			</div>
+			<template.HomeLayout
+				banners={banners}
+				featuredCategories={featuredCategories}
+				features={variant.features}
+			/>
 		</>
 	);
 }

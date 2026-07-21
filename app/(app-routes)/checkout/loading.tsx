@@ -1,5 +1,4 @@
 'use client';
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader } from "@/components/shared/ui/card";
 import { Skeleton } from "@/components/shared/ui/skeleton";
 import { HeaderSkeleton } from "@/components/shared/HeaderSkeleton";
@@ -95,7 +94,6 @@ export default function CheckoutLoading() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

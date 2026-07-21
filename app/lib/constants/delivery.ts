@@ -30,3 +30,16 @@ export const getDeliveryCharge = (cityName: string | undefined): number => {
 		? DELIVERY_RATES.insideDhaka
 		: DELIVERY_RATES.outsideDhaka;
 };
+
+/**
+ * International (global template) shipping: a flat standard rate, free over a
+ * threshold. Demo defaults in the store's display currency — replace with a
+ * real per-country shipping API (see the storefront API contract) when ready.
+ */
+export const INTL_SHIPPING = {
+	flat: 10,
+	freeOver: 100,
+} as const;
+
+export const getGlobalDeliveryCharge = (subtotal: number): number =>
+	subtotal >= INTL_SHIPPING.freeOver ? 0 : INTL_SHIPPING.flat;

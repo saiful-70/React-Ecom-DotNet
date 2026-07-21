@@ -3,16 +3,18 @@ import type { VariantDescriptor } from "../types";
 /**
  * intl-01 — the international storefront (the palette that lives on `main`).
  *
- * Violet primary + neutral shadcn grays. These are CSS-variable overrides
- * layered on top of the globals.css defaults; only tokens that differ from the
- * default (green) theme are listed.
+ * 6Valley-style marketplace: royal-blue primary + orange (`warning`) CTA accent
+ * over neutral shadcn grays. These are CSS-variable overrides layered on top of
+ * the globals.css defaults; only tokens that differ from the default (green)
+ * theme are listed. Rendered through the `global` template paradigm.
  */
 const intl01: VariantDescriptor = {
   id: "intl-01",
   market: "intl",
-  name: "International — Violet",
+  template: "global",
+  name: "International — Marketplace",
   description:
-    "The international storefront: violet accent, neutral grays, English-first UI.",
+    "The international storefront: royal-blue + orange marketplace UI, English-first, full multi-section homepage.",
   theme: {
     root: {
       background: "0 0% 100%",
@@ -21,7 +23,7 @@ const intl01: VariantDescriptor = {
       "card-foreground": "224 71.4% 4.1%",
       popover: "0 0% 100%",
       "popover-foreground": "224 71.4% 4.1%",
-      primary: "262.1 83.3% 57.8%",
+      primary: "222 78% 45%",
       "primary-foreground": "210 20% 98%",
       secondary: "220 14.3% 95.9%",
       "secondary-foreground": "220.9 39.3% 11%",
@@ -33,11 +35,11 @@ const intl01: VariantDescriptor = {
       "destructive-foreground": "210 20% 98%",
       border: "220 13% 91%",
       input: "220 13% 91%",
-      ring: "262.1 83.3% 57.8%",
+      ring: "222 78% 45%",
       success: "142.1 76.2% 36.3%",
       "success-foreground": "355.7 100% 97.3%",
-      warning: "32.1 94.6% 43.7%",
-      "warning-foreground": "355.7 100% 97.3%",
+      warning: "24.6 95% 53.1%",
+      "warning-foreground": "0 0% 100%",
       radius: "0.75rem",
       "sidebar-background": "0 0% 98%",
       "sidebar-foreground": "240 5.3% 26.1%",
@@ -57,8 +59,8 @@ const intl01: VariantDescriptor = {
       "card-foreground": "210 20% 98%",
       popover: "224 71.4% 4.1%",
       "popover-foreground": "210 20% 98%",
-      primary: "263.4 70% 50.4%",
-      "primary-foreground": "210 20% 98%",
+      primary: "217.2 91.2% 59.8%",
+      "primary-foreground": "222 47% 11%",
       secondary: "215 27.9% 16.9%",
       "secondary-foreground": "210 20% 98%",
       muted: "215 27.9% 16.9%",
@@ -69,11 +71,11 @@ const intl01: VariantDescriptor = {
       "destructive-foreground": "210 20% 98%",
       border: "215 27.9% 16.9%",
       input: "215 27.9% 16.9%",
-      ring: "263.4 70% 50.4%",
+      ring: "217.2 91.2% 59.8%",
       success: "142.1 70.6% 45.3%",
       "success-foreground": "144.9 80.4% 10%",
-      warning: "32.1 94.6% 43.7%",
-      "warning-foreground": "20 14.3% 4.1%",
+      warning: "24.6 95% 53.1%",
+      "warning-foreground": "0 0% 100%",
       "sidebar-background": "240 5.9% 10%",
       "sidebar-foreground": "240 4.8% 95.9%",
       "sidebar-primary": "224.3 76.3% 48%",

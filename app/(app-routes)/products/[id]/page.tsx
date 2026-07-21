@@ -8,7 +8,8 @@ import {
 	generateBreadcrumbSchema,
 	renderStructuredData,
 } from "@/lib/utils/seo.utils";
-import { ProductDetails } from "@/components/pages/ProductDetails";
+import { getActiveVariant } from "@/variants/server";
+import { getTemplate } from "@/templates/registry";
 
 interface Props {
 	params: Promise<{ id: number }>;
@@ -88,11 +89,15 @@ export default async function ProductDetailsPage({ params }: Props) {
 			url: `/products/${product.slug || product.id}`,
 		},
 	]);
+
+	const variant = await getActiveVariant();
+	const template = getTemplate(variant.template);
+
 	return (
 		<>
 			{renderStructuredData(productSchema)}
 			{renderStructuredData(breadcrumbSchema)}
-			<ProductDetails product={product} />
+			<template.ProductDetailsLayout product={product} />
 		</>
 	);
 }

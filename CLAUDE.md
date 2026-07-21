@@ -20,7 +20,7 @@ npm run format       # Prettier on app/**
 
 Install with `npm install --legacy-peer-deps` (React 19 peer-dep churn). No test suite is wired up — don't claim tests pass; run `type-check` + `lint` instead.
 
-Required env in `.env.local`: `API_BASE_URL`, `API_BASE_URL_V1`, `NEXT_PUBLIC_SITE_URL`. See `.env.example`.
+Required env in `.env.local`: `API_BASE_URL`, `API_BASE_URL_V1`, `NEXT_PUBLIC_SITE_URL`. See `.env.example`. Variant-mode envs (see Variants below): `NEXT_PUBLIC_SHOWCASE=true` to browse the demo gallery locally, or `ACTIVE_VARIANT=<id>` to pin one variant (client-deploy mode). `.claude/settings.json` denies editing `.env*` files except `.env.example` — the user manages `.env.local` themselves.
 
 ## Architecture
 
@@ -62,6 +62,33 @@ const res = await new ApiClient(apiRoutes.products)
 3. `AuthInitializer` (in the global provider) hydrates `miniProfileAtom` from the API on mount.
 4. To add a protected route: append it to `protectedRoutes` in `middleware.ts` and use `.withCookieHeaders(cookies())` in its server action.
 
+### Variants (multi-tenant demos, data not branches)
+
+This repo is a **demo showcase**, not one fixed storefront. Each client demo is a `VariantDescriptor` (theme CSS-var overrides + branding + feature flags + template + default language) — **data, not a git branch**. Descriptors live in `app/variants/<id>/index.ts` and are registered in `app/variants/registry.ts`. Current: `bn-01`, `bn-02`, `intl-01`. Onboard a client by adding one descriptor file + one registry line — no fork.
+
+Two run modes, selected by env only:
+
+- **Showcase** (`NEXT_PUBLIC_SHOWCASE=true`): every variant browsable at `/demo/<id>/...`. `middleware.ts` strips the `/demo/<id>` prefix, sets the `x-variant` header, and rewrites to the real `app/(app-routes)` route (which stays prefix-unaware). Gallery at `/demo`.
+- **Client deploy** (default): one variant pinned via `ACTIVE_VARIANT=<id>`, served at `/...` with no prefix or switcher.
+
+Config constants (`DEMO_PREFIX`, `VARIANT_HEADER`, `SHOWCASE_MODE`, `PINNED_VARIANT_ID`, `DEFAULT_VARIANT_ID`) are in `app/lib/config/variant.config.ts`.
+
+- **Server:** read the active variant with `getActiveVariant()` (`app/variants/server.ts`, reads `x-variant`).
+- **Client:** `useVariant()` / `useFeature(flag)` from `variant-provider.tsx`.
+- **Navigation:** in showcase mode internal links must keep the `/demo/<id>` prefix — use `VariantLink` (`app/components/shared/ui/variant-link.tsx`) and `useVariantRouter` (`app/hooks/use-variant-router.ts`) instead of next/link + useRouter; both delegate to `variantHref()` (`app/lib/utils/variant-href.ts`).
+- **Branding** merges as: globals/defaults → `variant.branding` → backend API data.
+- The variant layer must stay **edge-middleware safe** — `app/variants/*` is plain serializable data and must never import template runtime code (see below) or server-only APIs.
+
+### Template layer (layout paradigms)
+
+`client = template × theme × branding × feature flags × language`. A **template** is a reusable layout *paradigm* (different chrome + page composition), not just a theme. Templates are code under `app/templates/<id>/`; a variant selects one via `VariantDescriptor.template` (`TemplateId = "classic" | "bazar"`). The union lives in `app/variants/types.ts` so variants reference templates by id only — never by import.
+
+- **Contract:** `app/templates/types.ts` — chrome slots (`Header`, `Navigation`, `Footer`, `MobileNav`, `FloatingActions` — nullable where a paradigm has none) plus `HomeLayout`, `ProductListingLayout`, `ProductDetailsLayout`.
+- **Registry:** `getTemplate(id)` in `app/templates/registry.ts`, falls back to `classic`. Never import this from `app/variants/*` or middleware (it pulls in the whole component tree).
+- **`classic`** re-exports the pre-existing components verbatim (bn-01, intl-01 render identically to before). **`bazar`** (used by bn-02) is a distinct paradigm (contact top bar, department-sidebar home, stock ribbon cards, breadcrumb listing, new PDP, mobile bottom nav + floating call FAB).
+- **Data stays shared:** the shared routes (`app/layout.tsx`, `app/page.tsx`, `products/page.tsx`, `products/[id]/page.tsx`) fetch data and resolve the template via `getTemplate(variant.template)`, passing serializable props. Page-level template layouts may themselves be async Server Components calling the shared cached actions (as `BazarHome` does). SEO/metadata/actions/models are untouched by templates.
+- Shared `ProductsGrid` / `ProductsInfiniteList` accept an optional `CardComponent` prop (defaults to `ProductCardItem`; a component function can only be passed from a client component, not across the server→client boundary). `BackToTopButton` takes an optional `className` so bottom-nav templates can lift it clear.
+
 ### State
 
 - **Jotai** for client state (`app/store/*.atom.ts` — mini-profile, wishlist, chat, cookie-consent, ui). Use `atomWithStorage` for cross-navigation persistence.
@@ -73,15 +100,15 @@ const res = await new ApiClient(apiRoutes.products)
 In `app/components/shared/providers/global-provider.tsx`:
 
 ```
-JotaiProvider → ThemeProvider → I18nProvider → RTLProvider
-  → CartProvider → TooltipProvider → AuthInitializer
+VariantProvider → JotaiProvider → ThemeProvider → I18nProvider
+  → CartProvider → TooltipProvider → (AuthInitializer + WishlistSyncProvider) → Sonner
 ```
 
-Reordering breaks auth init and theming.
+`VariantProvider` must stay outermost — theme/branding/feature flags feed everything below it. Reordering breaks auth init and theming.
 
 ### i18n
 
-`react-i18next`, locales under `app/i18n/locales/*.json` for `en, es, fr, bn, hi, ar`. Default is `bn`. `RTLProvider` flips layout for `ar`. Page metadata is bilingual (Bengali + English).
+`react-i18next`. Only **`en` and `bn`** are wired (`app/i18n/index.ts` imports just these two, `app/i18n/locales/{en,bn}.json`). Default and fallback are `bn`. There is no RTL support (no `ar`). `I18nProvider` initializes with the server-resolved language so SSR/CSR markup matches, then applies the saved language after mount. Page metadata is bilingual (Bengali + English). Template-specific strings live under a namespace prefix (e.g. `bazar.*`).
 
 ### SEO-critical data
 

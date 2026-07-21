@@ -4,7 +4,14 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { cn } from "@/lib/utils/utils";
 
-const DropdownMenu = DropdownMenuPrimitive.Root;
+// Default to non-modal so opening a menu never scroll-locks the page (which is
+// what adds the compensating scrollbar gap). Callers can still pass modal.
+const DropdownMenu = ({
+	modal = false,
+	...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) => (
+	<DropdownMenuPrimitive.Root modal={modal} {...props} />
+);
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 

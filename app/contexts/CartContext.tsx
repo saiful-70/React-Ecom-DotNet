@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { calculateCartTax } from "@/lib/utils/tax-calculator";
+import type { BundleCartComponent, BundleType } from "@/lib/bundles/types";
 
 export interface CartItem {
 	id: number;
@@ -17,6 +18,17 @@ export interface CartItem {
 		color?: string;
 		size?: string;
 	};
+	// --- Bundle/combo lines ---
+	// A selected bundle tier is stored as ONE line. It reuses `variant_id`
+	// (set to `bundle_tier_id`) as its cart-identity key so the existing
+	// id+variant_id matching keeps tiers distinct without a reducer change.
+	// `price` is the tier's server-authoritative total; `quantity` is the set
+	// count. These fields carry the composition forward for the future order
+	// payload (see the bundle API contract) — checkout is unchanged for now.
+	bundle_id?: number;
+	bundle_tier_id?: number;
+	bundle_type?: BundleType;
+	bundle_components?: BundleCartComponent[];
 }
 
 interface CartState {

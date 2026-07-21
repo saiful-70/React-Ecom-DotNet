@@ -10,6 +10,8 @@ import {
   RawFeaturedProductsApiResponse,
   Product,
 } from "./model";
+import { findProductBundle } from "@/lib/bundles/mock";
+import type { Bundle } from "@/lib/bundles/types";
 
 // Fetch Featured Products
 async function fetchFeaturedProductsFromAPI(
@@ -246,4 +248,13 @@ export async function getProductDetails(
       product: {} as Product, // Empty product object for failed response
     },
   };
+}
+
+// Fetch the quantity bundle attached to a product's PDP (null when none).
+//
+// Reads mock data until the backend implements the bundle contract; the real
+// implementation will call the API (inline on product-details, or a dedicated
+// endpoint). Keep the signature stable so the PDP wiring never changes.
+export async function getProductBundle(id: number): Promise<Bundle | null> {
+  return findProductBundle(Number(id));
 }

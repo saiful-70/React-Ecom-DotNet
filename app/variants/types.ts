@@ -44,6 +44,8 @@ export interface FeatureFlags {
   topSelling: boolean;
   /** Campaign landing pages under /campaigns. */
   campaigns: boolean;
+  /** Bundle/combo offers: PDP quantity-bundle selector + /combo/[slug] pages. */
+  bundles: boolean;
   /** GDPR cookie-consent banner. */
   cookieConsent: boolean;
   /** In-header language switcher. */

@@ -105,6 +105,7 @@ const intl01: VariantDescriptor = {
     todaysDeals: true,
     topSelling: true,
     campaigns: true,
+    bundles: false,
     cookieConsent: true,
     languageSwitcher: true,
   },

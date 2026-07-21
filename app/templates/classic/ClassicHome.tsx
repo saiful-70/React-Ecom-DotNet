@@ -2,21 +2,28 @@ import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { FeaturedCategories } from "@/components/home/FeaturedCategories";
 import { ProductSection } from "@/components/home/ProductSection";
 import { Features } from "@/components/home/Features";
+import { ComboPromo } from "@/components/home/ComboPromo";
 import { NavigationSchema } from "@/components/layout/NavigationSchema";
+import { getCombos } from "@/(app-routes)/combo/action";
 import type { HomeLayoutProps } from "../types";
 
-/** The pre-template homepage composition, unchanged. */
-export function ClassicHome({
+/** The pre-template homepage composition. */
+export async function ClassicHome({
 	banners,
 	featuredCategories,
 	features,
 }: HomeLayoutProps) {
+	// Combo marketing banner (mock data for now); gated by the bundles flag.
+	const combos = features.bundles ? await getCombos() : [];
+	const featuredCombo = combos[0] ?? null;
+
 	return (
 		<div className="min-h-screen bg-background">
 			<NavigationSchema />
 			<main>
 				<HeroCarousel banners={banners} />
 				<FeaturedCategories categories={featuredCategories} />
+				{featuredCombo && <ComboPromo combo={featuredCombo} />}
 				{features.topSelling && (
 					<ProductSection
 						id="top-selling"

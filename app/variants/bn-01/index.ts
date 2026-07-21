@@ -36,6 +36,7 @@ const bn01: VariantDescriptor = {
     todaysDeals: true,
     topSelling: true,
     campaigns: true,
+    bundles: true,
     cookieConsent: true,
     languageSwitcher: true,
   },

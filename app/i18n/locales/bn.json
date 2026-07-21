@@ -442,6 +442,28 @@
     "relatedProducts": "সম্পর্কিত পণ্য",
     "loginRequired": "পছন্দের তালিকায় যোগ করতে লগইন করুন"
   },
+  "bundle": {
+    "selectBundle": "বান্ডেল সিলেক্ট করুন",
+    "selectCombo": "কম্বো সিলেক্ট করুন",
+    "mostSaved": "সবচেয়ে বেশি সেভ",
+    "standardPrice": "স্ট্যান্ডার্ড প্রাইস",
+    "save": "সেভ ৳{{amount}}",
+    "youSaveTotal": "আপনি মোট সেভ করছেন",
+    "youSave": "আপনি সেভ করছেন",
+    "totalPrice": "মোট দাম",
+    "addBundleToCart": "কার্টে বান্ডেল যোগ করুন",
+    "addComboToCart": "কম্বোটি কার্টে যোগ করুন",
+    "secureCheckout": "নিরাপদ চেকআউট",
+    "addedToCart": "কার্টে যোগ করা হয়েছে!",
+    "bundleAddedDescription": "{{title}} আপনার কার্টে যোগ করা হয়েছে।",
+    "happyCustomers": "সন্তুষ্ট গ্রাহক",
+    "trustOriginal": "১০০% অরিজিনাল",
+    "trustFastDelivery": "ফাস্ট ডেলিভারি",
+    "trustCod": "ক্যাশ অন ডেলিভারি",
+    "trustReturn": "৭ দিনের রিটার্ন",
+    "comboNotFound": "কম্বো পাওয়া যায়নি",
+    "viewCombo": "কম্বো অফার দেখুন"
+  },
   "register": {
     "pageTitle": "অ্যাকাউন্ট তৈরি করুন",
     "subtitle": "শুরু করতে সাইন আপ করুন",

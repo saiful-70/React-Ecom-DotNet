@@ -38,26 +38,41 @@ export const toLocalBDPhone = (raw: string): string => {
 
 const formatBDPhone = (raw: string): string => toLocalBDPhone(raw);
 
-export const prepareShippingAddress = (formData: FormData) => ({
+interface AddressOptions {
+  /** International checkout: keep the E.164 phone and use the form's country/zip. */
+  international?: boolean;
+}
+
+export const prepareShippingAddress = (
+  formData: FormData,
+  opts: AddressOptions = {},
+) => ({
   contact_person_name: formData.name.trim(),
-  phone: formatBDPhone(formData.phone),
+  phone: opts.international ? formData.phone.trim() : formatBDPhone(formData.phone),
   email: BD_DEFAULTS.email,
   address_type: BD_DEFAULTS.address_type,
-  country: BD_DEFAULTS.country,
+  country: opts.international
+    ? formData.country?.trim() || ""
+    : BD_DEFAULTS.country,
   city: formData.city,
-  zip_code: BD_DEFAULTS.zip_code,
+  zip_code: opts.international ? formData.zip?.trim() || "" : BD_DEFAULTS.zip_code,
   address: formData.address.trim(),
   is_billing: false,
 });
 
-export const prepareBillingAddress = (formData: FormData) => ({
+export const prepareBillingAddress = (
+  formData: FormData,
+  opts: AddressOptions = {},
+) => ({
   contact_person_name: formData.name.trim(),
-  phone: formatBDPhone(formData.phone),
+  phone: opts.international ? formData.phone.trim() : formatBDPhone(formData.phone),
   email: BD_DEFAULTS.email,
   address_type: BD_DEFAULTS.address_type,
-  country: BD_DEFAULTS.country,
+  country: opts.international
+    ? formData.country?.trim() || ""
+    : BD_DEFAULTS.country,
   city: formData.city,
-  zip_code: BD_DEFAULTS.zip_code,
+  zip_code: opts.international ? formData.zip?.trim() || "" : BD_DEFAULTS.zip_code,
   address: formData.address.trim(),
 });
 
@@ -99,6 +114,7 @@ export const prepareOrderData = (params: {
   shippingMethod?: ShippingMethod;
   shippingDuration?: number;
   serverPrices?: CheckoutDataProduct[];
+  international?: boolean;
 }): PurchaseOrderRequest => {
   const {
     formData,
@@ -107,6 +123,7 @@ export const prepareOrderData = (params: {
     shippingMethod = "standard",
     shippingDuration = 3,
     serverPrices,
+    international = false,
   } = params;
 
   const totals = calculateTotals(cartTotals);
@@ -120,8 +137,8 @@ export const prepareOrderData = (params: {
     shipping_cost: totals.shippingCost,
     shipping_duration: shippingDuration,
     total_vat_amount: totals.vatAmount,
-    shipping_address: prepareShippingAddress(formData),
-    billing_address: prepareBillingAddress(formData),
+    shipping_address: prepareShippingAddress(formData, { international }),
+    billing_address: prepareBillingAddress(formData, { international }),
     order_items: prepareOrderItems(cartItems, serverPrices),
   };
 };

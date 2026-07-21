@@ -23,7 +23,7 @@ export type VariantLanguage = "en" | "bn";
  * app/templates/<id>/. Templates are code; variants select one by id, so this
  * union — not component imports — is all the variant layer knows about them.
  */
-export type TemplateId = "classic" | "bazar";
+export type TemplateId = "classic" | "bazar" | "global";
 
 /**
  * Feature flags gate whole pages/sections/functionality per variant.

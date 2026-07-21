@@ -1,4 +1,3 @@
-import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/shared/ui/card";
 import { Skeleton } from "@/components/shared/ui/skeleton";
 import { HeaderSkeleton } from "@/components/shared/HeaderSkeleton";
@@ -119,7 +118,6 @@ export default function ProductDetailsLoading() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

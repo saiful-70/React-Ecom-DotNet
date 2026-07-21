@@ -135,13 +135,18 @@ export interface PurchaseOrderResponse {
   error?: string;
 }
 
-// Component form data — BD-only checkout collects just name, phone, city, address.
+// Component form data. The BD checkout collects name, phone, city, address; the
+// international (global template) checkout also uses `country` and `zip`.
 export interface FormData {
   name: string;
   phone: string;
   address: string;
   city: string;
   cityId?: number;
+  /** International only: destination country name. */
+  country?: string;
+  /** International only: postal / ZIP code. */
+  zip?: string;
 }
 
 export type PaymentMethod = "cash_on_delivery";
@@ -173,6 +178,7 @@ export interface FormErrors {
   phone?: string;
   address?: string;
   city?: string;
+  country?: string;
 }
 
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
@@ -192,6 +198,29 @@ export function validateFormData(formData: FormData): FormErrors {
     errors.phone = "checkout.errors.phoneBD";
   }
 
+  if (!formData.city?.trim()) errors.city = "checkout.errors.cityRequired";
+  if (!formData.address?.trim())
+    errors.address = "checkout.errors.addressRequired";
+
+  return errors;
+}
+
+// International checkout validation: country required, city/postcode are
+// free-text, and the phone is already normalized to E.164 by the form (so we
+// only sanity-check its digit length here).
+export function validateInternationalFormData(formData: FormData): FormErrors {
+  const errors: FormErrors = {};
+
+  if (!formData.name?.trim()) errors.name = "checkout.errors.nameRequired";
+
+  if (!formData.phone?.trim()) {
+    errors.phone = "checkout.errors.phoneRequired";
+  } else if (formData.phone.replace(/\D/g, "").length < 6) {
+    errors.phone = "global.auth.invalidPhone";
+  }
+
+  if (!formData.country?.trim())
+    errors.country = "checkout.errors.countryRequired";
   if (!formData.city?.trim()) errors.city = "checkout.errors.cityRequired";
   if (!formData.address?.trim())
     errors.address = "checkout.errors.addressRequired";

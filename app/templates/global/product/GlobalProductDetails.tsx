@@ -11,6 +11,7 @@ import { toast } from "@/components/shared/ui/sonner";
 import Price from "@/components/shared/Price";
 import { useCart } from "@/contexts/CartContext";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
+import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
@@ -95,10 +96,10 @@ export function GlobalProductDetails({ product }: ProductDetailsLayoutProps) {
 		product.thumbnail_image ||
 		fallbackImage;
 
-	const doAddToCart = (): boolean => {
+	const doAddToCart = (): { id: number; variant_id?: number } | null => {
 		if (availableStock <= 0 || quantity > availableStock) {
 			toast.error(t("products.outOfStock"));
-			return false;
+			return null;
 		}
 		addToCart({
 			id: product.id,
@@ -114,7 +115,7 @@ export function GlobalProductDetails({ product }: ProductDetailsLayoutProps) {
 			tax_type: product.tax_type || "exclude",
 		});
 		trackUnifiedAddToCart(product.id.toString(), product.name, price, quantity);
-		return true;
+		return { id: product.id, variant_id: selectedVariant?.id };
 	};
 
 	const handleAddToCart = () => {
@@ -126,8 +127,9 @@ export function GlobalProductDetails({ product }: ProductDetailsLayoutProps) {
 	};
 
 	const handleBuyNow = () => {
-		if (doAddToCart()) {
-			router.push(ABSOLUTE_ROUTES.CHECKOUT);
+		const line = doAddToCart();
+		if (line) {
+			router.push(buyNowCheckoutHref(line.id, line.variant_id));
 		}
 	};
 

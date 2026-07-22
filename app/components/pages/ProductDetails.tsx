@@ -30,6 +30,7 @@ import {
 } from "@/components/product/product-details";
 import type { Product, ProductVariant } from "@/(app-routes)/products/model";
 import type { Bundle } from "@/lib/bundles/types";
+import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 
 interface ProductDetailsPageProps {
 	product: Product;
@@ -199,8 +200,8 @@ export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 			quantity
 		);
 
-		// Navigate to checkout
-		router.push("/checkout");
+		// Navigate to a checkout scoped to just this line.
+		router.push(buyNowCheckoutHref(product.id, selectedVariant?.id));
 	};
 
 	const handleToggleWishlist = async () => {

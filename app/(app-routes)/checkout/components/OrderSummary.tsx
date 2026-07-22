@@ -9,9 +9,9 @@ import {
 	CardTitle,
 } from "@/components/shared/ui/card";
 import { Separator } from "@/components/shared/ui/separator";
-import { useCart } from "@/contexts/CartContext";
+import { useCart, type CartItem } from "@/contexts/CartContext";
 import { Minus, Plus } from "lucide-react";
-import Image from "next/image";
+import { CartLineImage } from "@/components/shared/CartLineImage";
 import { useTranslation } from "react-i18next";
 
 interface OrderSummaryProps {
@@ -23,6 +23,11 @@ interface OrderSummaryProps {
 	total?: number;
 	isFormValid?: boolean;
 	isLoadingPrices?: boolean;
+	/**
+	 * Lines to display. Defaults to the whole cart; a Buy Now checkout passes the
+	 * single scoped line so the summary matches what is being ordered.
+	 */
+	items?: CartItem[];
 }
 
 export function OrderSummary({
@@ -34,16 +39,22 @@ export function OrderSummary({
 	total: propTotal,
 	isFormValid = true,
 	isLoadingPrices = false,
+	items: propItems,
 }: OrderSummaryProps) {
 	const { t } = useTranslation();
 	const {
-		items,
+		items: cartItems,
 		total: cartTotal,
-		itemCount,
+		itemCount: cartItemCount,
 		subtotal: cartSubtotal,
 		tax: cartTax,
 		updateQuantity,
 	} = useCart();
+
+	const items = propItems ?? cartItems;
+	const itemCount = propItems
+		? propItems.reduce((sum, i) => sum + i.quantity, 0)
+		: cartItemCount;
 
 	const subtotal = propSubtotal ?? cartSubtotal;
 	const tax = propTax ?? cartTax;
@@ -86,7 +97,7 @@ export function OrderSummary({
 								key={`${item.id}-${item.variant_id ?? "base"}`}
 								className="flex gap-3 items-start"
 							>
-								<Image
+								<CartLineImage
 									src={item.image}
 									alt={item.name}
 									width={48}

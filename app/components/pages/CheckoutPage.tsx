@@ -24,8 +24,14 @@ import { useAtomValue } from "jotai";
 import { ArrowLeft } from "lucide-react";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+	BUY_NOW_ID_PARAM,
+	BUY_NOW_VARIANT_PARAM,
+	matchesBuyNowScope,
+} from "@/lib/utils/buy-now";
 
 import { OrderSummary } from "../../(app-routes)/checkout/components/OrderSummary";
 import { ShippingAddressForm } from "../../(app-routes)/checkout/components/ShippingAddressForm";
@@ -50,7 +56,23 @@ export function CheckoutPage() {
 	const [serverPrices, setServerPrices] = useState<CheckoutDataProduct[]>([]);
 	const [bundleValidations, setBundleValidations] =
 		useState<BundleValidationMap>({});
-	const { items, clearCart } = useCart();
+	const { items: cartItems, clearCart, removeFromCart } = useCart();
+
+	// "Buy Now" checkout is scoped to a single cart line via ?only=<id>&ov=<variant>.
+	// When scoped, everything below (display, pricing, order payload, post-order
+	// cleanup) operates on just that line; the rest of the cart is untouched.
+	const searchParams = useSearchParams();
+	const onlyId = searchParams.get(BUY_NOW_ID_PARAM);
+	const onlyVariant = searchParams.get(BUY_NOW_VARIANT_PARAM);
+	const items = useMemo(
+		() =>
+			onlyId
+				? cartItems.filter((i) =>
+						matchesBuyNowScope(i, onlyId, onlyVariant)
+				  )
+				: cartItems,
+		[cartItems, onlyId, onlyVariant]
+	);
 
 	// Bundle lines (carry a tier) validate server-side; normal lines re-price via
 	// checkout-data. Split once so both paths stay independent.
@@ -312,7 +334,13 @@ export function CheckoutPage() {
 						response.data?.order_tracking_number || ""
 					)
 				);
-				clearCart();
+				// A scoped "Buy Now" order clears only its own line, leaving the
+				// rest of the cart intact; a full checkout clears everything.
+				if (onlyId) {
+					items.forEach((i) => removeFromCart(i.id, i.variant_id));
+				} else {
+					clearCart();
+				}
 			} else {
 				toast.error(t("checkout.orderFailed"), {
 					description:
@@ -392,6 +420,7 @@ export function CheckoutPage() {
 
 					<div>
 						<OrderSummary
+							items={items}
 							isProcessing={isProcessing}
 							onSubmit={() => {}}
 							shippingCost={finalShipping}

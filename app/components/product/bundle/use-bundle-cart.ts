@@ -27,7 +27,11 @@ export function useBundleCart() {
       variant_id: tier.id,
       name: `${bundle.title} — ${tier.name}`,
       price: tier.price,
-      image: requiredItems[0]?.thumbnail_image || bundle.banner || "",
+      image:
+        requiredItems.find((i) => i.thumbnail_image?.trim())
+          ?.thumbnail_image ||
+        bundle.banner ||
+        "",
       quantity: 1,
       tax: 0,
       tax_type: "exclude",

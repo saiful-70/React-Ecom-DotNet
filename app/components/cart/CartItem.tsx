@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/shared/ui/button";
 import { Card, CardContent } from "@/components/shared/ui/card";
-import Image from "next/image";
+import { CartLineImage } from "@/components/shared/CartLineImage";
 import { Trash2, Plus, Minus } from "lucide-react";
 import Price from "@/components/shared/Price";
 
@@ -37,18 +37,14 @@ export function CartItem({
 		}
 	};
 
-	// Fallback image for cart items without images
-	const imageSrc = item.image ||
-		`https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=80&h=80&fit=crop&auto=format`;
-
 	return (
 		<Card>
 			<CardContent className="p-4 sm:p-6">
 				{/* Mobile Layout */}
 				<div className="flex flex-col sm:hidden gap-4">
 					<div className="flex items-start gap-3">
-						<Image
-							src={imageSrc}
+						<CartLineImage
+							src={item.image}
 							alt={item.name}
 							width={80}
 							height={80}
@@ -115,8 +111,8 @@ export function CartItem({
 					<div className="grid grid-cols-12 gap-4 items-center">
 						{/* Product Info */}
 						<div className="col-span-5 flex items-center gap-4">
-							<Image
-								src={imageSrc}
+							<CartLineImage
+								src={item.image}
 								alt={item.name}
 								width={80}
 								height={80}

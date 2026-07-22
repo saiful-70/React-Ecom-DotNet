@@ -19,6 +19,7 @@ import Price from "@/components/shared/Price";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { BundleTierList } from "./BundleTierList";
 import { useBundleCart } from "./use-bundle-cart";
+import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 import type { Bundle, BundleTier } from "@/lib/bundles/types";
 
 interface ComboLandingProps {
@@ -31,10 +32,11 @@ export function ComboLanding({ combo }: ComboLandingProps) {
   const router = useRouter();
   const { addBundleTier } = useBundleCart();
 
-  // Buy Now: add the selected tier, then go straight to checkout.
+  // Buy Now: add the selected tier, then go to a checkout scoped to just it
+  // (a bundle line's cart identity is bundle id + tier id).
   const handleBuyNow = (tier: BundleTier) => {
     addBundleTier(combo, tier);
-    router.push("/checkout");
+    router.push(buyNowCheckoutHref(combo.id, tier.id));
   };
 
   // Publish the mobile action-bar height so the global floating widgets (chat

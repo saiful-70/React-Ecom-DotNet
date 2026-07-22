@@ -455,7 +455,8 @@
     "youSave": "You save",
     "totalPrice": "Total",
     "addBundleToCart": "Add Bundle to Cart",
-    "addComboToCart": "Add Combo to Cart",
+    "addComboToCart": "Add to Cart",
+    "buyNow": "Buy Now",
     "secureCheckout": "Secure Checkout",
     "addedToCart": "Added to cart!",
     "bundleAddedDescription": "{{title}} has been added to your cart.",
@@ -465,7 +466,12 @@
     "trustCod": "Cash on Delivery",
     "trustReturn": "7 Days Return",
     "comboNotFound": "Combo not found",
-    "viewCombo": "View Combo Offer"
+    "viewCombo": "View Combo Offer",
+    "comboOffer": "Combo Offer",
+    "popular": "Most Popular",
+    "bestValue": "Best Value",
+    "validationFailed": "Bundle validation failed",
+    "validationFailedDescription": "The selected bundle can't be ordered right now."
   },
   "register": {
     "pageTitle": "Create Account",

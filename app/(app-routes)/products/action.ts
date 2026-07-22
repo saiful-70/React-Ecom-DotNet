@@ -1,6 +1,6 @@
 "use server";
 
-import { ApiClient } from "@/lib/api-client";
+import { ApiClient, type ApiResponse } from "@/lib/api-client";
 import { API_ROUTES } from "@/lib/api-route";
 import {
   ProductsResponse,
@@ -10,7 +10,7 @@ import {
   RawFeaturedProductsApiResponse,
   Product,
 } from "./model";
-import { findProductBundle } from "@/lib/bundles/mock";
+import { getRequestLanguage } from "@/lib/utils/server-language";
 import type { Bundle } from "@/lib/bundles/types";
 
 // Fetch Featured Products
@@ -250,11 +250,13 @@ export async function getProductDetails(
   };
 }
 
-// Fetch the quantity bundle attached to a product's PDP (null when none).
-//
-// Reads mock data until the backend implements the bundle contract; the real
-// implementation will call the API (inline on product-details, or a dedicated
-// endpoint). Keep the signature stable so the PDP wiring never changes.
+// Fetch the primary bundle for a product's PDP (null when none active).
 export async function getProductBundle(id: number): Promise<Bundle | null> {
-  return findProductBundle(Number(id));
+  const lang = await getRequestLanguage();
+  const response = await new ApiClient(API_ROUTES.BUNDLES.PRODUCT_BUNDLE)
+    .withMethod("GET")
+    .withParams({ product_id: id, lang })
+    .execute<ApiResponse<Bundle | null>>();
+
+  return response.success ? (response.data ?? null) : null;
 }

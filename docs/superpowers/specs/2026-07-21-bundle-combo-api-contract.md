@@ -3,7 +3,23 @@
 **Date:** 2026-07-21
 **Consumer:** `bn-01` (classic template) — PDP quantity bundle + `/combo/[slug]` landing
 **Base URL:** `API_BASE_URL_V1` (same as existing endpoints)
-**Status:** Proposal — backend not yet implemented
+**Status:** ✅ SUPERSEDED — backend delivered (2026-07-22). This was the FE proposal;
+the implemented API differs and is the source of truth. Frontend now integrates the
+real endpoints. Key deltas the backend finalized:
+
+- Endpoints live: `GET /product-bundle`, `GET /combos`, `GET /combos/{slug}`,
+  `POST /checkout/validate-bundle`; all take `?lang=bn|en`.
+- No `type` discriminator; fields renamed (`name`, `qty`, `thumbnail_image`, `banner`,
+  `description`); per-tier `is_available`/`unavailable_reason`, per-item `role`/`stock`;
+  perks use `product_id` (not `gift_product_id`).
+- Checkout is a **validate → `server_quote_id` (~15 min) → place-order** flow; the FE
+  sends `bundle_id`/`bundle_tier_id`/`server_quote_id` and the backend re-prices.
+
+The proposal below is retained for history only.
+
+---
+
+**(historical proposal)**
 
 ## Problem
 

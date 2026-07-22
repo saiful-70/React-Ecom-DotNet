@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 	return {
 		title: `${combo.title} | Combo Offer`,
-		description: combo.subtitle || combo.title,
+		description: combo.description || combo.title,
 	};
 }
 
@@ -31,7 +31,7 @@ export default async function ComboPage({ params }: Props) {
 	}
 
 	const combo = await getCombo(slug);
-	if (!combo || combo.type !== "combo" || combo.tiers.length === 0) {
+	if (!combo || combo.tiers.length === 0) {
 		notFound();
 	}
 

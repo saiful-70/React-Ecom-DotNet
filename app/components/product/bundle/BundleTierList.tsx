@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, Plus } from "lucide-react";
 import Price from "@/components/shared/Price";
@@ -15,10 +16,7 @@ interface BundleTierListProps {
   showComposition?: boolean;
 }
 
-const isBestValue = (tier: BundleTier) =>
-  (tier.badge || "").toUpperCase().includes("BEST");
-
-/** Overlapping thumbnails: `min(quantity, 3)` per item, a "+" between items. */
+/** Overlapping thumbnails: `min(qty, 3)` per item, a "+" between items. */
 function ThumbCluster({ items }: { items: BundleTierItem[] }) {
   return (
     <div className="flex items-center shrink-0">
@@ -28,14 +26,14 @@ function ThumbCluster({ items }: { items: BundleTierItem[] }) {
             <Plus className="size-3.5 mx-0.5 text-muted-foreground shrink-0" />
           )}
           <div className="flex -space-x-3">
-            {Array.from({ length: Math.min(item.quantity, 3) }).map((_, i) => (
+            {Array.from({ length: Math.min(item.qty, 3) }).map((_, i) => (
               <div
                 key={i}
                 className="relative size-11 sm:size-12 rounded-md border-2 border-background bg-muted overflow-hidden shadow-sm"
                 style={{ zIndex: 3 - i }}
               >
                 <Image
-                  src={item.image}
+                  src={item.thumbnail_image}
                   alt={item.name}
                   fill
                   sizes="48px"
@@ -58,36 +56,55 @@ export function BundleTierList({
 }: BundleTierListProps) {
   const { t } = useTranslation();
 
+  // No per-tier badge on the wire — derive from real signals: the default tier
+  // is "popular"; the highest-savings tier is "best value".
+  const bestValueTierId = useMemo(() => {
+    let best: BundleTier | null = null;
+    for (const tr of bundle.tiers) {
+      if (tr.savings > 0 && (!best || tr.savings > best.savings)) best = tr;
+    }
+    return best?.id ?? null;
+  }, [bundle.tiers]);
+
   return (
     <div className="space-y-2.5">
       {bundle.tiers.map((tier) => {
         const selected = tier.id === selectedTierId;
-        const bestValue = isBestValue(tier);
+        const disabled = tier.is_available === false;
+        const isBestValue = tier.id === bestValueTierId;
+        const isPopular = !!tier.is_default;
+        const badgeText = isPopular
+          ? t("bundle.popular")
+          : isBestValue
+            ? t("bundle.bestValue")
+            : null;
         const hasSavings = tier.savings > 0;
 
         return (
           <button
             key={tier.id}
             type="button"
-            onClick={() => onSelect(tier.id)}
+            onClick={() => !disabled && onSelect(tier.id)}
             aria-pressed={selected}
+            disabled={disabled}
             className={cn(
               "relative w-full text-left rounded-xl border p-3 sm:p-3.5 transition-all",
               "flex items-center gap-3",
+              disabled && "opacity-50 cursor-not-allowed",
               selected
                 ? "border-primary ring-1 ring-primary bg-primary/5"
                 : "border-border hover:border-primary/60"
             )}
           >
-            {/* Badge (MOST POPULAR / BEST VALUE) */}
-            {tier.badge && (
+            {/* Derived badge (Popular / Best Value) */}
+            {badgeText && (
               <span
                 className={cn(
                   "absolute -top-2 left-3 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm",
-                  bestValue ? "bg-orange-500" : "bg-primary"
+                  isBestValue && !isPopular ? "bg-orange-500" : "bg-primary"
                 )}
               >
-                {tier.badge}
+                {badgeText}
               </span>
             )}
 
@@ -109,7 +126,7 @@ export function BundleTierList({
             {/* Labels */}
             <div className="min-w-0 flex-1">
               <p className="font-semibold text-sm sm:text-base leading-tight">
-                {tier.label}
+                {tier.name}
               </p>
               {showComposition ? (
                 <ul className="mt-0.5 space-y-0.5">
@@ -118,7 +135,7 @@ export function BundleTierList({
                       key={`${item.product_id}-${i}`}
                       className="text-xs text-muted-foreground leading-tight"
                     >
-                      {item.quantity}x {item.name}
+                      {item.qty}x {item.name}
                     </li>
                   ))}
                 </ul>
@@ -133,6 +150,12 @@ export function BundleTierList({
               {tier.perks.length > 0 && (
                 <p className="text-[11px] font-medium text-primary mt-1 leading-tight">
                   {tier.perks.map((p) => `+ ${p.label}`).join("  ")}
+                </p>
+              )}
+              {/* Unavailable reason */}
+              {disabled && tier.unavailable_reason && (
+                <p className="text-[11px] font-medium text-destructive mt-1 leading-tight">
+                  {tier.unavailable_reason}
                 </p>
               )}
             </div>
@@ -154,7 +177,7 @@ export function BundleTierList({
               <span
                 className={cn(
                   "absolute top-0 right-0 rounded-bl-lg rounded-tr-xl px-2 py-1 text-[10px] font-bold text-white leading-none",
-                  bestValue ? "bg-orange-500" : "bg-primary"
+                  isBestValue && !isPopular ? "bg-orange-500" : "bg-primary"
                 )}
               >
                 {t("bundle.save", { amount: tier.savings })}

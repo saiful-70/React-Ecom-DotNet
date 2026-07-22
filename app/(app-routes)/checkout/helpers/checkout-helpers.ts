@@ -3,14 +3,26 @@ import type {
   PurchaseOrderRequest,
   ShippingMethod,
   CheckoutDataProduct,
+  OrderItem,
 } from "@/(app-routes)/checkout/model";
+import type { BundleValidationResult } from "@/lib/bundles/types";
 
 interface CartItem {
   id: number;
   quantity: number;
   price: number;
   variant_id?: number;
+  bundle_id?: number;
+  bundle_tier_id?: number;
+  bundle_components?: {
+    product_id: number;
+    variant_id?: number | null;
+    qty: number;
+  }[];
 }
+
+/** Validation results keyed by `bundle_tier_id`. */
+export type BundleValidationMap = Record<number, BundleValidationResult>;
 
 interface CartTotals {
   subtotal: number;
@@ -79,20 +91,47 @@ export const prepareBillingAddress = (
 export const prepareOrderItems = (
   cartItems: CartItem[],
   serverPrices?: CheckoutDataProduct[],
-) => {
-  return cartItems.map((item) => {
+  bundleValidations?: BundleValidationMap,
+): OrderItem[] => {
+  const orderItems: OrderItem[] = [];
+
+  for (const item of cartItems) {
+    // Bundle line → expand its required components into flat, tagged order items
+    // using the server-allocated unit prices from validate (falls back to 0 so
+    // the backend re-prices from the quote).
+    if (item.bundle_tier_id && item.bundle_components?.length) {
+      const validation = bundleValidations?.[item.bundle_tier_id];
+      for (const comp of item.bundle_components) {
+        const allocated = validation?.items?.find(
+          (li) =>
+            li.product_id === comp.product_id &&
+            (li.variant_id || 0) === (comp.variant_id || 0),
+        );
+        orderItems.push({
+          product_id: comp.product_id,
+          quantity: comp.qty * item.quantity,
+          price: allocated ? allocated.allocated_unit_price : 0,
+          variant_id: comp.variant_id || 0,
+          bundle_id: item.bundle_id,
+          bundle_tier_id: item.bundle_tier_id,
+        });
+      }
+      continue;
+    }
+
     const serverPrice = serverPrices?.find(
       (sp) =>
         sp.product_id === item.id && sp.variant_id === (item.variant_id || 0),
     );
-
-    return {
+    orderItems.push({
       product_id: item.id,
       quantity: item.quantity,
       price: serverPrice ? serverPrice.discount_price : item.price,
       variant_id: item.variant_id || 0,
-    };
-  });
+    });
+  }
+
+  return orderItems;
 };
 
 export const calculateTotals = (cartTotals: CartTotals) => {
@@ -115,6 +154,7 @@ export const prepareOrderData = (params: {
   shippingDuration?: number;
   serverPrices?: CheckoutDataProduct[];
   international?: boolean;
+  bundleValidations?: BundleValidationMap;
 }): PurchaseOrderRequest => {
   const {
     formData,
@@ -124,9 +164,17 @@ export const prepareOrderData = (params: {
     shippingDuration = 3,
     serverPrices,
     international = false,
+    bundleValidations,
   } = params;
 
   const totals = calculateTotals(cartTotals);
+
+  // Single-bundle order path: attach the first bundle line's quote at the top
+  // level (the backend re-validates against it and applies server pricing).
+  const firstBundle = cartItems.find((i) => i.bundle_tier_id);
+  const firstQuote = firstBundle?.bundle_tier_id
+    ? bundleValidations?.[firstBundle.bundle_tier_id]?.server_quote_id
+    : undefined;
 
   return {
     total_price: totals.totalPrice,
@@ -139,6 +187,13 @@ export const prepareOrderData = (params: {
     total_vat_amount: totals.vatAmount,
     shipping_address: prepareShippingAddress(formData, { international }),
     billing_address: prepareBillingAddress(formData, { international }),
-    order_items: prepareOrderItems(cartItems, serverPrices),
+    order_items: prepareOrderItems(cartItems, serverPrices, bundleValidations),
+    ...(firstBundle && firstQuote
+      ? {
+          bundle_id: firstBundle.bundle_id,
+          bundle_tier_id: firstBundle.bundle_tier_id,
+          server_quote_id: firstQuote,
+        }
+      : {}),
   };
 };

@@ -22,7 +22,10 @@ export function ProductBundleSelector({ bundle }: ProductBundleSelectorProps) {
   const { addBundleTier } = useBundleCart();
 
   const defaultTier = useMemo(
-    () => bundle.tiers.find((tr) => tr.is_default) ?? bundle.tiers[0],
+    () =>
+      bundle.tiers.find((tr) => tr.is_default && tr.is_available) ??
+      bundle.tiers.find((tr) => tr.is_available) ??
+      bundle.tiers[0],
     [bundle.tiers]
   );
   const [selectedTierId, setSelectedTierId] = useState<number>(
@@ -67,6 +70,7 @@ export function ProductBundleSelector({ bundle }: ProductBundleSelectorProps) {
       <div className="space-y-1.5">
         <Button
           onClick={() => addBundleTier(bundle, selectedTier)}
+          disabled={selectedTier.is_available === false}
           className="w-full h-12 text-base font-bold"
         >
           <ShoppingCart className="size-5 mr-2" />

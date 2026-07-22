@@ -1,19 +1,52 @@
 "use server";
 
-import { findCombo, listCombos } from "@/lib/bundles/mock";
-import type { Bundle } from "@/lib/bundles/types";
+import { ApiClient, type ApiResponse } from "@/lib/api-client";
+import { API_ROUTES } from "@/lib/api-route";
+import { getRequestLanguage } from "@/lib/utils/server-language";
+import type {
+  Bundle,
+  BundleSummary,
+  BundleValidationResult,
+  ValidateBundleRequest,
+} from "@/lib/bundles/types";
 
-// Combo (multi-product bundle) fetch actions.
-//
-// Reads mock data until the backend implements the bundle contract
-// (docs/superpowers/specs/2026-07-21-bundle-combo-api-contract.md). The real
-// implementation will call `GET combos/{slug}` / `GET combos` via ApiClient;
-// these signatures stay stable so the route/components never change.
-
+/** Single combo by slug (null when not found / inactive). */
 export async function getCombo(slug: string): Promise<Bundle | null> {
-  return findCombo(slug);
+  const lang = await getRequestLanguage();
+  const response = await new ApiClient(API_ROUTES.BUNDLES.COMBO_DETAILS(slug))
+    .withMethod("GET")
+    .withParams({ lang })
+    .execute<ApiResponse<Bundle | null>>();
+
+  return response.success ? (response.data ?? null) : null;
 }
 
-export async function getCombos(): Promise<Bundle[]> {
-  return listCombos();
+/** Active combos list (for the landing grid / home marketing banner). */
+export async function getCombos(perPage: number = 12): Promise<BundleSummary[]> {
+  const lang = await getRequestLanguage();
+  const response = await new ApiClient(API_ROUTES.BUNDLES.COMBOS)
+    .withMethod("GET")
+    .withParams({ page: 1, per_page: perPage, lang })
+    .execute<ApiResponse<BundleSummary[]>>();
+
+  return response.success && Array.isArray(response.data) ? response.data : [];
+}
+
+/**
+ * Validate a selected tier at checkout: returns server-authoritative pricing and
+ * a short-lived `server_quote_id`. Failed validation still resolves with
+ * `is_valid: false` + structured errors (the API returns 200 with success:false).
+ */
+export async function validateBundle(
+  request: ValidateBundleRequest
+): Promise<BundleValidationResult | null> {
+  const lang = await getRequestLanguage();
+  const response = await new ApiClient(API_ROUTES.BUNDLES.VALIDATE)
+    .withMethod("POST")
+    .withParams({ lang })
+    .withBody(request)
+    .withCookieHeaders()
+    .execute<ApiResponse<BundleValidationResult>>();
+
+  return response.data ?? null;
 }

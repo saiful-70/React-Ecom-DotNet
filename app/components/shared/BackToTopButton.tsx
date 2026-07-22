@@ -53,16 +53,17 @@ export default function BackToTopButton({ className }: BackToTopButtonProps = {}
 				"fixed bottom-4 md:bottom-3 right-4 z-50 transition-[opacity,bottom] duration-300 shadow-lg",
 				className
 			)}
-			// While the banner is on screen, sit exactly its measured height above
-			// the bottom (the banner publishes `--cookie-banner-height`). An inline
-			// style wins over the Tailwind bottom-* classes at every breakpoint, so
-			// this adapts to the banner's real height (i18n text, wrapping) instead
-			// of guessing a fixed offset. Falls back to 9rem before the measurement.
-			style={
-				bannerVisible
-					? { bottom: "calc(var(--cookie-banner-height, 9rem) + 1rem)" }
-					: undefined
-			}
+			// Sit above whichever fixed bottom UI is on screen. Two publishers may
+			// contribute: the cookie banner (`--cookie-banner-height`) and a page's
+			// bottom action bar (`--combo-actionbar-height`, e.g. the combo landing).
+			// An inline style wins over the Tailwind bottom-* classes at every
+			// breakpoint, so the button adapts to their real heights instead of
+			// guessing. Falls back to 9rem for the banner before measurement.
+			style={{
+				bottom: `calc(1rem + var(--combo-actionbar-height, 0px) + ${
+					bannerVisible ? "var(--cookie-banner-height, 9rem)" : "0px"
+				})`,
+			}}
 			onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
 			aria-label="Back to top"
 			size="icon"

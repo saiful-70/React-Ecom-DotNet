@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { calculateCartTax } from "@/lib/utils/tax-calculator";
-import type { BundleCartComponent, BundleType } from "@/lib/bundles/types";
+import type { BundleCartComponent } from "@/lib/bundles/types";
 
 export interface CartItem {
 	id: number;
@@ -27,7 +27,6 @@ export interface CartItem {
 	// payload (see the bundle API contract) — checkout is unchanged for now.
 	bundle_id?: number;
 	bundle_tier_id?: number;
-	bundle_type?: BundleType;
 	bundle_components?: BundleCartComponent[];
 }
 

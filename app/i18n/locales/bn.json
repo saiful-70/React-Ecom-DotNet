@@ -452,7 +452,8 @@
     "youSave": "আপনি সেভ করছেন",
     "totalPrice": "মোট দাম",
     "addBundleToCart": "কার্টে বান্ডেল যোগ করুন",
-    "addComboToCart": "কম্বোটি কার্টে যোগ করুন",
+    "addComboToCart": "কার্টে যোগ করুন",
+    "buyNow": "এখনই কিনুন",
     "secureCheckout": "নিরাপদ চেকআউট",
     "addedToCart": "কার্টে যোগ করা হয়েছে!",
     "bundleAddedDescription": "{{title}} আপনার কার্টে যোগ করা হয়েছে।",
@@ -462,7 +463,12 @@
     "trustCod": "ক্যাশ অন ডেলিভারি",
     "trustReturn": "৭ দিনের রিটার্ন",
     "comboNotFound": "কম্বো পাওয়া যায়নি",
-    "viewCombo": "কম্বো অফার দেখুন"
+    "viewCombo": "কম্বো অফার দেখুন",
+    "comboOffer": "কম্বো অফার",
+    "popular": "সবচেয়ে জনপ্রিয়",
+    "bestValue": "সেরা ভ্যালু",
+    "validationFailed": "বান্ডেল যাচাই ব্যর্থ",
+    "validationFailedDescription": "নির্বাচিত বান্ডেলটি এই মুহূর্তে অর্ডার করা যাচ্ছে না।"
   },
   "register": {
     "pageTitle": "অ্যাকাউন্ট তৈরি করুন",

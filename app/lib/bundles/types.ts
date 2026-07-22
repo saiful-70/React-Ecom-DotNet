@@ -1,88 +1,151 @@
 /**
- * Bundle / Combo domain types.
+ * Bundle / Combo domain types — mirror the delivered backend contract
+ * (customer bundle/combo APIs). One entity powers both storefront surfaces:
+ *  - the PDP "buy as bundle" selector (`GET /product-bundle`)
+ *  - the combo landing page (`GET /combos/{slug}`) + combos list (`GET /combos`)
  *
- * A "bundle" is a single entity that powers BOTH storefront surfaces:
- *  - `type: "quantity"` — the SAME product at 1/2/3-unit tiers (shown on the PDP).
- *  - `type: "combo"`    — DIFFERENT products sold as a set (its own landing page).
+ * Pricing is server-authoritative: tiers carry `price`/`compare_at_price`/`savings`
+ * from the backend, and the final payable amount comes from `POST /checkout/
+ * validate-bundle` (never computed or trusted from the client).
  *
- * Each tier lists its explicit component items (e.g. `1×rack`, or `2×rack + 1×apron`),
- * a server-authoritative total `price`, a `compare_at_price`, and perks. The UI never
- * derives tier pricing by multiplication — it renders exactly what the backend sends.
- *
- * This module is plain serializable data (no server-only APIs), so it is safe to import
- * from server actions, client components, and the mock module alike. It mirrors the
- * backend contract in docs/superpowers/specs/2026-07-21-bundle-combo-api-contract.md.
+ * There is no "type" discriminator on the wire — a bundle whose tiers hold a
+ * single product reads as a quantity bundle; multiple products read as a combo.
+ * The display style is chosen by the surface, not by a data field.
  */
 
-export type BundleType = "quantity" | "combo";
-
-export type BundlePerkType = "free_delivery" | "free_gift" | "custom";
-
 export interface BundlePerk {
-  type: BundlePerkType;
-  /** Localized display label, e.g. "ফ্রি ডেলিভারি" / "Free Delivery". */
+  /** "free_delivery" | "free_gift" | "custom" (open string). */
+  type: string;
   label: string;
-  /** Present when `type === "free_gift"`: the product handed out for free. */
-  gift_product_id?: number;
+  /** Present for free_gift perks: the gifted product. */
+  product_id?: number | null;
+  variant_id?: number | null;
+  qty?: number | null;
 }
 
-/** One concrete product line inside a tier's composition. */
 export interface BundleTierItem {
   product_id: number;
-  /** 0/absent when the product has no variant. */
-  variant_id?: number;
-  /** Display snapshot (backend returns localized name). */
+  variant_id?: number | null;
   name: string;
-  image: string;
-  /** How many of this product the tier contains (e.g. 2× rack, 1× apron). */
-  quantity: number;
-  /** Per-unit price, for display only — the charged amount is the tier `price`. */
-  unit_price: number;
+  slug?: string | null;
+  thumbnail_image: string;
+  qty: number;
+  /** "required" | "optional". Required rows must be sent to validate. */
+  role: string;
+  stock?: number;
+  is_available: boolean;
 }
 
 export interface BundleTier {
   id: number;
-  /** Localized tier label, e.g. "২টি কিনুন" / "2 সেট কম্বো". */
-  label: string;
-  /** Optional highlight, e.g. "MOST POPULAR" | "BEST VALUE" | null. */
-  badge?: string | null;
-  /** Server-authoritative total charged for the whole tier. */
-  price: number;
-  /** Struck-through reference total (sum of component list prices). */
-  compare_at_price: number;
-  /** `compare_at_price - price`; sent by the backend so the UI never recomputes. */
-  savings: number;
-  /** Pre-selected tier (typically the "MOST POPULAR" one). */
+  /** Duplicate of `id` sent by the backend; used as the validate/order key. */
+  bundle_tier_id: number;
+  name: string;
+  sort_order?: number;
   is_default?: boolean;
-  perks: BundlePerk[];
+  price: number;
+  compare_at_price: number;
+  savings: number;
+  is_available: boolean;
+  unavailable_reason?: string | null;
   items: BundleTierItem[];
+  perks: BundlePerk[];
 }
 
 export interface Bundle {
   id: number;
-  type: BundleType;
-  /** URL slug for the combo landing route (`/combo/<slug>`). */
   slug: string;
-  /** Parent product this bundle attaches to on the PDP (quantity bundles). */
-  product_id?: number | null;
-  /** Localized display title. */
   title: string;
-  /** Localized supporting line, e.g. "বেশি কিনুন, বেশি সেভ করুন!". */
-  subtitle?: string;
-  /** Ribbon label, e.g. "BUNDLE OFFER" | "COMBO OFFER". */
-  badge?: string;
-  /** Hero/banner images (combo landing uses these). */
-  images: string[];
+  description?: string | null;
+  badge?: string | null;
+  banner: string;
+  /** Anchor product for a PDP (quantity) bundle; null for standalone combos. */
+  product_id?: number | null;
   is_active: boolean;
-  /** ISO 8601 activation window (inclusive). */
+  is_default?: boolean;
   starts_at?: string | null;
   ends_at?: string | null;
+  terms?: string | null;
   tiers: BundleTier[];
 }
 
-/** Serializable snapshot of the component lines a chosen tier adds to the cart. */
+/** Row shape returned by the paginated `GET /combos` list (no tiers/items). */
+export interface BundleSummary {
+  id: number;
+  slug: string;
+  title: string;
+  badge?: string | null;
+  banner: string;
+  product_id?: number | null;
+  is_default?: boolean;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  price: number;
+  compare_at_price: number;
+  savings: number;
+  is_available: boolean;
+}
+
+/* ------------------------------------------------------------------ */
+/* Checkout validate flow (server-authoritative pricing + quote)       */
+/* ------------------------------------------------------------------ */
+
+export interface ValidateBundleItem {
+  product_id: number;
+  variant_id?: number | null;
+  qty: number;
+}
+
+export interface ValidateBundleRequest {
+  bundle_id: number;
+  bundle_tier_id: number;
+  items: ValidateBundleItem[];
+  city_id?: number | null;
+  shipping_type?: string;
+}
+
+export interface BundlePricing {
+  currency: string;
+  compare_at_price: number;
+  price: number;
+  savings: number;
+  tax: number;
+  shipping: number;
+  grand_total: number;
+}
+
+export interface ValidatedLineItem {
+  product_id: number;
+  variant_id?: number | null;
+  qty: number;
+  allocated_unit_price: number;
+  line_total: number;
+}
+
+export interface BundleValidationError {
+  code: string;
+  bundle_tier_id?: number;
+  product_id?: number;
+  variant_id?: number | null;
+  message: string;
+}
+
+/** `data` payload of `POST /checkout/validate-bundle`. */
+export interface BundleValidationResult {
+  bundle_id: number;
+  bundle_tier_id: number;
+  is_valid: boolean;
+  pricing?: BundlePricing;
+  items?: ValidatedLineItem[];
+  perks_applied?: { type: string; label: string }[];
+  server_quote_id?: string;
+  expires_at?: string;
+  errors?: BundleValidationError[];
+}
+
+/** Serializable snapshot of a chosen tier's required lines, kept on the cart line. */
 export interface BundleCartComponent {
   product_id: number;
-  variant_id?: number;
-  quantity: number;
+  variant_id?: number | null;
+  qty: number;
 }

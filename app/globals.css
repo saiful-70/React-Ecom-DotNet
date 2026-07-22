@@ -39,6 +39,12 @@
     --sidebar-ring: 142 56% 30%;
     /* Green-tinted shadow base (used by .shadow-warm-* utilities) */
     --shadow-warm: 152 40% 14%;
+    /* Self-hosted font families (Fontsource, imported in app/layout.tsx).
+       Tailwind's fontFamily stacks (see tailwind.config.ts) reference these;
+       fallbacks live there, so each var holds only the primary family name. */
+    --font-inter: "Inter Variable";
+    --font-bengali: "Hind Siliguri";
+    --font-display: "Noto Serif Bengali Variable";
   }
 
   .dark {

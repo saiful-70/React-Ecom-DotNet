@@ -17,9 +17,10 @@ import type { Bundle } from "@/lib/bundles/types";
 async function fetchFeaturedProductsFromAPI(
   per_page: number = 12,
 ): Promise<ProductsResponse> {
+  const lang = await getRequestLanguage();
   const response = await new ApiClient(API_ROUTES.HOME.FEATURED)
     .withMethod("GET")
-    .withParams({ per_page })
+    .withParams({ per_page, lang })
     .execute<RawFeaturedProductsApiResponse>();
 
   // Normalize response - some endpoints return data directly as array
@@ -63,9 +64,10 @@ async function fetchFeaturedProductsFromAPI(
 async function fetchTopSellingProductsFromAPI(
   per_page: number = 12,
 ): Promise<ProductsResponse> {
+  const lang = await getRequestLanguage();
   const response = await new ApiClient(API_ROUTES.HOME.TOP_SELLING)
     .withMethod("GET")
-    .withParams({ per_page })
+    .withParams({ per_page, lang })
     .execute<RawFeaturedProductsApiResponse>();
 
   // Normalize response - some endpoints return data directly as array
@@ -109,9 +111,10 @@ async function fetchTopSellingProductsFromAPI(
 async function fetchTodayDealProductsFromAPI(
   per_page: number = 12,
 ): Promise<ProductsResponse> {
+  const lang = await getRequestLanguage();
   const response = await new ApiClient(API_ROUTES.HOME.TODAY_DEAL)
     .withMethod("GET")
-    .withParams({ per_page })
+    .withParams({ per_page, lang })
     .execute<RawFeaturedProductsApiResponse>();
 
   // Normalize response - some endpoints return data directly as array
@@ -180,13 +183,13 @@ interface ProductsQuery {
 export async function getAllProducts(
   query?: ProductsQuery,
 ): Promise<ProductsResponse> {
-  const client = new ApiClient(API_ROUTES.PRODUCTS.BASE_URL).withMethod("GET");
-
-  if (query) {
-    client.withParams(
-      query as Record<string, string | number | boolean | string[]>,
-    );
-  }
+  const lang = await getRequestLanguage();
+  const client = new ApiClient(API_ROUTES.PRODUCTS.BASE_URL)
+    .withMethod("GET")
+    .withParams({
+      ...(query ?? {}),
+      lang,
+    } as Record<string, string | number | boolean | string[]>);
 
   const response = await client.execute<RawProductsApiResponse>();
 
@@ -225,8 +228,10 @@ export async function getAllProducts(
 export async function getProductDetails(
   id: number,
 ): Promise<SingleProductResponse> {
+  const lang = await getRequestLanguage();
   const response = await new ApiClient(API_ROUTES.PRODUCTS.DETAILS(id))
     .withMethod("GET")
+    .withParams({ lang })
     .execute<RawSingleProductApiResponse>();
 
   // Normalize response - /product-details endpoint returns product directly in data
@@ -239,6 +244,15 @@ export async function getProductDetails(
       },
     };
   }
+
+  // Surface the real backend failure (e.g. validation errors) instead of
+  // silently degrading to a 404 upstream.
+  console.error("[getProductDetails] request failed", {
+    id,
+    lang,
+    message: response.message,
+    errors: (response as unknown as { errors?: unknown }).errors,
+  });
 
   // If response failed, return normalized error
   return {
@@ -257,6 +271,14 @@ export async function getProductBundle(id: number): Promise<Bundle | null> {
     .withMethod("GET")
     .withParams({ product_id: id, lang })
     .execute<ApiResponse<Bundle | null>>();
+
+  if (!response.success) {
+    console.error("[getProductBundle] request failed", {
+      product_id: id,
+      lang,
+      message: response.message,
+    });
+  }
 
   return response.success ? (response.data ?? null) : null;
 }

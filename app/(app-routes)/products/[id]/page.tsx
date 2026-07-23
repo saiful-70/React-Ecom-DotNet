@@ -93,7 +93,7 @@ export default async function ProductDetailsPage({ params }: Props) {
 	const variant = await getActiveVariant();
 	const template = getTemplate(variant.template);
 
-	// Bundle offers are gated by the `bundles` feature flag (mock data for now).
+	// Bundle offers are gated by the `bundles` feature flag.
 	const bundle = variant.features.bundles
 		? await getProductBundle(product.id)
 		: null;

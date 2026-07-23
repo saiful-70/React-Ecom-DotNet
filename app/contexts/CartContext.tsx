@@ -99,7 +99,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
 			const quantityToAdd = isBundleLine
 				? 1
-				: action.payload.quantity || 1;
+				: Math.max(1, Math.floor(action.payload.quantity || 1));
 
 			let newItems: CartItem[];
 			if (existingItem) {
@@ -113,7 +113,12 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 								...item,
 								quantity: isBundleLine
 									? 1
-									: item.quantity + quantityToAdd,
+									: item.stock != null
+										? Math.min(
+												item.quantity + quantityToAdd,
+												Math.max(item.stock, 0)
+											)
+										: item.quantity + quantityToAdd,
 						  }
 						: item
 				);
@@ -176,24 +181,37 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 		}
 
 		case "UPDATE_QUANTITY": {
-			const newItems = state.items.map((item) =>
-				item.id === action.payload.id &&
-				((action.payload.variant_id &&
-					item.variant_id === action.payload.variant_id) ||
-					(!action.payload.variant_id && !item.variant_id)) &&
-				item.bundle_tier_id === action.payload.bundle_tier_id
-					? {
-							...item,
-							quantity:
-								item.bundle_tier_id != null
-									? 1
-									: Math.min(
-											action.payload.quantity,
-											item.stock || action.payload.quantity
-										),
-					  }
-					: item
-			);
+			const newItems = state.items
+				.map((item) => {
+					const matches =
+						item.id === action.payload.id &&
+						((action.payload.variant_id &&
+							item.variant_id === action.payload.variant_id) ||
+							(!action.payload.variant_id && !item.variant_id)) &&
+						item.bundle_tier_id === action.payload.bundle_tier_id;
+					if (!matches) {
+						return item;
+					}
+					// Bundle lines are always exactly quantity 1 (Phase 0 invariant).
+					if (item.bundle_tier_id != null) {
+						return { ...item, quantity: 1 };
+					}
+					// Quantity dropping to zero or below is treated as removal.
+					if (action.payload.quantity < 1) {
+						return null;
+					}
+					return {
+						...item,
+						quantity:
+							item.stock != null
+								? Math.min(
+										action.payload.quantity,
+										Math.max(item.stock, 0)
+									)
+								: action.payload.quantity,
+					};
+				})
+				.filter((item): item is CartItem => item !== null);
 
 			// Calculate tax from items
 			const taxCalculation = calculateCartTax(newItems);
@@ -225,8 +243,18 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 			};
 
 		case "LOAD_CART": {
+			// Defensive shape validation: drop entries that don't look like a real
+			// cart line (e.g. corrupted/tampered localStorage) before trusting them.
+			const validItems = action.payload.filter(
+				(item) =>
+					typeof item?.id === "number" &&
+					typeof item?.price === "number" &&
+					Number.isFinite(item.price) &&
+					item.quantity >= 1
+			);
+
 			// Clamp stale bundle lines to quantity 1 (invariant: bundle_tier_id != null => quantity === 1)
-			const newItems = action.payload.map((item) =>
+			const newItems = validItems.map((item) =>
 				item.bundle_tier_id != null && item.quantity !== 1
 					? { ...item, quantity: 1 }
 					: item

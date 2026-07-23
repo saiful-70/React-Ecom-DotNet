@@ -188,6 +188,7 @@
     "billingAddressSame": "বিলিং ঠিকানা শিপিং এর মতো একই",
     "paymentSecure": "আপনার পেমেন্ট তথ্য নিরাপদ এবং এনক্রিপ্ট করা",
     "quantity": "পরিমাণ",
+    "fixedQuantity": "নির্দিষ্ট পরিমাণ — পণ্যের পাতায় নির্ধারিত",
     "subtotal": "সাবটোটাল",
     "shipping": "শিপিং",
     "flatRateShipping": "ফ্ল্যাট রেট",

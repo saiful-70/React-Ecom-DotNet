@@ -189,6 +189,7 @@
     "billingAddressSame": "Billing address same as shipping",
     "paymentSecure": "Your payment information is secure and encrypted",
     "quantity": "Qty",
+    "fixedQuantity": "Fixed quantity — set on the product page",
     "subtotal": "Subtotal",
     "shipping": "Shipping",
     "flatRateShipping": "Flat Rate",

@@ -584,6 +584,7 @@ export function CheckoutPage() {
 							total={calculatedTotal}
 							isFormValid={!hasFormErrors(formErrors)}
 							isLoadingPrices={isLoadingPrices}
+							readOnlyQuantities={!!onlyId}
 						/>
 					</div>
 				</div>

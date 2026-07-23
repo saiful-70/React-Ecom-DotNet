@@ -36,6 +36,15 @@ interface OrderSummaryProps {
 	 * single scoped line so the summary matches what is being ordered.
 	 */
 	items?: CartItem[];
+	/**
+	 * True when checkout is scoped to a single Buy Now line (`?only=<id>`). The
+	 * displayed quantity is already clamped to the Buy Now amount by the caller
+	 * and does not reflect the real (possibly merged) cart line, so the +/-
+	 * steppers must not be shown here — mutating the clamped display quantity
+	 * would corrupt the real cart line. Render the quantity as static text
+	 * instead, mirroring the bundle-line fixed-quantity display below.
+	 */
+	readOnlyQuantities?: boolean;
 }
 
 export function OrderSummary({
@@ -49,6 +58,7 @@ export function OrderSummary({
 	isFormValid = true,
 	isLoadingPrices = false,
 	items: propItems,
+	readOnlyQuantities = false,
 }: OrderSummaryProps) {
 	const { t } = useTranslation();
 	const {
@@ -130,6 +140,16 @@ export function OrderSummary({
 											>
 												×1
 											</span>
+										) : readOnlyQuantities ? (
+											<span
+												className="w-7 text-center text-sm font-medium tabular-nums shrink-0"
+												title={t("checkout.fixedQuantity") || "Fixed quantity"}
+												aria-label={
+													t("checkout.fixedQuantity") || "Fixed quantity"
+												}
+											>
+												×{item.quantity}
+											</span>
 										) : (
 											<div className="flex items-center gap-1 shrink-0">
 												<Button
@@ -139,7 +159,7 @@ export function OrderSummary({
 													className="h-7 w-7"
 													onClick={handleDecrease}
 													disabled={item.quantity <= 1}
-													aria-label="decrease quantity"
+													aria-label={t("a11y.decreaseQuantity")}
 												>
 													<Minus className="w-3.5 h-3.5" />
 												</Button>
@@ -153,7 +173,7 @@ export function OrderSummary({
 													className="h-7 w-7"
 													onClick={handleIncrease}
 													disabled={atStockLimit}
-													aria-label="increase quantity"
+													aria-label={t("a11y.increaseQuantity")}
 												>
 													<Plus className="w-3.5 h-3.5" />
 												</Button>

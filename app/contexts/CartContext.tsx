@@ -250,6 +250,9 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 					typeof item?.id === "number" &&
 					typeof item?.price === "number" &&
 					Number.isFinite(item.price) &&
+					typeof item?.quantity === "number" &&
+					Number.isFinite(item.quantity) &&
+					Number.isInteger(item.quantity) &&
 					item.quantity >= 1
 			);
 

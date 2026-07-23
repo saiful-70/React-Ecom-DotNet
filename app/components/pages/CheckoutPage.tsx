@@ -248,14 +248,27 @@ export function CheckoutPage() {
 		return sum + (v?.pricing?.shipping ?? 0);
 	}, 0);
 
+	// `BundleValidationResult.pricing` has no explicit `free_delivery` boolean
+	// (only a numeric `shipping` charge) — zero shipping on a ready, validated
+	// bundle quote is used as a proxy for "the free-delivery perk was granted".
+	const bundleGrantsFreeDelivery =
+		bundleShippingReady && bundleShipping === 0 && bundleLines.length > 0;
+
+	// One delivery charge per order (PRODUCT DECISION): a mixed cart (bundle +
+	// normal items) normally falls back to the city/global rate, but if the
+	// validated bundle quote grants free delivery, the whole order ships free
+	// even with normal items present. Task 9 will extend this with a
+	// free-shipping subtotal threshold — add that as another branch here.
 	const finalShipping =
 		bundleLines.length > 0 && normalLines.length === 0 && bundleShippingReady
 			? bundleShipping
-			: isGlobal
-				? getGlobalDeliveryCharge(calculatedSubtotal)
-				: formData.city
-					? getDeliveryCharge(formData.city)
-					: 0;
+			: bundleGrantsFreeDelivery
+				? 0
+				: isGlobal
+					? getGlobalDeliveryCharge(calculatedSubtotal)
+					: formData.city
+						? getDeliveryCharge(formData.city)
+						: 0;
 
 	const calculatedTotal = calculatedSubtotal + calculatedTax + finalShipping;
 

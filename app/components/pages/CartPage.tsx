@@ -72,6 +72,7 @@ export function CartPage() {
 			price: item.price,
 			quantity: item.quantity,
 			variant_id: item.variant_id,
+			bundle_tier_id: item.bundle_tier_id,
 		};
 	});
 

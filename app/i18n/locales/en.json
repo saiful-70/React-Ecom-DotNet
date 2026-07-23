@@ -471,7 +471,8 @@
     "popular": "Most Popular",
     "bestValue": "Best Value",
     "validationFailed": "Bundle validation failed",
-    "validationFailedDescription": "The selected bundle can't be ordered right now."
+    "validationFailedDescription": "The selected bundle can't be ordered right now.",
+    "fixedQuantity": "Combo — fixed quantity"
   },
   "register": {
     "pageTitle": "Create Account",

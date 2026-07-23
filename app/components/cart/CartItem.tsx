@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/shared/ui/card";
 import { CartLineImage } from "@/components/shared/CartLineImage";
 import { Trash2, Plus, Minus } from "lucide-react";
 import Price from "@/components/shared/Price";
+import { useTranslation } from "react-i18next";
 
 export interface CartItemData {
 	id: string;
@@ -14,6 +15,7 @@ export interface CartItemData {
 	quantity: number;
 	variant_id?: number;
 	stock?: number;
+	bundle_tier_id?: number;
 }
 
 interface CartItemProps {
@@ -29,6 +31,7 @@ export function CartItem({
 	onUpdateQuantity,
 	onProductClick,
 }: CartItemProps) {
+	const { t } = useTranslation();
 	const handleQuantityChange = (newQuantity: number) => {
 		if (newQuantity < 1) {
 			onRemove(item.id, item.variant_id);
@@ -71,33 +74,45 @@ export function CartItem({
 						</Button>
 					</div>
 					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() =>
-									handleQuantityChange(item.quantity - 1)
+						{item.bundle_tier_id != null ? (
+							<span
+								className="min-w-[2ch] text-center text-sm font-medium"
+								title={t("bundle.fixedQuantity") || "Combo — fixed quantity"}
+								aria-label={
+									t("bundle.fixedQuantity") || "Combo — fixed quantity"
 								}
-								disabled={item.quantity <= 1}
-								className="h-7 w-7 p-0"
 							>
-								<Minus className="w-3 h-3" />
-							</Button>
-							<span className="min-w-[2ch] text-center text-sm">
-								{item.quantity}
+								×1
 							</span>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() =>
-									handleQuantityChange(item.quantity + 1)
-								}
-								disabled={item.stock !== undefined && item.quantity >= item.stock}
-								className="h-7 w-7 p-0"
-							>
-								<Plus className="w-3 h-3" />
-							</Button>
-						</div>
+						) : (
+							<div className="flex items-center gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() =>
+										handleQuantityChange(item.quantity - 1)
+									}
+									disabled={item.quantity <= 1}
+									className="h-7 w-7 p-0"
+								>
+									<Minus className="w-3 h-3" />
+								</Button>
+								<span className="min-w-[2ch] text-center text-sm">
+									{item.quantity}
+								</span>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() =>
+										handleQuantityChange(item.quantity + 1)
+									}
+									disabled={item.stock !== undefined && item.quantity >= item.stock}
+									className="h-7 w-7 p-0"
+								>
+									<Plus className="w-3 h-3" />
+								</Button>
+							</div>
+						)}
 						<div className="text-right">
 							<div className="text-base font-semibold">
 								<Price amount={item.price * item.quantity} />
@@ -135,33 +150,45 @@ export function CartItem({
 
 						{/* Quantity */}
 						<div className="col-span-2">
-							<div className="flex items-center gap-1">
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() =>
-										handleQuantityChange(item.quantity - 1)
+							{item.bundle_tier_id != null ? (
+								<span
+									className="min-w-[3ch] text-center text-sm font-medium"
+									title={t("bundle.fixedQuantity") || "Combo — fixed quantity"}
+									aria-label={
+										t("bundle.fixedQuantity") || "Combo — fixed quantity"
 									}
-									disabled={item.quantity <= 1}
-									className="h-8 w-8 p-0"
 								>
-									<Minus className="w-3 h-3" />
-								</Button>
-								<span className="min-w-[3ch] text-center">
-									{item.quantity}
+									×1
 								</span>
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() =>
-										handleQuantityChange(item.quantity + 1)
-									}
-									disabled={item.stock !== undefined && item.quantity >= item.stock}
-									className="h-8 w-8 p-0"
-								>
-									<Plus className="w-3 h-3" />
-								</Button>
-							</div>
+							) : (
+								<div className="flex items-center gap-1">
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() =>
+											handleQuantityChange(item.quantity - 1)
+										}
+										disabled={item.quantity <= 1}
+										className="h-8 w-8 p-0"
+									>
+										<Minus className="w-3 h-3" />
+									</Button>
+									<span className="min-w-[3ch] text-center">
+										{item.quantity}
+									</span>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() =>
+											handleQuantityChange(item.quantity + 1)
+										}
+										disabled={item.stock !== undefined && item.quantity >= item.stock}
+										className="h-8 w-8 p-0"
+									>
+										<Plus className="w-3 h-3" />
+									</Button>
+								</div>
+							)}
 						</div>
 
 						{/* Total */}

@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { headers, cookies } from "next/headers";
-import { Inter, Hind_Siliguri, Noto_Serif_Bengali } from "next/font/google";
+// Self-hosted fonts (Fontsource) — no build-time fetch from Google Fonts, so
+// the build never depends on network reachability (WSL/CI-safe). The family
+// names registered here ("Inter Variable", "Hind Siliguri",
+// "Noto Serif Bengali Variable") are wired to the --font-* CSS variables in
+// globals.css, which Tailwind's fontFamily stacks consume.
+import "@fontsource-variable/inter"; // --font-inter (variable 100–900, latin)
+import "@fontsource/hind-siliguri/300.css"; // --font-bengali (bengali + latin)
+import "@fontsource/hind-siliguri/400.css";
+import "@fontsource/hind-siliguri/500.css";
+import "@fontsource/hind-siliguri/600.css";
+import "@fontsource/hind-siliguri/700.css";
+import "@fontsource-variable/noto-serif-bengali"; // --font-display (variable)
 import "./globals.css";
 import GlobalProvider from "./components/shared/providers/global-provider";
 import BackToTopButton from "./components/shared/BackToTopButton";
@@ -26,28 +37,6 @@ import { ChatWidget } from "./components/chat";
 import { CookieBanner } from "./components/shared/CookieConsent";
 import { GoogleAnalytics, MetaPixel } from "./lib/analytics";
 import { getTemplate } from "./templates/registry";
-
-const inter = Inter({
-	subsets: ["latin"],
-	variable: "--font-inter",
-	display: "swap",
-});
-
-const hindSiliguri = Hind_Siliguri({
-	subsets: ["bengali", "latin"],
-	weight: ["300", "400", "500", "600", "700"],
-	variable: "--font-bengali",
-	display: "swap",
-});
-
-const notoSerifBengali = Noto_Serif_Bengali({
-	subsets: ["bengali", "latin"],
-	weight: ["400", "500", "600", "700"],
-	variable: "--font-display",
-	display: "swap",
-});
-
-const fontVariables = `${inter.variable} ${hindSiliguri.variable} ${notoSerifBengali.variable}`;
 
 // Generate metadata using business settings
 export async function generateMetadata(): Promise<Metadata> {
@@ -147,7 +136,7 @@ export default async function RootLayout({
 	// If maintenance mode is enabled, render only the maintenance page without layout
 	if (maintenanceEnabled) {
 		return (
-			<html lang={lang} className={fontVariables} suppressHydrationWarning>
+			<html lang={lang} suppressHydrationWarning>
 				<head>
 					{variantThemeCss && (
 						<style
@@ -170,7 +159,7 @@ export default async function RootLayout({
 
 	// Normal layout with header, footer, and other components
 	return (
-		<html lang={lang} className={fontVariables} suppressHydrationWarning>
+		<html lang={lang} suppressHydrationWarning>
 			<head>
 				{/* Variant theme: CSS-variable overrides layered over globals.css.
 				    Server-injected in <head> so the theme is correct on first paint. */}

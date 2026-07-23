@@ -4,6 +4,7 @@ import type { Product, PaginationMeta } from "@/(app-routes)/products/model";
 import type { Category } from "@/components/shared/models/category";
 import type { Brand } from "@/components/shared/models/brand";
 import type { FeatureFlags, TemplateId } from "@/variants/types";
+import type { Bundle } from "@/lib/bundles/types";
 
 /**
  * Template system types.
@@ -49,6 +50,12 @@ export interface ProductListingLayoutProps {
 
 export interface ProductDetailsLayoutProps {
   product: Product;
+  /**
+   * Quantity bundle attached to this product, when the `bundles` feature flag is
+   * on and the backend/mock returns one. Optional so templates that don't render
+   * bundles simply ignore it.
+   */
+  bundle?: Bundle | null;
 }
 
 export interface TemplateChrome {

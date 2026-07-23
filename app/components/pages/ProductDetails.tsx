@@ -10,6 +10,7 @@ import { wishlistAtom } from "@/store/wishlist.atom";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
+import { ProductBundleSelector } from "@/components/product/bundle/ProductBundleSelector";
 import { ProductsGrid } from "@/components/product/ProductsGrid";
 import {
 	trackUnifiedAddToCart,
@@ -28,12 +29,15 @@ import {
 	ProductDetailsTabs,
 } from "@/components/product/product-details";
 import type { Product, ProductVariant } from "@/(app-routes)/products/model";
+import type { Bundle } from "@/lib/bundles/types";
+import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 
 interface ProductDetailsPageProps {
 	product: Product;
+	bundle?: Bundle | null;
 }
 
-export function ProductDetails({ product }: ProductDetailsPageProps) {
+export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 	const { t } = useTranslation();
 	const router = useRouter();
 	const [userProfile] = useAtom(miniProfileAtom);
@@ -196,8 +200,8 @@ export function ProductDetails({ product }: ProductDetailsPageProps) {
 			quantity
 		);
 
-		// Navigate to checkout
-		router.push("/checkout");
+		// Navigate to a checkout scoped to just this line.
+		router.push(buyNowCheckoutHref(product.id, selectedVariant?.id));
 	};
 
 	const handleToggleWishlist = async () => {
@@ -369,21 +373,27 @@ export function ProductDetails({ product }: ProductDetailsPageProps) {
 						/>
 					)}					{/* Quantity & Actions */}
 					<div className="space-y-2.5 sm:space-y-4 lg:space-y-5">
-						<QuantitySelector
-							quantity={quantity}
-							onQuantityChange={setQuantity}
-							stock={availableStock}
-						/>
+						{bundle && bundle.tiers.length > 0 ? (
+							<ProductBundleSelector bundle={bundle} />
+						) : (
+							<>
+								<QuantitySelector
+									quantity={quantity}
+									onQuantityChange={setQuantity}
+									stock={availableStock}
+								/>
 
-						<ProductActionButtons
-							onAddToCart={handleAddToCart}
-							onBuyNow={handleBuyNow}
-							onToggleWishlist={handleToggleWishlist}
-							onShare={handleShare}
-							availableStock={availableStock}
-							isWishlisted={isWishlisted}
-							isWishlistLoading={isWishlistLoading}
-						/>
+								<ProductActionButtons
+									onAddToCart={handleAddToCart}
+									onBuyNow={handleBuyNow}
+									onToggleWishlist={handleToggleWishlist}
+									onShare={handleShare}
+									availableStock={availableStock}
+									isWishlisted={isWishlisted}
+									isWishlistLoading={isWishlistLoading}
+								/>
+							</>
+						)}
 
 						<ProductDeliveryInfo />
 					</div>

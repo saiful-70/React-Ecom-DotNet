@@ -97,6 +97,9 @@ export interface OrderItem {
   quantity: number;
   price: number;
   variant_id: number;
+  /** Set on lines that belong to a bundle tier, grouping them for the backend. */
+  bundle_id?: number;
+  bundle_tier_id?: number;
 }
 
 // Cart item interface for type safety
@@ -105,6 +108,15 @@ export interface CartItem {
   quantity: number;
   price: number;
   variant_id?: number;
+  // Bundle lines (see CartContext): carry the tier + required composition so
+  // checkout can re-validate and expand them into tagged order items.
+  bundle_id?: number;
+  bundle_tier_id?: number;
+  bundle_components?: {
+    product_id: number;
+    variant_id?: number | null;
+    qty: number;
+  }[];
 }
 
 // Purchase order request and response types
@@ -120,6 +132,12 @@ export interface PurchaseOrderRequest {
   shipping_address: ShippingAddress;
   billing_address: BillingAddress;
   order_items: OrderItem[];
+  // Bundle order (single-bundle path): the backend re-validates against this
+  // short-lived quote and applies server pricing. Each bundle order_item is also
+  // tagged with bundle_id/bundle_tier_id.
+  bundle_id?: number;
+  bundle_tier_id?: number;
+  server_quote_id?: string;
 }
 
 export interface PurchaseOrderResponse {

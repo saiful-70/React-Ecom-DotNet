@@ -107,6 +107,7 @@ const bn02: VariantDescriptor = {
     todaysDeals: true,
     topSelling: true,
     campaigns: true,
+    bundles: false,
     cookieConsent: true,
     languageSwitcher: true,
   },

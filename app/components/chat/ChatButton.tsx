@@ -40,7 +40,10 @@ export function ChatButton() {
   const hasMessages = messages.length > 0;
 
   return (
-    <div className="fixed bottom-16 md:bottom-16 right-4 z-50">
+    <div
+      className="fixed right-4 z-50"
+      style={{ bottom: "calc(4rem + var(--combo-actionbar-height, 0px))" }}
+    >
       <Button
         size="sm"
         onClick={handleClick}

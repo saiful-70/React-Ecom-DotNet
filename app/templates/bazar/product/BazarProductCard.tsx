@@ -12,6 +12,7 @@ import { toast } from "@/components/shared/ui/sonner";
 import Price from "@/components/shared/Price";
 import { useCart } from "@/contexts/CartContext";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
+import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
@@ -48,7 +49,7 @@ export function BazarProductCard({ product }: { product: Product }) {
 		: 0;
 
 	// Same variant-aware add-to-cart behaviour as ProductCardItem.
-	const doAddToCart = (): boolean => {
+	const doAddToCart = (): { id: number; variant_id?: number } | null => {
 		const variant =
 			product.variants && product.variants.length > 0
 				? product.variants[0]
@@ -60,7 +61,7 @@ export function BazarProductCard({ product }: { product: Product }) {
 
 		if (stock <= 0) {
 			toast.error(t("products.outOfStock"));
-			return false;
+			return null;
 		}
 		addToCart({
 			id: product.id,
@@ -74,7 +75,7 @@ export function BazarProductCard({ product }: { product: Product }) {
 			tax: product.tax ? parseFloat(product.tax) : 0,
 			tax_type: product.tax_type || "exclude",
 		});
-		return true;
+		return { id: product.id, variant_id: variant?.id };
 	};
 
 	const handleAddToCart = (e: React.MouseEvent) => {
@@ -88,8 +89,9 @@ export function BazarProductCard({ product }: { product: Product }) {
 
 	const handleBuyNow = (e: React.MouseEvent) => {
 		e.preventDefault();
-		if (doAddToCart()) {
-			router.push(ABSOLUTE_ROUTES.CHECKOUT);
+		const line = doAddToCart();
+		if (line) {
+			router.push(buyNowCheckoutHref(line.id, line.variant_id));
 		}
 	};
 

@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProductDetails } from "../action";
+import { getProductDetails, getProductBundle } from "../action";
 import { getBusinessSettings } from "@/components/shared/actions/business-settings";
 import {
 	generateProductMetadata,
@@ -93,11 +93,16 @@ export default async function ProductDetailsPage({ params }: Props) {
 	const variant = await getActiveVariant();
 	const template = getTemplate(variant.template);
 
+	// Bundle offers are gated by the `bundles` feature flag.
+	const bundle = variant.features.bundles
+		? await getProductBundle(product.id)
+		: null;
+
 	return (
 		<>
 			{renderStructuredData(productSchema)}
 			{renderStructuredData(breadcrumbSchema)}
-			<template.ProductDetailsLayout product={product} />
+			<template.ProductDetailsLayout product={product} bundle={bundle} />
 		</>
 	);
 }

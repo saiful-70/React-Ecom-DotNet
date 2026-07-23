@@ -27,7 +27,7 @@ import {
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
 import { ProductBundleSelector } from "@/components/product/bundle/ProductBundleSelector";
 import type { Product, ProductVariant } from "@/(app-routes)/products/model";
-import type { ProductDetailsLayoutProps } from "../../types";
+import type { ProductDetailsLayoutProps } from "@/templates/types";
 import { GlobalSectionTitle } from "../home/GlobalSectionTitle";
 import { GlobalDeliveryInfo } from "./GlobalDeliveryInfo";
 import { GlobalRatingStars } from "./GlobalRatingStars";

@@ -30,7 +30,7 @@ import type {
 	Product,
 	ProductVariant,
 } from "@/(app-routes)/products/model";
-import type { ProductDetailsLayoutProps } from "../../types";
+import type { ProductDetailsLayoutProps } from "@/templates/types";
 import { BazarSectionTitle } from "../home/BazarSectionTitle";
 import { BazarProductsGrid } from "./BazarProductsGrid";
 import { cn } from "@/lib/utils/utils";

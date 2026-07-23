@@ -2,7 +2,7 @@ import DynamicPortal from "@/components/shared/DynamicPortal";
 import { Button } from "@/components/shared/ui/button";
 import { Edit2Icon } from "lucide-react";
 import { useState } from "react";
-import { UserMiniProfileModel } from "../../(auth)/model";
+import { UserMiniProfileModel } from "@/(app-routes)/(auth)/model";
 import PersonalInfo from "./personal-info";
 import RecentOrders from "./recent-orders";
 import { OrderHistoryModel } from "../orders/model";

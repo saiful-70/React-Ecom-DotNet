@@ -4,7 +4,7 @@ import { Badge } from "@/components/shared/ui/badge";
 import Price from "@/components/shared/Price";
 import { Calendar } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { OrderDetailsModel } from "../../model";
+import { OrderDetailsModel } from "@/(app-routes)/profile/orders/model";
 import { getBadgeVariant } from "@/lib/utils/utils";
 
 type Props = {

@@ -9,7 +9,7 @@ import { MailIcon, PhoneIcon, UserIcon } from "lucide-react";
 import { useState, useTransition } from "react";
 import { Label } from "@/components/shared/ui/label";
 import { Input } from "@/components/shared/ui/input";
-import { UserMiniProfileModel } from "../../(auth)/model";
+import { UserMiniProfileModel } from "@/(app-routes)/(auth)/model";
 import { updateUserProfile } from "../actions";
 import { toast } from "@/components/shared/ui/sonner";
 import { useTranslation } from "react-i18next";

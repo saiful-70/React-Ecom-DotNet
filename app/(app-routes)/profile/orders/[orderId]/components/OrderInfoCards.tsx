@@ -8,7 +8,7 @@ import {
 } from "@/components/shared/ui/card";
 import { MapPin, CreditCard } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { OrderDetailsModel } from "../../model";
+import { OrderDetailsModel } from "@/(app-routes)/profile/orders/model";
 import { Separator } from "@/components/shared/ui/separator";
 import { formatText } from "@/lib/utils/utils";
 import { Button } from "@/components/shared/ui/button";

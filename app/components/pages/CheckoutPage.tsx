@@ -36,13 +36,13 @@ import {
 	parseBuyNowQuantity,
 } from "@/lib/utils/buy-now";
 
-import { OrderSummary } from "../../(app-routes)/checkout/components/OrderSummary";
-import { ShippingAddressForm } from "../../(app-routes)/checkout/components/ShippingAddressForm";
-import { GlobalShippingAddressForm } from "../../(app-routes)/checkout/components/GlobalShippingAddressForm";
+import { OrderSummary } from "@/(app-routes)/checkout/components/OrderSummary";
+import { ShippingAddressForm } from "@/(app-routes)/checkout/components/ShippingAddressForm";
+import { GlobalShippingAddressForm } from "@/(app-routes)/checkout/components/GlobalShippingAddressForm";
 import {
 	prepareOrderData,
 	toLocalBDPhone,
-} from "../../(app-routes)/checkout/helpers/checkout-helpers";
+} from "@/(app-routes)/checkout/helpers/checkout-helpers";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { getDeliveryCharge, getGlobalDeliveryCharge } from "@/lib/constants/delivery";
 import { getBusinessSettingAsNumber } from "@/lib/utils/business-settings";

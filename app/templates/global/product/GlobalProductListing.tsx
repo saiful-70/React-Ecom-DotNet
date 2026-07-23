@@ -7,7 +7,7 @@ import { ProductToolbar } from "@/components/product/ProductToolbar";
 import { ProductFilters } from "@/components/product/ProductFilters";
 import { ProductsInfiniteList } from "@/components/product/ProductsInfiniteList";
 import { ProductsEmptyState } from "@/components/product/ProductsEmptyState";
-import type { ProductListingLayoutProps } from "../../types";
+import type { ProductListingLayoutProps } from "@/templates/types";
 import { GlobalProductCard } from "./GlobalProductCard";
 
 /**

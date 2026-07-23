@@ -9,7 +9,7 @@ import { Separator } from "@/components/shared/ui/separator";
 import Price from "@/components/shared/Price";
 // import { Button } from "@/components/shared/ui/button";
 import { useTranslation } from "react-i18next";
-import { OrderDetailsModel, OrderItem } from "../../model";
+import { OrderDetailsModel, OrderItem } from "@/(app-routes)/profile/orders/model";
 import { calculateCartTax } from "@/lib/utils/tax-calculator";
 
 type Props = { orderDetails: OrderDetailsModel };

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { ProductsInfiniteList } from "@/components/product/ProductsInfiniteList";
 import { ProductsEmptyState } from "@/components/product/ProductsEmptyState";
-import type { ProductListingLayoutProps } from "../../types";
+import type { ProductListingLayoutProps } from "@/templates/types";
 import { BazarProductCard } from "./BazarProductCard";
 
 /**

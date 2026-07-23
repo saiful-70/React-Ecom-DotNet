@@ -95,7 +95,7 @@ export function BazarProductCard({ product }: { product: Product }) {
 		e.preventDefault();
 		const line = doAddToCart();
 		if (line) {
-			router.push(buyNowCheckoutHref(line.id, line.variant_id));
+			router.push(buyNowCheckoutHref(line.id, line.variant_id, 1));
 		}
 	};
 

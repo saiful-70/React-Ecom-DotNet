@@ -21,6 +21,7 @@ import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { toast } from "sonner";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { useTranslation } from "react-i18next";
+import { safeRedirectPath } from "@/lib/utils/safe-redirect";
 
 const STORAGE_KEY = "loginCredentials";
 
@@ -55,8 +56,10 @@ export function LoginPage() {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
 	const setMiniProfile = useSetAtom(miniProfileAtom);
-	const redirectUrl =
-		useSearchParams().get("redirect") || ABSOLUTE_ROUTES.PROFILE;
+	const redirectUrl = safeRedirectPath(
+		useSearchParams().get("redirect"),
+		ABSOLUTE_ROUTES.PROFILE
+	);
 
 	// Load stored credentials on mount
 	useEffect(() => {

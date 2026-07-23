@@ -61,6 +61,7 @@ export default async function ProductDetailsPage({ params }: Props) {
 
 	// Generate structured data for SEO
 	const productSchema = generateProductSchema({
+		id: product.id,
 		name: product.name,
 		description: product.description || `Buy ${product.name} online`,
 		image:

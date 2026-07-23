@@ -8,7 +8,9 @@
     "toggleMenu": "Toggle menu",
     "changeLanguage": "Change language",
     "cart": "Cart",
-    "account": "Account"
+    "account": "Account",
+    "removeItem": "Remove item",
+    "backToTop": "Back to top"
   },
   "header": {
     "searchPlaceholder": "Search products...",

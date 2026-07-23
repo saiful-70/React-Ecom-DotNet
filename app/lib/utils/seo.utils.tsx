@@ -208,6 +208,7 @@ export function generateProductMetadata({
  */
 
 export interface ProductStructuredData {
+	id?: string | number;
 	name: string;
 	description: string;
 	image: string;
@@ -230,7 +231,7 @@ export function generateProductSchema(product: ProductStructuredData) {
 		image: product.image.startsWith("http")
 			? product.image
 			: `${SITE_URL}${product.image}`,
-		sku: product.sku || `PRODUCT-${Date.now()}`,
+		sku: product.sku || (product.id !== undefined ? String(product.id) : product.url),
 		brand: product.brand
 			? {
 				"@type": "Brand",

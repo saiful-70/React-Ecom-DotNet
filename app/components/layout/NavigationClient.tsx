@@ -294,8 +294,8 @@ function ListItem({
 	href,
 	icon,
 	depth = 0,
-	...props
-}: Omit<React.ComponentPropsWithoutRef<"li">, "title"> & {
+}: {
+	children?: React.ReactNode;
 	href: string;
 	title: string;
 	icon?: string;

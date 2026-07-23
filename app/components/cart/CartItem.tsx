@@ -81,6 +81,7 @@ export function CartItem({
 							size="sm"
 							onClick={() => onRemove(item.id, item.variant_id, item.bundle_tier_id)}
 							className="text-destructive hover:text-destructive flex-shrink-0"
+							aria-label={t("a11y.removeItem")}
 						>
 							<Trash2 className="w-4 h-4" />
 						</Button>
@@ -106,6 +107,7 @@ export function CartItem({
 									}
 									disabled={item.quantity <= 1}
 									className="h-7 w-7 p-0"
+									aria-label={t("a11y.decreaseQuantity")}
 								>
 									<Minus className="w-3 h-3" />
 								</Button>
@@ -120,6 +122,7 @@ export function CartItem({
 									}
 									disabled={item.stock !== undefined && item.quantity >= item.stock}
 									className="h-7 w-7 p-0"
+									aria-label={t("a11y.increaseQuantity")}
 								>
 									<Plus className="w-3 h-3" />
 								</Button>
@@ -182,6 +185,7 @@ export function CartItem({
 										}
 										disabled={item.quantity <= 1}
 										className="h-8 w-8 p-0"
+										aria-label={t("a11y.decreaseQuantity")}
 									>
 										<Minus className="w-3 h-3" />
 									</Button>
@@ -196,6 +200,7 @@ export function CartItem({
 										}
 										disabled={item.stock !== undefined && item.quantity >= item.stock}
 										className="h-8 w-8 p-0"
+										aria-label={t("a11y.increaseQuantity")}
 									>
 										<Plus className="w-3 h-3" />
 									</Button>
@@ -215,6 +220,7 @@ export function CartItem({
 								size="sm"
 								onClick={() => onRemove(item.id, item.variant_id, item.bundle_tier_id)}
 								className="text-destructive hover:text-destructive"
+								aria-label={t("a11y.removeItem")}
 							>
 								<Trash2 className="w-4 h-4" />
 							</Button>

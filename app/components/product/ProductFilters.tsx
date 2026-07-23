@@ -36,14 +36,13 @@ export function ProductFilters({
 	buttonOnly = false,
 }: ProductFiltersProps) {
 	const { t } = useTranslation();
-	const [isPending, startTransition] = useTransition();
+	const [, startTransition] = useTransition();
 	const scrollRef = useRef<number>(0);
 	const isNavigatingRef = useRef<boolean>(false);
 
 	const [isDrawerOpen, setIsDrawerOpen] = useAtom(filterDrawerOpenAtom);
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const [searchQuery, setSearchQuery] = useState("");
 
 	// Restore scroll position after navigation
 	useLayoutEffect(() => {
@@ -51,11 +50,6 @@ export function ProductFilters({
 			window.scrollTo({ top: scrollRef.current, behavior: "instant" });
 			isNavigatingRef.current = false;
 		}
-	}, [searchParams]);
-
-	// Initialize search query from URL
-	useEffect(() => {
-		setSearchQuery(searchParams.get("search") ?? "");
 	}, [searchParams]);
 
 	const selectedCategories = useMemo(() => {
@@ -199,31 +193,6 @@ export function ProductFilters({
 		scrollRef.current = window.scrollY;
 		isNavigatingRef.current = true;
 		router.push("/products", { scroll: false });
-	};
-
-	const handleSearch = () => {
-		const trimmedQuery = searchQuery.trim();
-		const params = new URLSearchParams(searchParams.toString());
-
-		if (trimmedQuery) {
-			params.set("search", trimmedQuery);
-		} else {
-			params.delete("search");
-		}
-		params.set("page", "1");
-
-		scrollRef.current = window.scrollY;
-		isNavigatingRef.current = true;
-
-		router.push(`/products?${params.toString()}`, { scroll: false });
-		setIsDrawerOpen(false);
-	};
-
-	const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === "Enter") {
-			e.preventDefault();
-			handleSearch();
-		}
 	};
 
 	// Filter content component (reused for both desktop and mobile)

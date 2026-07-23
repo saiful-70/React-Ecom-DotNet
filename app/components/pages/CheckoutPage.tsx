@@ -253,17 +253,19 @@ export function CheckoutPage() {
 
 	// A bundle grants free delivery when the validated quote lists a
 	// free_delivery perk. Fall back to zero shipping only when the backend
-	// omits perks_applied, so a not-yet-city-resolved quote (shipping 0 before
-	// a city is chosen) can't falsely waive delivery.
+	// omits perks_applied entirely, so a not-yet-city-resolved quote (shipping 0
+	// before a city is chosen) can't falsely waive delivery. An empty
+	// perks_applied: [] (the .NET serializer's "no perks" shape) must NOT fall
+	// through to the shipping===0 proxy.
 	const bundleHasFreeDeliveryPerk = bundleLines.some((line) => {
 		const v = line.bundle_tier_id
 			? bundleValidations[line.bundle_tier_id]
 			: undefined;
 		if (!v) return false;
-		if (v.perks_applied?.length) {
+		if (v.perks_applied) {
 			return v.perks_applied.some((p) => p.type === "free_delivery");
 		}
-		return v.pricing?.shipping === 0; // fallback when perks_applied is absent
+		return v.pricing?.shipping === 0; // fallback only when perks_applied is absent
 	});
 	const bundleGrantsFreeDelivery = bundleShippingReady && bundleHasFreeDeliveryPerk;
 
@@ -296,6 +298,16 @@ export function CheckoutPage() {
 					: bdShipping;
 
 	const calculatedTotal = calculatedSubtotal + calculatedTax + finalShipping;
+
+	// Shipping is only "known" once we have a real signal that determined it:
+	// a global (no-city) template, a chosen city, a bundle free-delivery perk,
+	// or the subtotal clearing the free-shipping threshold. Otherwise a
+	// shippingCost of 0 is just the not-yet-resolved default, not "free".
+	const shippingResolved =
+		isGlobal ||
+		!!formData.city ||
+		bundleGrantsFreeDelivery ||
+		calculatedSubtotal >= freeShippingOver;
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -470,6 +482,7 @@ export function CheckoutPage() {
 							isProcessing={isProcessing}
 							onSubmit={() => {}}
 							shippingCost={finalShipping}
+							shippingResolved={shippingResolved}
 							subtotal={calculatedSubtotal}
 							tax={calculatedTax}
 							total={calculatedTotal}

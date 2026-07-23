@@ -18,6 +18,14 @@ interface OrderSummaryProps {
 	isProcessing: boolean;
 	onSubmit: () => void;
 	shippingCost?: number;
+	/**
+	 * True once shipping has genuinely been determined (global template, a
+	 * chosen city, a bundle free-delivery perk, or the subtotal clearing the
+	 * free-shipping threshold). When false, a shippingCost of 0 is just the
+	 * not-yet-resolved default and should show the "select city" hint instead
+	 * of "Free".
+	 */
+	shippingResolved?: boolean;
 	subtotal?: number;
 	tax?: number;
 	total?: number;
@@ -34,6 +42,7 @@ export function OrderSummary({
 	isProcessing,
 	onSubmit,
 	shippingCost,
+	shippingResolved = false,
 	subtotal: propSubtotal,
 	tax: propTax,
 	total: propTotal,
@@ -175,12 +184,14 @@ export function OrderSummary({
 					<div className="flex justify-between">
 						<span>{t("checkout.shipping")}</span>
 						<span className="text-foreground">
-							{shippingCost && shippingCost > 0 ? (
-								<Price amount={shippingCost} />
-							) : (
+							{!shippingResolved ? (
 								<span className="text-muted-foreground italic text-sm">
 									{t("checkout.selectCity")}
 								</span>
+							) : shippingCost && shippingCost > 0 ? (
+								<Price amount={shippingCost} />
+							) : (
+								<span>{t("checkout.free")}</span>
 							)}
 						</span>
 					</div>

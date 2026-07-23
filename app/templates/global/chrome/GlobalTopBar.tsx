@@ -2,9 +2,13 @@
 
 import { useAtomValue } from "jotai";
 import { Phone } from "lucide-react";
-import { getCurrencySymbol } from "@/lib/utils/business-settings";
+import {
+	DEFAULT_CURRENCY,
+	getCurrencySymbol,
+} from "@/lib/utils/business-settings";
 import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { VariantSwitcher } from "@/components/shared/VariantSwitcher";
+import { useVariant } from "@/components/shared/providers/variant-provider";
 import { businessSettingsAtom } from "@/store/ui-atoms";
 
 /**
@@ -14,7 +18,9 @@ import { businessSettingsAtom } from "@/store/ui-atoms";
  */
 export function GlobalTopBar() {
 	const settings = useAtomValue(businessSettingsAtom);
-	const currency = settings?.currency || "USD";
+	const variant = useVariant();
+	const currency =
+		settings?.currency || variant.branding.currency || DEFAULT_CURRENCY;
 	const symbol = getCurrencySymbol(currency);
 
 	return (

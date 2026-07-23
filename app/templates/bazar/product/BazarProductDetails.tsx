@@ -25,6 +25,7 @@ import {
 	ProductDetailsTabs,
 } from "@/components/product/product-details";
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
+import { ProductBundleSelector } from "@/components/product/bundle/ProductBundleSelector";
 import type {
 	Product,
 	ProductVariant,
@@ -39,7 +40,10 @@ import { cn } from "@/lib/utils/utils";
  * price + save badge, variant selector, quantity + stock, Add to Cart / Buy
  * Now / wishlist, delivery info, share), tabs, related products.
  */
-export function BazarProductDetails({ product }: ProductDetailsLayoutProps) {
+export function BazarProductDetails({
+	product,
+	bundle,
+}: ProductDetailsLayoutProps) {
 	const { t } = useTranslation();
 	const router = useRouter();
 	const { items, addToCart } = useCart();
@@ -264,61 +268,67 @@ export function BazarProductDetails({ product }: ProductDetailsLayoutProps) {
 						/>
 					)}
 
-					<div className="flex flex-wrap items-center gap-4">
-						<QuantitySelector
-							quantity={quantity}
-							onQuantityChange={setQuantity}
-							stock={availableStock}
-						/>
-						<span
-							className={cn(
-								"text-sm font-medium",
-								availableStock > 0
-									? "text-primary"
-									: "text-destructive"
-							)}
-						>
-							{availableStock > 0
-								? `${availableStock} ${t("bazar.inStock")}`
-								: t("bazar.stockOut")}
-						</span>
-					</div>
+					{bundle && bundle.tiers.length > 0 ? (
+						<ProductBundleSelector bundle={bundle} />
+					) : (
+						<>
+							<div className="flex flex-wrap items-center gap-4">
+								<QuantitySelector
+									quantity={quantity}
+									onQuantityChange={setQuantity}
+									stock={availableStock}
+								/>
+								<span
+									className={cn(
+										"text-sm font-medium",
+										availableStock > 0
+											? "text-primary"
+											: "text-destructive"
+									)}
+								>
+									{availableStock > 0
+										? `${availableStock} ${t("bazar.inStock")}`
+										: t("bazar.stockOut")}
+								</span>
+							</div>
 
-					<div className="flex flex-wrap items-center gap-3">
-						<Button
-							size="lg"
-							variant="secondary"
-							className="rounded-full px-8 font-semibold"
-							onClick={handleAddToCart}
-							disabled={availableStock <= 0}
-						>
-							{t("bazar.addToCart")}
-						</Button>
-						<Button
-							size="lg"
-							className="rounded-full px-8 font-semibold"
-							onClick={handleBuyNow}
-							disabled={availableStock <= 0}
-						>
-							{t("bazar.buyNow")}
-						</Button>
-						<Button
-							size="icon"
-							variant={isWishlisted ? "default" : "outline"}
-							className="rounded-full"
-							onClick={handleToggleWishlist}
-							disabled={isWishlistLoading}
-							aria-label={t("bazar.wishlist")}
-							aria-pressed={isWishlisted}
-						>
-							<Heart
-								className={cn(
-									"h-5 w-5",
-									isWishlisted && "fill-current"
-								)}
-							/>
-						</Button>
-					</div>
+							<div className="flex flex-wrap items-center gap-3">
+								<Button
+									size="lg"
+									variant="secondary"
+									className="rounded-full px-8 font-semibold"
+									onClick={handleAddToCart}
+									disabled={availableStock <= 0}
+								>
+									{t("bazar.addToCart")}
+								</Button>
+								<Button
+									size="lg"
+									className="rounded-full px-8 font-semibold"
+									onClick={handleBuyNow}
+									disabled={availableStock <= 0}
+								>
+									{t("bazar.buyNow")}
+								</Button>
+								<Button
+									size="icon"
+									variant={isWishlisted ? "default" : "outline"}
+									className="rounded-full"
+									onClick={handleToggleWishlist}
+									disabled={isWishlistLoading}
+									aria-label={t("bazar.wishlist")}
+									aria-pressed={isWishlisted}
+								>
+									<Heart
+										className={cn(
+											"h-5 w-5",
+											isWishlisted && "fill-current"
+										)}
+									/>
+								</Button>
+							</div>
+						</>
+					)}
 
 					<ProductDeliveryInfo />
 

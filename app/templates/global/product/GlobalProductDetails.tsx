@@ -25,6 +25,7 @@ import {
 	ProductDetailsTabs,
 } from "@/components/product/product-details";
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
+import { ProductBundleSelector } from "@/components/product/bundle/ProductBundleSelector";
 import type { Product, ProductVariant } from "@/(app-routes)/products/model";
 import type { ProductDetailsLayoutProps } from "../../types";
 import { GlobalSectionTitle } from "../home/GlobalSectionTitle";
@@ -38,7 +39,10 @@ import { cn } from "@/lib/utils/utils";
  * wishlist counts, price + save, variant selector, quantity, live total,
  * Buy Now / Add to Cart / wishlist, delivery, share), tabs, related products.
  */
-export function GlobalProductDetails({ product }: ProductDetailsLayoutProps) {
+export function GlobalProductDetails({
+	product,
+	bundle,
+}: ProductDetailsLayoutProps) {
 	const { t } = useTranslation();
 	const router = useRouter();
 	const { items, addToCart } = useCart();
@@ -270,71 +274,82 @@ export function GlobalProductDetails({ product }: ProductDetailsLayoutProps) {
 						/>
 					)}
 
-					<div className="flex flex-wrap items-center gap-4">
-						<QuantitySelector
-							quantity={quantity}
-							onQuantityChange={setQuantity}
-							stock={availableStock}
-						/>
-						<span
-							className={cn(
-								"text-sm font-medium",
-								availableStock > 0 ? "text-success" : "text-destructive"
-							)}
-						>
-							{availableStock > 0
-								? `${availableStock} ${t("global.inStock")}`
-								: t("global.stockOut")}
-						</span>
-					</div>
+					{bundle && bundle.tiers.length > 0 ? (
+						<ProductBundleSelector bundle={bundle} />
+					) : (
+						<>
+							<div className="flex flex-wrap items-center gap-4">
+								<QuantitySelector
+									quantity={quantity}
+									onQuantityChange={setQuantity}
+									stock={availableStock}
+								/>
+								<span
+									className={cn(
+										"text-sm font-medium",
+										availableStock > 0
+											? "text-success"
+											: "text-destructive"
+									)}
+								>
+									{availableStock > 0
+										? `${availableStock} ${t("global.inStock")}`
+										: t("global.stockOut")}
+								</span>
+							</div>
 
-					<div className="flex items-center gap-2 border-t pt-4 text-lg">
-						<span className="font-medium text-muted-foreground">
-							{t("global.totalPrice")}:
-						</span>
-						<span className="text-2xl font-bold text-primary tabular-nums">
-							<Price amount={totalPrice} />
-						</span>
-					</div>
+							<div className="flex items-center gap-2 border-t pt-4 text-lg">
+								<span className="font-medium text-muted-foreground">
+									{t("global.totalPrice")}:
+								</span>
+								<span className="text-2xl font-bold text-primary tabular-nums">
+									<Price amount={totalPrice} />
+								</span>
+							</div>
 
-					<div className="flex flex-wrap items-center gap-3">
-						<Button
-							size="lg"
-							className="bg-warning px-8 font-semibold text-warning-foreground hover:bg-warning/90"
-							onClick={handleBuyNow}
-							disabled={availableStock <= 0}
-						>
-							{t("global.buyNow")}
-						</Button>
-						<Button
-							size="lg"
-							className="px-8 font-semibold"
-							onClick={handleAddToCart}
-							disabled={availableStock <= 0}
-						>
-							{t("global.addToCart")}
-						</Button>
-						<Button
-							size="icon"
-							variant={isWishlisted ? "default" : "outline"}
-							onClick={handleToggleWishlist}
-							disabled={isWishlistLoading}
-							aria-label={t("global.wishlist")}
-							aria-pressed={isWishlisted}
-						>
-							<Heart
-								className={cn("h-5 w-5", isWishlisted && "fill-current")}
-							/>
-						</Button>
-						<Button
-							size="icon"
-							variant="outline"
-							onClick={handleShare}
-							aria-label={t("global.share")}
-						>
-							<Share2 className="h-5 w-5" />
-						</Button>
-					</div>
+							<div className="flex flex-wrap items-center gap-3">
+								<Button
+									size="lg"
+									className="bg-warning px-8 font-semibold text-warning-foreground hover:bg-warning/90"
+									onClick={handleBuyNow}
+									disabled={availableStock <= 0}
+								>
+									{t("global.buyNow")}
+								</Button>
+								<Button
+									size="lg"
+									className="px-8 font-semibold"
+									onClick={handleAddToCart}
+									disabled={availableStock <= 0}
+								>
+									{t("global.addToCart")}
+								</Button>
+								<Button
+									size="icon"
+									variant={isWishlisted ? "default" : "outline"}
+									onClick={handleToggleWishlist}
+									disabled={isWishlistLoading}
+									aria-label={t("global.wishlist")}
+									aria-pressed={isWishlisted}
+								>
+									<Heart
+										className={cn(
+											"h-5 w-5",
+											isWishlisted && "fill-current"
+										)}
+									/>
+								</Button>
+								<Button
+									size="icon"
+									variant="outline"
+									onClick={handleShare}
+									aria-label={t("global.share")}
+								>
+									<Share2 className="h-5 w-5" />
+								</Button>
+							</div>
+						</>
+					)}
 
 					<GlobalDeliveryInfo />
 				</div>

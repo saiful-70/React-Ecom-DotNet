@@ -16,6 +16,13 @@ import {
  */
 
 /**
+ * Single source of truth for the storefront's fallback currency, used when
+ * neither the variant branding nor the backend API supplies one. Keep this as
+ * the only hardcoded currency literal in the codebase.
+ */
+export const DEFAULT_CURRENCY = "BDT";
+
+/**
  * Normalizes business settings from any format into a single BusinessSettingsModel object
  * Handles: BusinessSettingItem[], BusinessSettingsModel[], BusinessSettingsModel, or empty data
  *
@@ -42,7 +49,7 @@ export function normalizeBusinessSettings(
     pagination: "25",
     address: "Dhaka, Bangladesh",
     decimal_digits: "2",
-    currency: "BDT",
+    currency: DEFAULT_CURRENCY,
     currency_position: "left",
     copyright_text: "@copyright reserved 2025",
     header_logo: "/logo.png",
@@ -175,7 +182,7 @@ export function formatCurrency(
   amount: number,
   settings: BusinessSettingsModel
 ): string {
-  const currency = settings.currency || "BDT";
+  const currency = settings.currency || DEFAULT_CURRENCY;
   const decimals = getBusinessSettingAsNumber(settings, "decimal_digits", 2);
   const position = settings.currency_position || "left";
 

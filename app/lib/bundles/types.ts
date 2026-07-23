@@ -149,3 +149,7 @@ export interface BundleCartComponent {
   variant_id?: number | null;
   qty: number;
 }
+
+/** Slugs are backend-generated: lowercase alphanumerics and hyphens only. */
+export const isValidComboSlug = (slug: string): boolean =>
+  /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);

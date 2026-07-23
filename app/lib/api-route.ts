@@ -62,7 +62,7 @@ export const API_ROUTES = {
     /** Paginated list of active combos. */
     COMBOS: "combos",
     /** Single combo by slug. */
-    COMBO_DETAILS: (slug: string) => `combos/${slug}`,
+    COMBO_DETAILS: (slug: string) => `combos/${encodeURIComponent(slug)}`,
     /** Server-authoritative pricing + quote for a selected tier. */
     VALIDATE: "checkout/validate-bundle",
   },

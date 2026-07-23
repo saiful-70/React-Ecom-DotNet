@@ -204,8 +204,12 @@ export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 			quantity
 		);
 
-		// Navigate to a checkout scoped to just this line.
-		router.push(buyNowCheckoutHref(product.id, selectedVariant?.id));
+		// Navigate to a checkout scoped to just this line, passing the Buy Now
+		// quantity so checkout can display/charge just that amount even if it
+		// merged into a pre-existing cart line.
+		router.push(
+			buyNowCheckoutHref(product.id, selectedVariant?.id, quantity)
+		);
 	};
 
 	const handleToggleWishlist = async () => {

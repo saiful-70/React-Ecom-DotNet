@@ -129,7 +129,9 @@ export function GlobalProductDetails({ product }: ProductDetailsLayoutProps) {
 	const handleBuyNow = () => {
 		const line = doAddToCart();
 		if (line) {
-			router.push(buyNowCheckoutHref(line.id, line.variant_id));
+			// Pass the Buy Now quantity so checkout can display/charge just that
+			// amount even if it merged into a pre-existing cart line.
+			router.push(buyNowCheckoutHref(line.id, line.variant_id, quantity));
 		}
 	};
 

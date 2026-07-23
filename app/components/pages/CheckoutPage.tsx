@@ -30,8 +30,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	BUY_NOW_ID_PARAM,
+	BUY_NOW_QTY_PARAM,
 	BUY_NOW_VARIANT_PARAM,
 	matchesBuyNowScope,
+	parseBuyNowQuantity,
 } from "@/lib/utils/buy-now";
 
 import { OrderSummary } from "../../(app-routes)/checkout/components/OrderSummary";
@@ -59,7 +61,8 @@ export function CheckoutPage() {
 	const [serverPrices, setServerPrices] = useState<CheckoutDataProduct[]>([]);
 	const [bundleValidations, setBundleValidations] =
 		useState<BundleValidationMap>({});
-	const { items: cartItems, clearCart, removeFromCart } = useCart();
+	const { items: cartItems, clearCart, removeFromCart, updateQuantity } =
+		useCart();
 
 	// "Buy Now" checkout is scoped to a single cart line via ?only=<id>&ov=<variant>.
 	// When scoped, everything below (display, pricing, order payload, post-order
@@ -67,14 +70,25 @@ export function CheckoutPage() {
 	const searchParams = useSearchParams();
 	const onlyId = searchParams.get(BUY_NOW_ID_PARAM);
 	const onlyVariant = searchParams.get(BUY_NOW_VARIANT_PARAM);
+	// If the Buy Now line already existed in the cart, `addToCart` merged the
+	// Buy Now quantity into it (same identity-based merge as a normal Add to
+	// Cart). `bnq` carries just the Buy Now portion so this checkout can
+	// display/charge only that amount instead of the full merged quantity —
+	// and so the success handler below can restore the pre-existing quantity
+	// instead of deleting the whole line.
+	const buyNowQty = parseBuyNowQuantity(searchParams.get(BUY_NOW_QTY_PARAM));
 	const items = useMemo(
 		() =>
 			onlyId
-				? cartItems.filter((i) =>
-						matchesBuyNowScope(i, onlyId, onlyVariant)
-				  )
+				? cartItems
+						.filter((i) => matchesBuyNowScope(i, onlyId, onlyVariant))
+						.map((i) =>
+							buyNowQty != null && buyNowQty < i.quantity
+								? { ...i, quantity: buyNowQty }
+								: i
+						)
 				: cartItems,
-		[cartItems, onlyId, onlyVariant]
+		[cartItems, onlyId, onlyVariant, buyNowQty]
 	);
 
 	// Bundle lines (carry a tier) validate server-side; normal lines re-price via
@@ -439,9 +453,32 @@ export function CheckoutPage() {
 				// A scoped "Buy Now" order clears only its own line, leaving the
 				// rest of the cart intact; a full checkout clears everything.
 				if (onlyId) {
-					items.forEach((i) =>
-						removeFromCart(i.id, i.variant_id, i.bundle_tier_id)
-					);
+					items.forEach((i) => {
+						// `i.quantity` here is the Buy Now portion (see the `items`
+						// memo above); the real cart line may hold more if Buy Now
+						// merged into a pre-existing quantity. Restore that
+						// pre-existing amount instead of deleting the whole line —
+						// only remove entirely when there was nothing before.
+						const actual = cartItems.find(
+							(c) =>
+								c.id === i.id &&
+								c.variant_id === i.variant_id &&
+								c.bundle_tier_id === i.bundle_tier_id
+						);
+						const preexistingQty = actual
+							? actual.quantity - i.quantity
+							: 0;
+						if (preexistingQty > 0) {
+							updateQuantity(
+								i.id,
+								preexistingQty,
+								i.variant_id,
+								i.bundle_tier_id
+							);
+						} else {
+							removeFromCart(i.id, i.variant_id, i.bundle_tier_id);
+						}
+					});
 				} else {
 					clearCart();
 				}

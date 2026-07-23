@@ -273,6 +273,23 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 		}
 	}, [state.items, isLoaded]);
 
+	// Cross-tab sync: reload the cart when another tab writes it.
+	useEffect(() => {
+		const onStorage = (event: StorageEvent) => {
+			if (event.key !== "cart") return;
+			try {
+				const cartItems = JSON.parse(event.newValue || "[]");
+				if (Array.isArray(cartItems)) {
+					dispatch({ type: "LOAD_CART", payload: cartItems });
+				}
+			} catch (error) {
+				console.error("Error syncing cart from another tab:", error);
+			}
+		};
+		window.addEventListener("storage", onStorage);
+		return () => window.removeEventListener("storage", onStorage);
+	}, []);
+
 	const addToCart = (
 		item: Omit<CartItem, "quantity"> & { quantity?: number }
 	) => {
@@ -297,15 +314,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 	const clearCart = () => {
 		dispatch({ type: "CLEAR_CART" });
 	};
-
-	if (typeof window !== "undefined") {
-		window.addEventListener("storage", (event) => {
-			if (event.key === "cart") {
-				const cartItems = JSON.parse(event.newValue || "[]");
-				dispatch({ type: "LOAD_CART", payload: cartItems });
-			}
-		});
-	}
 
 	const value: CartContextType = {
 		...state,

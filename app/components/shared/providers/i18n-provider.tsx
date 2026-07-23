@@ -1,7 +1,9 @@
 "use client";
 
-import { I18nextProvider } from "react-i18next";
-import i18n from "@/i18n";
+import { useMemo } from "react";
+import { createInstance } from "i18next";
+import { I18nextProvider, initReactI18next } from "react-i18next";
+import { i18nOptions } from "@/i18n";
 
 interface I18nProviderProps {
 	children: React.ReactNode;
@@ -15,11 +17,21 @@ interface I18nProviderProps {
 }
 
 export function I18nProvider({ children, language }: I18nProviderProps) {
-	// Runs during render on server and client with the same `language` value,
-	// so the singleton is set before any `useTranslation()` child reads it.
-	if (language && i18n.language !== language) {
-		i18n.changeLanguage(language);
-	}
+	// Build a fresh i18next instance per render, keyed on the resolved
+	// `language`, instead of mutating the shared `@/i18n` singleton. Two
+	// concurrent SSR requests rendering in different languages used to share
+	// (and race on) that singleton, so request A could render in request B's
+	// language. Each request/render now gets its own isolated instance, and
+	// server + client compute it from the same `language` value so the
+	// markup still matches on hydration.
+	const instance = useMemo(() => {
+		const i18nInstance = createInstance();
+		i18nInstance.use(initReactI18next).init({
+			...i18nOptions,
+			lng: language ?? i18nOptions.lng,
+		});
+		return i18nInstance;
+	}, [language]);
 
-	return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
+	return <I18nextProvider i18n={instance}>{children}</I18nextProvider>;
 }

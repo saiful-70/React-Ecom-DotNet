@@ -2,6 +2,7 @@
 
 import { ApiClient } from "@/lib/api-client";
 import { API_ROUTES } from "@/lib/api-route";
+import { cookies } from "next/headers";
 import type {
   PurchaseOrderRequest,
   PurchaseOrderResponse,
@@ -136,7 +137,7 @@ export async function createPurchaseOrder(
     const response = await new ApiClient(API_ROUTES.ORDER.PURCHASE_ORDER)
       .withMethod("POST")
       .withBody(orderData)
-      .withCookieHeaders()
+      .withCookieHeaders(await cookies())
       .execute<PurchaseOrderResponse>();
     if (!response.success) {
       return {

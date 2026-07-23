@@ -73,6 +73,7 @@
     "embla-carousel-react": "^8.6.0",
     "i18next": "^25.5.2",
     "input-otp": "^1.4.2",
+    "isomorphic-dompurify": "^3.19.0",
     "jotai": "^2.15.0",
     "libphonenumber-js": "^1.13.9",
     "lucide-react": "^0.460.0",

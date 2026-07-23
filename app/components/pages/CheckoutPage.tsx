@@ -46,6 +46,7 @@ import { getDeliveryCharge, getGlobalDeliveryCharge } from "@/lib/constants/deli
 import { getBusinessSettingAsNumber } from "@/lib/utils/business-settings";
 import { useVariant } from "@/components/shared/providers/variant-provider";
 import { findCountry, DEFAULT_COUNTRY_CODE } from "@/lib/data/countries";
+import { calculateItemTax } from "@/lib/utils/tax-calculator";
 
 export function CheckoutPage() {
 	const { t } = useTranslation();
@@ -197,45 +198,60 @@ export function CheckoutPage() {
 	// Normal lines re-price via checkout-data; bundle lines use the validated
 	// server pricing (falling back to the server-read tier price before validate
 	// resolves). Prices shown are server-authoritative — never client-computed.
+	//
+	// `CheckoutDataProduct` (server checkout-data) doesn't carry `tax_type`, so
+	// we key off the cart line's `tax_type` (the reducer already reads this —
+	// see CartContext) and mirror `tax-calculator.ts`'s per-item formula
+	// exactly: for "include" the tax is already inside the price, so
+	// `subtotal` is reverse-calculated (ex-tax) and `tax` is the reverse-
+	// calculated amount; `subtotal + tax` always reconstructs the true
+	// price × qty, so summing both below can never double-charge an
+	// inclusive-tax line while still surfacing the real tax amount for
+	// display and for `total_vat_amount` at order submission.
+	const normalPricing = useMemo(() => {
+		return normalLines.reduce(
+			(acc, item) => {
+				const sp = serverPrices.find(
+					(s) =>
+						s.product_id === item.id &&
+						s.variant_id === (item.variant_id || 0)
+				);
+				const price = sp ? sp.discount_price : item.price;
+				const pct = sp ? parseFloat(sp.tax) : item.tax || 0;
+				const taxType = item.tax_type || "exclude";
+				const { subtotal, tax } = calculateItemTax(
+					price,
+					pct,
+					taxType,
+					item.quantity
+				);
+				acc.subtotal += subtotal;
+				acc.tax += tax;
+				return acc;
+			},
+			{ subtotal: 0, tax: 0 }
+		);
+	}, [serverPrices, normalLines]);
+
 	const calculatedSubtotal = useMemo(() => {
-		const normal = normalLines.reduce((total, item) => {
-			const sp = serverPrices.find(
-				(s) =>
-					s.product_id === item.id &&
-					s.variant_id === (item.variant_id || 0)
-			);
-			return total + (sp ? sp.discount_price : item.price) * item.quantity;
-		}, 0);
 		const bundle = bundleLines.reduce((total, line) => {
 			const v = line.bundle_tier_id
 				? bundleValidations[line.bundle_tier_id]
 				: undefined;
 			return total + (v?.pricing?.price ?? line.price * line.quantity);
 		}, 0);
-		return normal + bundle;
-	}, [serverPrices, bundleValidations, normalLines, bundleLines]);
+		return normalPricing.subtotal + bundle;
+	}, [normalPricing, bundleValidations, bundleLines]);
 
 	const calculatedTax = useMemo(() => {
-		const normal = normalLines.reduce((total, item) => {
-			const sp = serverPrices.find(
-				(s) =>
-					s.product_id === item.id &&
-					s.variant_id === (item.variant_id || 0)
-			);
-			if (sp) {
-				const pct = parseFloat(sp.tax);
-				return total + (sp.discount_price * item.quantity * pct) / 100;
-			}
-			return total + (item.tax || 0) * item.quantity;
-		}, 0);
 		const bundle = bundleLines.reduce((total, line) => {
 			const v = line.bundle_tier_id
 				? bundleValidations[line.bundle_tier_id]
 				: undefined;
 			return total + (v?.pricing?.tax ?? 0);
 		}, 0);
-		return normal + bundle;
-	}, [serverPrices, bundleValidations, normalLines, bundleLines]);
+		return normalPricing.tax + bundle;
+	}, [normalPricing, bundleValidations, bundleLines]);
 
 	// For a bundle-only order, use the validated (perk-aware) shipping; otherwise
 	// keep the client delivery-charge calc for the normal-item order.

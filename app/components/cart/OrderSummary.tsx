@@ -39,10 +39,13 @@ export function OrderSummary({ subtotal, tax, total }: OrderSummaryProps) {
 			)
 		: 1200;
 
-	// Determine display values based on tax type
-	const displaySubtotal = taxType === "include" ? subtotal : subtotal;
-	const displayTax = taxType === "include" ? tax : tax;
-	const displayTotal = taxType === "include" ? subtotal : total;
+	// `subtotal`/`tax`/`total` are already correctly computed by the cart
+	// reducer via `calculateCartTax` (reverse-calculated for "include"). The
+	// displayed total must always be the reducer's authoritative `total` —
+	// the actual charge — never the ex-tax `subtotal`.
+	const displaySubtotal = subtotal;
+	const displayTax = tax;
+	const displayTotal = total;
 
 	const taxTypeLabel = taxType === "include" ? "(Included)" : "(Excluded)";
 

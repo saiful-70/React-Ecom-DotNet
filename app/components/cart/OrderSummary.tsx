@@ -11,7 +11,10 @@ import { Separator } from "@/components/shared/ui/separator";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Price from "@/components/shared/Price";
-import { getCurrencySymbol } from "@/lib/utils/business-settings";
+import {
+	getBusinessSettingAsNumber,
+	getCurrencySymbol,
+} from "@/lib/utils/business-settings";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { Badge } from "../shared/ui/badge";
 import { useAtomValue } from "jotai";
@@ -28,8 +31,13 @@ export function OrderSummary({ subtotal, tax, total }: OrderSummaryProps) {
 	const { t } = useTranslation();
 	const businessSettings = useAtomValue(businessSettingsAtom);
 	const { taxType } = useCart();
-	const freeShippingThreshold =
-		businessSettings?.free_shipping_on_over || "5000";
+	const freeShippingThreshold = businessSettings
+		? getBusinessSettingAsNumber(
+				businessSettings,
+				"free_shipping_on_over",
+				1200
+			)
+		: 1200;
 
 	// Determine display values based on tax type
 	const displaySubtotal = taxType === "include" ? subtotal : subtotal;

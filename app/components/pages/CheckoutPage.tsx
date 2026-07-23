@@ -20,6 +20,7 @@ import { Button } from "@/components/shared/ui/button";
 import { toast } from "@/components/shared/ui/sonner";
 import { useCart } from "@/contexts/CartContext";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
+import { businessSettingsAtom } from "@/store/ui-atoms";
 import { useAtomValue } from "jotai";
 import { ArrowLeft } from "lucide-react";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
@@ -42,6 +43,7 @@ import {
 } from "../../(app-routes)/checkout/helpers/checkout-helpers";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { getDeliveryCharge, getGlobalDeliveryCharge } from "@/lib/constants/delivery";
+import { getBusinessSettingAsNumber } from "@/lib/utils/business-settings";
 import { useVariant } from "@/components/shared/providers/variant-provider";
 import { findCountry, DEFAULT_COUNTRY_CODE } from "@/lib/data/countries";
 
@@ -86,6 +88,7 @@ export function CheckoutPage() {
 	);
 	const router = useRouter();
 	const miniProfile = useAtomValue(miniProfileAtom);
+	const businessSettings = useAtomValue(businessSettingsAtom);
 	// The global template uses the international checkout (country selector,
 	// international phone, flat shipping); other variants keep the BD flow.
 	const variant = useVariant();
@@ -264,11 +267,25 @@ export function CheckoutPage() {
 	});
 	const bundleGrantsFreeDelivery = bundleShippingReady && bundleHasFreeDeliveryPerk;
 
+	// BD checkout: the advertised free-shipping threshold (business setting
+	// `free_shipping_on_over`, default 1200 — same source the cart badge in
+	// OrderSummary reads) waives the city delivery charge once the subtotal
+	// reaches it; otherwise fall back to the existing per-city rate.
+	const freeShippingOver = businessSettings
+		? getBusinessSettingAsNumber(businessSettings, "free_shipping_on_over", 1200)
+		: 1200;
+	const bdShipping =
+		calculatedSubtotal >= freeShippingOver
+			? 0
+			: formData.city
+				? getDeliveryCharge(formData.city)
+				: 0;
+
 	// One delivery charge per order (PRODUCT DECISION): a mixed cart (bundle +
 	// normal items) normally falls back to the city/global rate, but if the
 	// validated bundle quote grants free delivery, the whole order ships free
-	// even with normal items present. Task 9 will extend this with a
-	// free-shipping subtotal threshold — add that as another branch here.
+	// even with normal items present. The global template has its own
+	// free-over rule via getGlobalDeliveryCharge.
 	const finalShipping =
 		bundleLines.length > 0 && normalLines.length === 0 && bundleShippingReady
 			? bundleShipping
@@ -276,9 +293,7 @@ export function CheckoutPage() {
 				? 0
 				: isGlobal
 					? getGlobalDeliveryCharge(calculatedSubtotal)
-					: formData.city
-						? getDeliveryCharge(formData.city)
-						: 0;
+					: bdShipping;
 
 	const calculatedTotal = calculatedSubtotal + calculatedTax + finalShipping;
 

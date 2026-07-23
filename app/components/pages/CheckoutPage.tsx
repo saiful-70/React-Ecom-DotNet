@@ -208,6 +208,12 @@ export function CheckoutPage() {
 	// price × qty, so summing both below can never double-charge an
 	// inclusive-tax line while still surfacing the real tax amount for
 	// display and for `total_vat_amount` at order submission.
+	//
+	// `gross` additionally tracks the customer-facing amount (price × qty) —
+	// for "exclude" lines this equals `subtotal`, but for "include" lines it's
+	// the tax-inclusive shelf price, which is what the advertised free-
+	// shipping threshold must be compared against (see `freeShippingBase`
+	// below), not the reverse-calculated ex-tax `subtotal`.
 	const normalPricing = useMemo(() => {
 		return normalLines.reduce(
 			(acc, item) => {
@@ -217,7 +223,8 @@ export function CheckoutPage() {
 						s.variant_id === (item.variant_id || 0)
 				);
 				const price = sp ? sp.discount_price : item.price;
-				const pct = sp ? parseFloat(sp.tax) : item.tax || 0;
+				const rawPct = sp ? parseFloat(sp.tax) : item.tax || 0;
+				const pct = Number.isFinite(rawPct) ? rawPct : 0;
 				const taxType = item.tax_type || "exclude";
 				const { subtotal, tax } = calculateItemTax(
 					price,
@@ -227,21 +234,28 @@ export function CheckoutPage() {
 				);
 				acc.subtotal += subtotal;
 				acc.tax += tax;
+				acc.gross += price * item.quantity;
 				return acc;
 			},
-			{ subtotal: 0, tax: 0 }
+			{ subtotal: 0, tax: 0, gross: 0 }
 		);
 	}, [serverPrices, normalLines]);
 
-	const calculatedSubtotal = useMemo(() => {
-		const bundle = bundleLines.reduce((total, line) => {
+	// Shared bundle subtotal (validated perk-aware price, falling back to the
+	// client-computed line total) — reused by both `calculatedSubtotal` and
+	// `freeShippingBase` below.
+	const bundleSubtotal = useMemo(() => {
+		return bundleLines.reduce((total, line) => {
 			const v = line.bundle_tier_id
 				? bundleValidations[line.bundle_tier_id]
 				: undefined;
 			return total + (v?.pricing?.price ?? line.price * line.quantity);
 		}, 0);
-		return normalPricing.subtotal + bundle;
-	}, [normalPricing, bundleValidations, bundleLines]);
+	}, [bundleValidations, bundleLines]);
+
+	const calculatedSubtotal = useMemo(() => {
+		return normalPricing.subtotal + bundleSubtotal;
+	}, [normalPricing, bundleSubtotal]);
 
 	const calculatedTax = useMemo(() => {
 		const bundle = bundleLines.reduce((total, line) => {
@@ -292,8 +306,18 @@ export function CheckoutPage() {
 	const freeShippingOver = businessSettings
 		? getBusinessSettingAsNumber(businessSettings, "free_shipping_on_over", 1200)
 		: 1200;
+
+	// The threshold must be compared against the customer-facing (gross,
+	// tax-inclusive) amount, not `calculatedSubtotal` — for "include" tax-type
+	// lines `calculatedSubtotal` is the reverse-calculated ex-tax base, which
+	// would fail the threshold for a cart whose displayed/shelf price already
+	// clears it (BD shelf prices are tax-inclusive). For "exclude" lines
+	// `normalPricing.gross === normalPricing.subtotal`, so this is a no-op
+	// there and `freeShippingBase === calculatedSubtotal`.
+	const freeShippingBase = normalPricing.gross + bundleSubtotal;
+
 	const bdShipping =
-		calculatedSubtotal >= freeShippingOver
+		freeShippingBase >= freeShippingOver
 			? 0
 			: formData.city
 				? getDeliveryCharge(formData.city)
@@ -310,9 +334,13 @@ export function CheckoutPage() {
 			: bundleGrantsFreeDelivery
 				? 0
 				: isGlobal
-					? getGlobalDeliveryCharge(calculatedSubtotal)
+					? getGlobalDeliveryCharge(freeShippingBase)
 					: bdShipping;
 
+	// The total charge stays on the corrected ex-tax `calculatedSubtotal` +
+	// `calculatedTax`, which together reconstruct the true gross price — this
+	// is unaffected by the threshold-base fix above and, for normal lines,
+	// equals `freeShippingBase + finalShipping` (gross + shipping).
 	const calculatedTotal = calculatedSubtotal + calculatedTax + finalShipping;
 
 	// Shipping is only "known" once we have a real signal that determined it:
@@ -323,7 +351,7 @@ export function CheckoutPage() {
 		isGlobal ||
 		!!formData.city ||
 		bundleGrantsFreeDelivery ||
-		calculatedSubtotal >= freeShippingOver;
+		freeShippingBase >= freeShippingOver;
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();

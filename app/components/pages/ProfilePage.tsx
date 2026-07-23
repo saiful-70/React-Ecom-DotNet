@@ -22,7 +22,7 @@ import WishlistInfo from "@/(app-routes)/profile/components/whishlist-info";
 import UserSecurity from "@/(app-routes)/profile/components/user-security";
 import { UserProfileTabModel } from "@/(app-routes)/profile/model";
 import { useEffect } from "react";
-import { OrderResponseModel } from "@/(app-routes)/profile/orders/model";
+import { OrderHistoryModel } from "@/(app-routes)/profile/orders/model";
 import { useTabNavigation } from "@/hooks/use-tab-navigation";
 import { useFileInput } from "@/hooks/use-file-input";
 import { useFileUpload } from "@/hooks/use-file-upload";
@@ -33,10 +33,10 @@ import {
 
 type Props = {
 	model: UserMiniProfileModel;
-	orderHistoryResponse: OrderResponseModel;
+	orderHistory: OrderHistoryModel[];
 };
 
-export function ProfilePage({ model, orderHistoryResponse }: Props) {
+export function ProfilePage({ model, orderHistory }: Props) {
 	const { t } = useTranslation();
 	const { tab, handleTabClick } = useTabNavigation();
 	const { fileInputRef, triggerFileInput } = useFileInput();
@@ -66,17 +66,14 @@ export function ProfilePage({ model, orderHistoryResponse }: Props) {
 			tabTriggerId: "overview",
 			tabTitle: t("profile.overview") || "Overview",
 			tabContent: (
-				<ProfileOverView
-					model={model}
-					orderHistoryResponse={orderHistoryResponse}
-				/>
+				<ProfileOverView model={model} orderHistory={orderHistory} />
 			),
 			onClick: () => handleTabClick(),
 		},
 		{
 			tabTriggerId: "orders",
 			tabTitle: t("profile.orders") || "Orders",
-			tabContent: <OrderInfo model={orderHistoryResponse} />,
+			tabContent: <OrderInfo model={orderHistory} />,
 			onClick: () => handleTabClick("orders"),
 		},
 		{
@@ -147,10 +144,8 @@ export function ProfilePage({ model, orderHistoryResponse }: Props) {
 									<div className="flex items-center gap-1">
 										<Package className="w-4 h-4" />
 										{t("profile.ordersCount", {
-											count: orderHistoryResponse.data
-												.length,
-										}) ||
-											`${orderHistoryResponse.data.length} orders`}
+											count: orderHistory.length,
+										}) || `${orderHistory.length} orders`}
 									</div>
 								</div>
 							</div>

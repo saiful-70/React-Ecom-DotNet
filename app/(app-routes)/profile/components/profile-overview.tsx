@@ -5,18 +5,15 @@ import { useState } from "react";
 import { UserMiniProfileModel } from "../../(auth)/model";
 import PersonalInfo from "./personal-info";
 import RecentOrders from "./recent-orders";
-import { OrderResponseModel } from "../orders/model";
+import { OrderHistoryModel } from "../orders/model";
 import { useTranslation } from "react-i18next";
 
 type Props = {
 	model: UserMiniProfileModel;
-	orderHistoryResponse: OrderResponseModel;
+	orderHistory: OrderHistoryModel[];
 };
 
-export default function ProfileOverView({
-	model,
-	orderHistoryResponse,
-}: Props) {
+export default function ProfileOverView({ model, orderHistory }: Props) {
 	const [isEditing, setIsEditing] = useState(false);
 	const { t } = useTranslation();
 
@@ -42,7 +39,7 @@ export default function ProfileOverView({
 					isEditing={isEditing}
 					onEditComplete={handleEditComplete}
 				/>
-				<RecentOrders orderHistoryResponse={orderHistoryResponse} />
+				<RecentOrders orders={orderHistory} />
 			</div>
 		</>
 	);

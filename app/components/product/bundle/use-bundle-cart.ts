@@ -33,7 +33,11 @@ export function useBundleCart() {
       (existingBundleLine.id !== bundle.id ||
         existingBundleLine.variant_id !== tier.id)
     ) {
-      removeFromCart(existingBundleLine.id, existingBundleLine.variant_id);
+      removeFromCart(
+        existingBundleLine.id,
+        existingBundleLine.variant_id,
+        existingBundleLine.bundle_tier_id
+      );
       toast.info(t("bundle.replacedExisting"));
     }
 
@@ -52,6 +56,7 @@ export function useBundleCart() {
       tax_type: "exclude",
       bundle_id: bundle.id,
       bundle_tier_id: tier.bundle_tier_id ?? tier.id,
+      bundle_slug: bundle.slug,
       bundle_components: requiredItems.map((item) => ({
         product_id: item.product_id,
         variant_id: item.variant_id ?? null,

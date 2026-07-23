@@ -28,6 +28,10 @@ export interface CartItem {
 	bundle_id?: number;
 	bundle_tier_id?: number;
 	bundle_components?: BundleCartComponent[];
+	// Combo slug for the bundle this line represents, so cart UI can deep-link
+	// to `/combo/<slug>` instead of a product details page (bundle lines use
+	// `id: bundle.id`, which is not a product id).
+	bundle_slug?: string;
 }
 
 interface CartState {
@@ -43,8 +47,17 @@ interface CartContextType extends CartState {
 	addToCart: (
 		item: Omit<CartItem, "quantity"> & { quantity?: number }
 	) => void;
-	removeFromCart: (id: number, variant_id?: number) => void;
-	updateQuantity: (id: number, quantity: number, variant_id?: number) => void;
+	removeFromCart: (
+		id: number,
+		variant_id?: number,
+		bundle_tier_id?: number
+	) => void;
+	updateQuantity: (
+		id: number,
+		quantity: number,
+		variant_id?: number,
+		bundle_tier_id?: number
+	) => void;
 	clearCart: () => void;
 }
 
@@ -53,10 +66,18 @@ type CartAction =
 			type: "ADD_TO_CART";
 			payload: Omit<CartItem, "quantity"> & { quantity?: number };
 	  }
-	| { type: "REMOVE_FROM_CART"; payload: { id: number; variant_id?: number } }
+	| {
+			type: "REMOVE_FROM_CART";
+			payload: { id: number; variant_id?: number; bundle_tier_id?: number };
+	  }
 	| {
 			type: "UPDATE_QUANTITY";
-			payload: { id: number; variant_id?: number; quantity: number };
+			payload: {
+				id: number;
+				variant_id?: number;
+				bundle_tier_id?: number;
+				quantity: number;
+			};
 	  }
 	| { type: "CLEAR_CART" }
 	| { type: "LOAD_CART"; payload: CartItem[] };
@@ -72,7 +93,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 					item.id === action.payload.id &&
 					((action.payload.variant_id &&
 						item.variant_id === action.payload.variant_id) ||
-						(!action.payload.variant_id && !item.variant_id))
+						(!action.payload.variant_id && !item.variant_id)) &&
+					item.bundle_tier_id === action.payload.bundle_tier_id
 			);
 
 			const quantityToAdd = isBundleLine
@@ -85,7 +107,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 					item.id === action.payload.id &&
 					((action.payload.variant_id &&
 						item.variant_id === action.payload.variant_id) ||
-						(!action.payload.variant_id && !item.variant_id))
+						(!action.payload.variant_id && !item.variant_id)) &&
+					item.bundle_tier_id === action.payload.bundle_tier_id
 						? {
 								...item,
 								quantity: isBundleLine
@@ -128,7 +151,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 						item.id === action.payload.id &&
 						((action.payload.variant_id &&
 							item.variant_id === action.payload.variant_id) ||
-							(!action.payload.variant_id && !item.variant_id))
+							(!action.payload.variant_id && !item.variant_id)) &&
+						item.bundle_tier_id === action.payload.bundle_tier_id
 					)
 			);
 
@@ -156,7 +180,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 				item.id === action.payload.id &&
 				((action.payload.variant_id &&
 					item.variant_id === action.payload.variant_id) ||
-					(!action.payload.variant_id && !item.variant_id))
+					(!action.payload.variant_id && !item.variant_id)) &&
+				item.bundle_tier_id === action.payload.bundle_tier_id
 					? {
 							...item,
 							quantity:
@@ -296,18 +321,26 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 		dispatch({ type: "ADD_TO_CART", payload: item });
 	};
 
-	const removeFromCart = (id: number, variant_id?: number) => {
-		dispatch({ type: "REMOVE_FROM_CART", payload: { id, variant_id } });
+	const removeFromCart = (
+		id: number,
+		variant_id?: number,
+		bundle_tier_id?: number
+	) => {
+		dispatch({
+			type: "REMOVE_FROM_CART",
+			payload: { id, variant_id, bundle_tier_id },
+		});
 	};
 
 	const updateQuantity = (
 		id: number,
 		quantity: number,
-		variant_id?: number
+		variant_id?: number,
+		bundle_tier_id?: number
 	) => {
 		dispatch({
 			type: "UPDATE_QUANTITY",
-			payload: { id, quantity, variant_id },
+			payload: { id, quantity, variant_id, bundle_tier_id },
 		});
 	};
 

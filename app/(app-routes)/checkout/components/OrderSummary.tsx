@@ -88,7 +88,8 @@ export function OrderSummary({
 								updateQuantity(
 									item.id,
 									item.quantity - 1,
-									item.variant_id
+									item.variant_id,
+									item.bundle_tier_id
 								);
 							}
 						};
@@ -97,7 +98,8 @@ export function OrderSummary({
 								updateQuantity(
 									item.id,
 									item.quantity + 1,
-									item.variant_id
+									item.variant_id,
+									item.bundle_tier_id
 								);
 							}
 						};

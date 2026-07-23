@@ -439,7 +439,9 @@ export function CheckoutPage() {
 				// A scoped "Buy Now" order clears only its own line, leaving the
 				// rest of the cart intact; a full checkout clears everything.
 				if (onlyId) {
-					items.forEach((i) => removeFromCart(i.id, i.variant_id));
+					items.forEach((i) =>
+						removeFromCart(i.id, i.variant_id, i.bundle_tier_id)
+					);
 				} else {
 					clearCart();
 				}

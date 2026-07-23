@@ -280,6 +280,14 @@ export function CheckoutPage() {
 			return;
 		}
 
+		// Defensive guard: add-time replacement in use-bundle-cart already caps
+		// the cart at one bundle line; this catches any stale/multi-tab state
+		// (the order payload has exactly one top-level server_quote_id).
+		if (bundleLines.length > 1) {
+			toast.error(t("bundle.onePerOrder"));
+			return;
+		}
+
 		setIsProcessing(true);
 
 		try {

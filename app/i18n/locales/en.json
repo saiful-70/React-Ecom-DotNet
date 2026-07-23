@@ -472,7 +472,9 @@
     "bestValue": "Best Value",
     "validationFailed": "Bundle validation failed",
     "validationFailedDescription": "The selected bundle can't be ordered right now.",
-    "fixedQuantity": "Combo — fixed quantity"
+    "fixedQuantity": "Combo — fixed quantity",
+    "replacedExisting": "Your previous combo was replaced — one combo per order.",
+    "onePerOrder": "Only one combo per order is supported."
   },
   "register": {
     "pageTitle": "Create Account",

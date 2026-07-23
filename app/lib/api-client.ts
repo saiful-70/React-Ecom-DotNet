@@ -4,6 +4,15 @@ import { AUTH_TOKEN_COOKIE_NAME } from "@/lib/config/auth.config";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { isTokenExpired, shouldRefreshToken } from "@/lib/utils/security.utils";
 import { cookies } from "next/headers";
+// Type-only import — erased at compile time, so it does not reintroduce the
+// runtime circular dependency that the dynamic `import()` below avoids.
+import type { AuthUserResponseModel } from "@/(app-routes)/(auth)/model";
+
+// Module-level single-flight guard: coalesces concurrent token refreshes
+// (from parallel server actions) into one shared in-flight request, so the
+// backend never sees overlapping refresh calls that could race and rotate
+// the token out from under a sibling request.
+let refreshInFlight: Promise<AuthUserResponseModel> | null = null;
 
 // API Response Types
 export interface ApiResponse<TResponse> {
@@ -156,7 +165,14 @@ export class ApiClient {
         if (shouldRefreshToken(authToken)) {
           // Dynamically import to avoid circular dependency
           const { refreshToken } = await import("@/(app-routes)/(auth)/action");
-          const refreshResult = await refreshToken();
+          // Single-flight: if a refresh is already in progress (triggered by a
+          // concurrent execute() call), await that shared promise instead of
+          // firing a second refresh. Whichever caller starts it resets the
+          // guard once it settles, so a later (post-expiry) refresh can run.
+          refreshInFlight ??= refreshToken().finally(() => {
+            refreshInFlight = null;
+          });
+          const refreshResult = await refreshInFlight;
 
           if (refreshResult.success && refreshResult.data?.token) {
             // Update Authorization header with new token

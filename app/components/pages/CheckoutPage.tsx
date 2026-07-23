@@ -248,11 +248,21 @@ export function CheckoutPage() {
 		return sum + (v?.pricing?.shipping ?? 0);
 	}, 0);
 
-	// `BundleValidationResult.pricing` has no explicit `free_delivery` boolean
-	// (only a numeric `shipping` charge) — zero shipping on a ready, validated
-	// bundle quote is used as a proxy for "the free-delivery perk was granted".
-	const bundleGrantsFreeDelivery =
-		bundleShippingReady && bundleShipping === 0 && bundleLines.length > 0;
+	// A bundle grants free delivery when the validated quote lists a
+	// free_delivery perk. Fall back to zero shipping only when the backend
+	// omits perks_applied, so a not-yet-city-resolved quote (shipping 0 before
+	// a city is chosen) can't falsely waive delivery.
+	const bundleHasFreeDeliveryPerk = bundleLines.some((line) => {
+		const v = line.bundle_tier_id
+			? bundleValidations[line.bundle_tier_id]
+			: undefined;
+		if (!v) return false;
+		if (v.perks_applied?.length) {
+			return v.perks_applied.some((p) => p.type === "free_delivery");
+		}
+		return v.pricing?.shipping === 0; // fallback when perks_applied is absent
+	});
+	const bundleGrantsFreeDelivery = bundleShippingReady && bundleHasFreeDeliveryPerk;
 
 	// One delivery charge per order (PRODUCT DECISION): a mixed cart (bundle +
 	// normal items) normally falls back to the city/global rate, but if the

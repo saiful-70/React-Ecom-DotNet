@@ -26,7 +26,7 @@ import { ArrowLeft } from "lucide-react";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
 	BUY_NOW_ID_PARAM,
@@ -169,10 +169,17 @@ export function CheckoutPage() {
 		return { map, allValid, firstError };
 	};
 
+	// Guards against out-of-order resolution when rapid quantity/city changes
+	// fire overlapping requests below — only the latest-issued request (by
+	// sequence, not arrival order) is allowed to commit state.
+	const seqRef = useRef(0);
+
 	useEffect(() => {
+		const seq = ++seqRef.current;
+
 		const fetchCheckoutData = async () => {
 			if (items.length === 0) {
-				setIsLoadingPrices(false);
+				if (seq === seqRef.current) setIsLoadingPrices(false);
 				return;
 			}
 
@@ -187,7 +194,9 @@ export function CheckoutPage() {
 
 					const response = await getCheckoutData(requestItems);
 					if (response.success && response.data?.products) {
-						setServerPrices(response.data.products);
+						if (seq === seqRef.current) {
+							setServerPrices(response.data.products);
+						}
 					} else {
 						console.warn(
 							"Failed to fetch checkout data, using client-side prices"
@@ -197,12 +206,16 @@ export function CheckoutPage() {
 
 				if (bundleLines.length > 0) {
 					const { map } = await runBundleValidations(formData.cityId);
-					setBundleValidations(map);
+					if (seq === seqRef.current) {
+						setBundleValidations(map);
+					}
 				}
 			} catch (error) {
 				console.error("Error fetching checkout data:", error);
 			} finally {
-				setIsLoadingPrices(false);
+				if (seq === seqRef.current) {
+					setIsLoadingPrices(false);
+				}
 			}
 		};
 

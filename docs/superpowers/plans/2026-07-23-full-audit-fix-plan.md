@@ -865,7 +865,7 @@ git commit -m "fix(i18n): per-request i18next instance to stop SSR singleton lan
 
 - `UPDATE_QUANTITY`: `if (action.payload.quantity < 1)` treat as REMOVE (filter the line out) instead of storing ≤0. Fix the stock cap so `stock === 0` still caps: `item.stock != null ? Math.min(action.payload.quantity, Math.max(item.stock, 0)) : action.payload.quantity` — but preserve the "stock unknown → uncapped" behavior.
 - `ADD_TO_CART`: clamp `quantityToAdd = Math.max(1, Math.floor(action.payload.quantity || 1))`; cap the merged quantity against `existingItem.stock` when known.
-- `LOAD_CART`: validate shape — keep only entries where `typeof id === "number" && typeof price === "number" && Number.isFinite(price) && quantity >= 1`; drop the rest.
+- `LOAD_CART`: validate shape — keep only entries where `typeof id === "number" && typeof price === "number" && Number.isFinite(price) && quantity >= 1`; drop the rest; also re-assert the bundle-line invariant (`bundle_tier_id != null` → `quantity: 1`), already enforced since Phase 0.
 
 - [ ] **Step 2: Verify**
 

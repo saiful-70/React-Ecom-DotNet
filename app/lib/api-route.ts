@@ -54,7 +54,7 @@ export const API_ROUTES = {
   },
   CAMPAIGNS: {
     LIST: "campaigns",
-    DETAILS: (slug: string) => `campaigns/${slug}`,
+    DETAILS: (slug: string) => `campaigns/${encodeURIComponent(slug)}`,
   },
   BUNDLES: {
     /** Primary bundle for a product's PDP. `lang` passed via withParams. */

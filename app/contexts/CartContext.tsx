@@ -200,17 +200,24 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 			};
 
 		case "LOAD_CART": {
+			// Clamp stale bundle lines to quantity 1 (invariant: bundle_tier_id != null => quantity === 1)
+			const newItems = action.payload.map((item) =>
+				item.bundle_tier_id != null && item.quantity !== 1
+					? { ...item, quantity: 1 }
+					: item
+			);
+
 			// Calculate tax from items
-			const taxCalculation = calculateCartTax(action.payload);
-			const itemCount = action.payload.reduce(
+			const taxCalculation = calculateCartTax(newItems);
+			const itemCount = newItems.reduce(
 				(sum, item) => sum + item.quantity,
 				0
 			);
 			// Track tax type from first item
-			const taxType = action.payload[0]?.tax_type || "exclude";
+			const taxType = newItems[0]?.tax_type || "exclude";
 
 			return {
-				items: action.payload,
+				items: newItems,
 				total: taxCalculation.total,
 				itemCount,
 				subtotal: taxCalculation.subtotal,

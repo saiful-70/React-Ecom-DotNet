@@ -99,9 +99,22 @@ export const prepareOrderItems = (
     // Bundle line → expand its required components into flat, tagged order items
     // using the server-allocated unit prices from validate (falls back to 0 so
     // the backend re-prices from the quote).
-    if (item.bundle_tier_id && item.bundle_components?.length) {
+    if (item.bundle_tier_id) {
+      const components = item.bundle_components ?? [];
+      if (components.length === 0) {
+        // A bundle line with no recorded composition can't be expanded into
+        // real order lines — skip it rather than falling through to the
+        // normal-item branch below (which would fabricate a fake
+        // `product_id: bundle.id` line). Combined with Task 24's non-empty
+        // `order_items` check, an order made up entirely of degenerate
+        // bundle lines is rejected instead of silently submitted empty.
+        console.warn(
+          `[checkout] Skipping degenerate bundle cart line: bundle_id=${item.bundle_id} bundle_tier_id=${item.bundle_tier_id} has no bundle_components.`,
+        );
+        continue;
+      }
       const validation = bundleValidations?.[item.bundle_tier_id];
-      for (const comp of item.bundle_components) {
+      for (const comp of components) {
         const allocated = validation?.items?.find(
           (li) =>
             li.product_id === comp.product_id &&

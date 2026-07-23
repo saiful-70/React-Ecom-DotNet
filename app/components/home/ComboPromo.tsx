@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { Gift, ArrowRight } from "lucide-react";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
+import { CartLineImage } from "@/components/shared/CartLineImage";
 import Price from "@/components/shared/Price";
 import type { BundleSummary } from "@/lib/bundles/types";
 
@@ -32,7 +32,7 @@ export function ComboPromo({ combo }: ComboPromoProps) {
 
         {/* Image */}
         <div className="relative h-40 w-full sm:h-auto sm:w-56 shrink-0 overflow-hidden rounded-xl bg-muted">
-          <Image
+          <CartLineImage
             src={combo.banner}
             alt={combo.title}
             fill

@@ -450,7 +450,7 @@
     "selectCombo": "কম্বো সিলেক্ট করুন",
     "mostSaved": "সবচেয়ে বেশি সেভ",
     "standardPrice": "স্ট্যান্ডার্ড প্রাইস",
-    "save": "সেভ ৳{{amount}}",
+    "save": "{{amount}} সাশ্রয় করুন",
     "youSaveTotal": "আপনি মোট সেভ করছেন",
     "youSave": "আপনি সেভ করছেন",
     "totalPrice": "মোট দাম",

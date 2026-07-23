@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -10,11 +9,11 @@ import {
   ShieldCheck,
   ShoppingBag,
   ShoppingCart,
-  Star,
   Truck,
   Wallet,
 } from "lucide-react";
 import { Button } from "@/components/shared/ui/button";
+import { CartLineImage } from "@/components/shared/CartLineImage";
 import Price from "@/components/shared/Price";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { BundleTierList } from "./BundleTierList";
@@ -75,9 +74,9 @@ export function ComboLanding({ combo }: ComboLandingProps) {
 
   // Distinct products in the combo (from the entry tier) for the hero checklist.
   const heroItems = combo.tiers[0]?.items ?? [];
-  const heroSave = combo.tiers[0]
-    ? combo.tiers[0].compare_at_price - combo.tiers[0].price
-    : 0;
+  // Server-authoritative: mirror BundleTierList and read the tier's `savings`
+  // field rather than deriving from compare_at_price - price.
+  const heroSave = combo.tiers[0]?.savings ?? 0;
 
   const trust = [
     { icon: ShieldCheck, label: t("bundle.trustOriginal") },
@@ -106,7 +105,7 @@ export function ComboLanding({ combo }: ComboLandingProps) {
       {/* Hero */}
       <div className="grid gap-4 lg:grid-cols-2 lg:items-center">
         <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-muted">
-          <Image
+          <CartLineImage
             src={combo.banner}
             alt={combo.title}
             fill
@@ -175,20 +174,6 @@ export function ComboLanding({ combo }: ComboLandingProps) {
         <span className="font-medium">{t("bundle.youSaveTotal")}:</span>
         <span className="font-bold text-primary">
           <Price amount={selectedTier.savings} />
-        </span>
-      </div>
-
-      {/* Social proof */}
-      <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-card p-3 text-sm">
-        <span className="font-semibold">
-          10,000+{" "}
-          <span className="font-normal text-muted-foreground">
-            {t("bundle.happyCustomers")}
-          </span>
-        </span>
-        <span className="flex items-center gap-1 font-semibold">
-          <Star className="size-4 fill-yellow-400 text-yellow-400" />
-          4.8/5
         </span>
       </div>
 

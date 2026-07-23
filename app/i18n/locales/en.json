@@ -450,7 +450,7 @@
     "selectCombo": "Select a Combo",
     "mostSaved": "Save the most",
     "standardPrice": "Standard Price",
-    "save": "Save ৳{{amount}}",
+    "save": "Save {{amount}}",
     "youSaveTotal": "You save in total",
     "youSave": "You save",
     "totalPrice": "Total",

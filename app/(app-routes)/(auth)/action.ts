@@ -4,6 +4,7 @@ import { ApiClient } from "@/lib/api-client";
 import {
 	LoginCredentialsModel,
 	RegisterUserModel,
+	RegisterUserSchema,
 	AuthUserResponseModel,
 } from "./model";
 import { cookies } from "next/headers";
@@ -35,9 +36,14 @@ interface ToggleWishlistResponse {
 }
 
 export async function registerUser(data: RegisterUserModel) {
+	const parsed = RegisterUserSchema.safeParse(data);
+	if (!parsed.success) {
+		return { success: false, message: "Invalid input" } as AuthUserResponseModel;
+	}
+
 	const response = await new ApiClient("auth/register")
 		.withMethod("POST")
-		.withBody<RegisterUserModel>(data)
+		.withBody<RegisterUserModel>(parsed.data)
 		.execute<AuthUserResponseModel>();
 
 	if (response.success) {

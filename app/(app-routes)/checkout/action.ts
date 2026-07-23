@@ -3,6 +3,7 @@
 import { ApiClient } from "@/lib/api-client";
 import { API_ROUTES } from "@/lib/api-route";
 import { cookies } from "next/headers";
+import { PurchaseOrderSchema } from "./model";
 import type {
   PurchaseOrderRequest,
   PurchaseOrderResponse,
@@ -134,9 +135,17 @@ export async function createPurchaseOrder(
   orderData: PurchaseOrderRequest
 ): Promise<PurchaseOrderResponse> {
   try {
+    const parsed = PurchaseOrderSchema.safeParse(orderData);
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: "Invalid input",
+      };
+    }
+
     const response = await new ApiClient(API_ROUTES.ORDER.PURCHASE_ORDER)
       .withMethod("POST")
-      .withBody(orderData)
+      .withBody(parsed.data)
       .withCookieHeaders(await cookies())
       .execute<PurchaseOrderResponse>();
     if (!response.success) {

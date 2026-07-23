@@ -1,5 +1,6 @@
 "use server";
 
+import { z } from "zod";
 import { ApiClient } from "@/lib/api-client";
 import { cookies } from "next/headers";
 import { OrderDetailsModel, OrderResponseModel } from "./model";
@@ -90,11 +91,25 @@ export interface ReviewPayload {
   review: string;
 }
 
+const ReviewPayloadSchema = z.object({
+  product_id: z.number().int().positive(),
+  rating: z.number().int().min(1).max(5),
+  review: z.string().min(1).max(500),
+});
+
 export async function createReview(payload: ReviewPayload) {
+  const parsed = ReviewPayloadSchema.safeParse(payload);
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: "Invalid input",
+    };
+  }
+
   return await new ApiClient(API_ROUTES.REVIEWS.CREATE)
     .withMethod("POST")
     .withCookieHeaders(await cookies())
-    .withBody(payload)
+    .withBody(parsed.data)
     .execute<{
       success: boolean;
       message?: string;

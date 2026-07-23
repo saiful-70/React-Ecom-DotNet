@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 // Checkout data request/response types (for fetching actual prices from server)
 export interface CheckoutDataRequestItem {
   product_id: number;
@@ -139,6 +141,61 @@ export interface PurchaseOrderRequest {
   bundle_tier_id?: number;
   server_quote_id?: string;
 }
+
+// Server-side (zod) validation backstop for `createPurchaseOrder`. This only
+// rejects malformed/oversized payloads before they reach the backend — it
+// cannot stop a well-formed but tampered price, since the client fully
+// controls this object. True price integrity requires the .NET backend to
+// re-price orders from its own catalog/tax data, not trust `price`/`total_price`
+// as sent.
+//
+// Phone is intentionally permissive: the BD flow sends local digits
+// (e.g. "01712345678") while the international flow sends an E.164-ish
+// string (e.g. "+15551234567").
+const PHONE_REGEX = /^\+?[0-9]{6,15}$/;
+
+const AddressFieldsSchema = z.object({
+  contact_person_name: z.string().min(1).max(200),
+  phone: z.string().max(20).regex(PHONE_REGEX, "Invalid phone number"),
+  email: z.string().max(320).email().or(z.literal("")),
+  address_type: z.string().max(50),
+  country: z.string().max(500),
+  city: z.string().max(500),
+  zip_code: z.string().max(50),
+  address: z.string().min(1).max(500),
+});
+
+const ShippingAddressSchema = AddressFieldsSchema.extend({
+  is_billing: z.boolean(),
+});
+
+const BillingAddressSchema = AddressFieldsSchema;
+
+const OrderItemSchema = z.object({
+  product_id: z.number().int().positive(),
+  quantity: z.number().int().min(1),
+  price: z.number().finite().min(0),
+  variant_id: z.number().int().min(0),
+  bundle_id: z.number().int().positive().optional(),
+  bundle_tier_id: z.number().int().positive().optional(),
+});
+
+export const PurchaseOrderSchema = z.object({
+  total_price: z.number().finite().min(0),
+  order_status: z.enum(["pending", "processing", "completed", "cancelled"]),
+  payment_status: z.enum(["unpaid", "paid", "refunded"]),
+  payment_method: z.enum(["cash_on_delivery"]),
+  shipping_method: z.enum(["standard", "express", "overnight"]),
+  shipping_cost: z.number().finite().min(0),
+  shipping_duration: z.number().int().min(0),
+  total_vat_amount: z.number().finite().min(0),
+  shipping_address: ShippingAddressSchema,
+  billing_address: BillingAddressSchema,
+  order_items: z.array(OrderItemSchema).min(1),
+  bundle_id: z.number().int().positive().optional(),
+  bundle_tier_id: z.number().int().positive().optional(),
+  server_quote_id: z.string().max(200).optional(),
+});
 
 export interface PurchaseOrderResponse {
   success: boolean;

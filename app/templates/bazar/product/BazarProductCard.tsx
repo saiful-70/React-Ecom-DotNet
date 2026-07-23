@@ -15,6 +15,7 @@ import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
 import type { Product } from "@/(app-routes)/products/model";
 import { cn } from "@/lib/utils/utils";
@@ -33,8 +34,11 @@ export function BazarProductCard({ product }: { product: Product }) {
 	const [userProfile] = useAtom(miniProfileAtom);
 	const [wishlistIds, setWishlistIds] = useAtom(wishlistAtom);
 	const [isWishlistLoading, setIsWishlistLoading] = useState(false);
+	// Wishlist state is localStorage-backed (empty on the server). Gate on
+	// hydration so the first client render matches SSR and avoids a mismatch.
+	const isHydrated = useHydrated();
 
-	const isWishlisted = wishlistIds.includes(product.id);
+	const isWishlisted = isHydrated && wishlistIds.includes(product.id);
 	const imageSource =
 		product.thumbnail_image && product.thumbnail_image.trim() !== ""
 			? product.thumbnail_image

@@ -41,9 +41,12 @@ export async function registerUser(data: RegisterUserModel) {
 		return { success: false, message: "Invalid input" } as AuthUserResponseModel;
 	}
 
+	// Forward visitor cookies so the backend logs UserRegistration against the
+	// right visitor/session (tracking is server-side).
 	const response = await new ApiClient("auth/register")
 		.withMethod("POST")
 		.withBody<RegisterUserModel>(parsed.data)
+		.withCookieHeaders(await cookies())
 		.execute<AuthUserResponseModel>();
 
 	if (response.success) {
@@ -55,9 +58,12 @@ export async function registerUser(data: RegisterUserModel) {
 }
 
 export async function loginUser(model: LoginCredentialsModel) {
+	// Forward visitor cookies so the backend logs Login / FailedLogin against
+	// the right visitor/session (tracking is server-side).
 	const response = await new ApiClient("auth/login")
 		.withMethod("POST")
 		.withBody<LoginCredentialsModel>(model)
+		.withCookieHeaders(await cookies())
 		.execute<AuthUserResponseModel>();
 	if (response.success) {
 		await storeCookie(response?.data?.token ?? "");

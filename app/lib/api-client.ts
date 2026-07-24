@@ -108,14 +108,15 @@ export class ApiClient {
       this.headers["X-Auth-Token"] = token; // Store for validation in execute()
     }
 
-    // Forward the browser's cookies to the backend (equivalent to a browser's
-    // `credentials: 'include'`) so its server-side analytics can read the
-    // visitor/session cookies. The auth token is already sent as a Bearer
-    // header, so we drop `__token__` here to avoid leaking the app's session
-    // cookie to the backend as a stray cookie.
+    // Forward the backend's visitor/session cookies so its server-side
+    // analytics can read them (the browser-side equivalent of sending
+    // `credentials: 'include'`). We forward ONLY `_analytics_*` — the auth
+    // token already goes as a Bearer header, and forwarding unrelated cookies
+    // (language, consent, …) would leak data the backend doesn't need and risks
+    // a header-encoding failure on non-Latin-1 cookie values.
     const forwarded = cookieJar
       .getAll()
-      .filter((c) => c.name !== AUTH_TOKEN_COOKIE_NAME)
+      .filter((c) => c.name.startsWith(ANALYTICS_COOKIE_PREFIX))
       .map((c) => `${c.name}=${c.value}`)
       .join("; ");
     if (forwarded) {
@@ -267,9 +268,10 @@ export class ApiClient {
 
       // Relay the backend's analytics visitor/session cookies to the browser so
       // tracking persists across requests. Only runs on uncached calls that
-      // opted in via withCookieHeaders(). Safe in any server context: the set()
-      // call no-ops during a Server Component render (read-only cookie store)
-      // and succeeds in Server Actions / Route Handlers.
+      // opted in via withCookieHeaders(). Safe in any server context: during a
+      // Server Component render the underlying set() throws (read-only cookie
+      // store) and is caught, so it behaves as a no-op; in Server Actions /
+      // Route Handlers it succeeds.
       if (this.relayVisitorCookies && !this.cache) {
         await this.relayAnalyticsCookies(response);
       }
@@ -369,11 +371,17 @@ export class ApiClient {
         const attrText = attrs.join(";");
         const maxAgeMatch = attrText.match(/(?:^|;)\s*max-age=(-?\d+)/i);
         const expiresMatch = attrText.match(/(?:^|;)\s*expires=([^;]+)/i);
-        const lifetime: { maxAge?: number; expires?: Date } = maxAgeMatch
-          ? { maxAge: Number(maxAgeMatch[1]) }
-          : expiresMatch
-            ? { expires: new Date(expiresMatch[1].trim()) }
-            : {};
+        let lifetime: { maxAge?: number; expires?: Date } = {};
+        if (maxAgeMatch) {
+          lifetime = { maxAge: Number(maxAgeMatch[1]) };
+        } else if (expiresMatch) {
+          const expires = new Date(expiresMatch[1].trim());
+          // Ignore an unparseable Expires rather than passing an Invalid Date
+          // (which would throw in set() and abort relaying later cookies).
+          if (!Number.isNaN(expires.getTime())) {
+            lifetime = { expires };
+          }
+        }
 
         store.set(name, value, getCookieConfig({ httpOnly: true, ...lifetime }));
       }

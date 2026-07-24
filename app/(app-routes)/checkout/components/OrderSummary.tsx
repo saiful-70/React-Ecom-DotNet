@@ -109,33 +109,45 @@ export function OrderSummary({
 										{item.name}
 									</p>
 									<div className="flex items-center justify-between gap-2 flex-wrap">
-										<div className="flex items-center gap-1 shrink-0">
-											<Button
-												type="button"
-												variant="outline"
-												size="icon"
-												className="h-7 w-7"
-												onClick={handleDecrease}
-												disabled={item.quantity <= 1}
-												aria-label="decrease quantity"
+										{item.bundle_tier_id != null ? (
+											<span
+												className="w-7 text-center text-sm font-medium tabular-nums shrink-0"
+												title={t("bundle.fixedQuantity") || "Combo — fixed quantity"}
+												aria-label={
+													t("bundle.fixedQuantity") || "Combo — fixed quantity"
+												}
 											>
-												<Minus className="w-3.5 h-3.5" />
-											</Button>
-											<span className="w-7 text-center text-sm font-medium tabular-nums">
-												{item.quantity}
+												×1
 											</span>
-											<Button
-												type="button"
-												variant="outline"
-												size="icon"
-												className="h-7 w-7"
-												onClick={handleIncrease}
-												disabled={atStockLimit}
-												aria-label="increase quantity"
-											>
-												<Plus className="w-3.5 h-3.5" />
-											</Button>
-										</div>
+										) : (
+											<div className="flex items-center gap-1 shrink-0">
+												<Button
+													type="button"
+													variant="outline"
+													size="icon"
+													className="h-7 w-7"
+													onClick={handleDecrease}
+													disabled={item.quantity <= 1}
+													aria-label="decrease quantity"
+												>
+													<Minus className="w-3.5 h-3.5" />
+												</Button>
+												<span className="w-7 text-center text-sm font-medium tabular-nums">
+													{item.quantity}
+												</span>
+												<Button
+													type="button"
+													variant="outline"
+													size="icon"
+													className="h-7 w-7"
+													onClick={handleIncrease}
+													disabled={atStockLimit}
+													aria-label="increase quantity"
+												>
+													<Plus className="w-3.5 h-3.5" />
+												</Button>
+											</div>
+										)}
 										<p className="font-medium text-sm shrink-0">
 											<Price amount={item.price * item.quantity} />
 										</p>

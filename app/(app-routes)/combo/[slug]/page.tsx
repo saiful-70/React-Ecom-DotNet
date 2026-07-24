@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getCombo } from "../action";
 import { getActiveVariant } from "@/variants/server";
 import { ComboLanding } from "@/components/product/bundle/ComboLanding";
+import { isValidComboSlug } from "@/lib/bundles/types";
 
 interface Props {
 	params: Promise<{ slug: string }>;
@@ -10,6 +11,11 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { slug } = await params;
+
+	if (!isValidComboSlug(slug)) {
+		return { title: "Combo Not Found | কম্বো পাওয়া যায়নি" };
+	}
+
 	const combo = await getCombo(slug);
 
 	if (!combo) {
@@ -24,6 +30,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ComboPage({ params }: Props) {
 	const { slug } = await params;
+
+	if (!isValidComboSlug(slug)) {
+		notFound();
+	}
 
 	const variant = await getActiveVariant();
 	if (!variant.features.bundles) {

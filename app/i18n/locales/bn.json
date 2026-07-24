@@ -468,7 +468,8 @@
     "popular": "সবচেয়ে জনপ্রিয়",
     "bestValue": "সেরা ভ্যালু",
     "validationFailed": "বান্ডেল যাচাই ব্যর্থ",
-    "validationFailedDescription": "নির্বাচিত বান্ডেলটি এই মুহূর্তে অর্ডার করা যাচ্ছে না।"
+    "validationFailedDescription": "নির্বাচিত বান্ডেলটি এই মুহূর্তে অর্ডার করা যাচ্ছে না।",
+    "fixedQuantity": "কম্বো — নির্দিষ্ট পরিমাণ"
   },
   "register": {
     "pageTitle": "অ্যাকাউন্ট তৈরি করুন",

@@ -3,6 +3,7 @@ import { API_CONFIG } from "@/lib/config/api.config";
 import { AUTH_TOKEN_COOKIE_NAME } from "@/lib/config/auth.config";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { isTokenExpired, shouldRefreshToken } from "@/lib/utils/security.utils";
+import { cookies } from "next/headers";
 
 // API Response Types
 export interface ApiResponse<TResponse> {
@@ -61,16 +62,24 @@ export class ApiClient {
     return this;
   }
 
-  withCookieHeaders(cookies?: ReadonlyRequestCookies): this {
-    if (cookies) {
-      // Extract auth token from Next.js cookies
-      const token = cookies.get(AUTH_TOKEN_COOKIE_NAME)?.value;
+  withCookieHeaders(cookieJar: ReadonlyRequestCookies): this {
+    if (!cookieJar) {
+      // Defensive guard only — the parameter is required at compile time, so this
+      // should be unreachable except via unsafe callers (e.g. plain JS, `any`).
+      console.warn(
+        "withCookieHeaders() called without a cookie jar; request will be sent unauthenticated.",
+      );
+      return this;
+    }
 
-      if (token) {
-        // Store token for validation before execute()
-        this.headers.Authorization = `Bearer ${token}`;
-        this.headers["X-Auth-Token"] = token; // Store for validation in execute()
-      }
+    // Extract auth token from Next.js cookies. Guests have no `__token__` cookie,
+    // so `token` is undefined and the request is sent anonymously — that's expected.
+    const token = cookieJar.get(AUTH_TOKEN_COOKIE_NAME)?.value;
+
+    if (token) {
+      // Store token for validation before execute()
+      this.headers.Authorization = `Bearer ${token}`;
+      this.headers["X-Auth-Token"] = token; // Store for validation in execute()
     }
 
     return this;
@@ -272,7 +281,7 @@ export class ApiClient {
   async get<TResponse>(endpoint: string): Promise<TResponse> {
     return ApiClient.create(endpoint)
       .withMethod("GET")
-      .withCookieHeaders()
+      .withCookieHeaders(await cookies())
       .execute<TResponse>();
   }
 
@@ -283,7 +292,7 @@ export class ApiClient {
   ): Promise<TResponse> {
     const client = ApiClient.create(endpoint)
       .withMethod("POST")
-      .withCookieHeaders();
+      .withCookieHeaders(await cookies());
 
     if (data) {
       client.withBody(data);
@@ -299,7 +308,7 @@ export class ApiClient {
   ): Promise<TResponse> {
     const client = ApiClient.create(endpoint)
       .withMethod("PUT")
-      .withCookieHeaders();
+      .withCookieHeaders(await cookies());
 
     if (data) {
       client.withBody(data);
@@ -312,7 +321,7 @@ export class ApiClient {
   async delete<TResponse>(endpoint: string): Promise<TResponse> {
     return ApiClient.create(endpoint)
       .withMethod("DELETE")
-      .withCookieHeaders()
+      .withCookieHeaders(await cookies())
       .execute<TResponse>();
   }
 }

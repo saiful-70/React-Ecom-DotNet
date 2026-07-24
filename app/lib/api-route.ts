@@ -54,7 +54,7 @@ export const API_ROUTES = {
   },
   CAMPAIGNS: {
     LIST: "campaigns",
-    DETAILS: (slug: string) => `campaigns/${slug}`,
+    DETAILS: (slug: string) => `campaigns/${encodeURIComponent(slug)}`,
   },
   BUNDLES: {
     /** Primary bundle for a product's PDP. `lang` passed via withParams. */
@@ -62,7 +62,7 @@ export const API_ROUTES = {
     /** Paginated list of active combos. */
     COMBOS: "combos",
     /** Single combo by slug. */
-    COMBO_DETAILS: (slug: string) => `combos/${slug}`,
+    COMBO_DETAILS: (slug: string) => `combos/${encodeURIComponent(slug)}`,
     /** Server-authoritative pricing + quote for a selected tier. */
     VALIDATE: "checkout/validate-bundle",
   },

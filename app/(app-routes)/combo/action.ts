@@ -3,6 +3,7 @@
 import { ApiClient, type ApiResponse } from "@/lib/api-client";
 import { API_ROUTES } from "@/lib/api-route";
 import { getRequestLanguage } from "@/lib/utils/server-language";
+import { cookies } from "next/headers";
 import type {
   Bundle,
   BundleSummary,
@@ -45,7 +46,7 @@ export async function validateBundle(
     .withMethod("POST")
     .withParams({ lang })
     .withBody(request)
-    .withCookieHeaders()
+    .withCookieHeaders(await cookies())
     .execute<ApiResponse<BundleValidationResult>>();
 
   return response.data ?? null;

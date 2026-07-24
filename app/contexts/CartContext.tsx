@@ -66,6 +66,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 const cartReducer = (state: CartState, action: CartAction): CartState => {
 	switch (action.type) {
 		case "ADD_TO_CART": {
+			const isBundleLine = action.payload.bundle_tier_id != null;
 			const existingItem = state.items.find(
 				(item) =>
 					item.id === action.payload.id &&
@@ -74,7 +75,9 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 						(!action.payload.variant_id && !item.variant_id))
 			);
 
-			const quantityToAdd = action.payload.quantity || 1;
+			const quantityToAdd = isBundleLine
+				? 1
+				: action.payload.quantity || 1;
 
 			let newItems: CartItem[];
 			if (existingItem) {
@@ -83,7 +86,12 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 					((action.payload.variant_id &&
 						item.variant_id === action.payload.variant_id) ||
 						(!action.payload.variant_id && !item.variant_id))
-						? { ...item, quantity: item.quantity + quantityToAdd }
+						? {
+								...item,
+								quantity: isBundleLine
+									? 1
+									: item.quantity + quantityToAdd,
+						  }
 						: item
 				);
 			} else {
@@ -151,10 +159,13 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 					(!action.payload.variant_id && !item.variant_id))
 					? {
 							...item,
-							quantity: Math.min(
-								action.payload.quantity,
-								item.stock || action.payload.quantity
-							),
+							quantity:
+								item.bundle_tier_id != null
+									? 1
+									: Math.min(
+											action.payload.quantity,
+											item.stock || action.payload.quantity
+										),
 					  }
 					: item
 			);
@@ -189,17 +200,24 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 			};
 
 		case "LOAD_CART": {
+			// Clamp stale bundle lines to quantity 1 (invariant: bundle_tier_id != null => quantity === 1)
+			const newItems = action.payload.map((item) =>
+				item.bundle_tier_id != null && item.quantity !== 1
+					? { ...item, quantity: 1 }
+					: item
+			);
+
 			// Calculate tax from items
-			const taxCalculation = calculateCartTax(action.payload);
-			const itemCount = action.payload.reduce(
+			const taxCalculation = calculateCartTax(newItems);
+			const itemCount = newItems.reduce(
 				(sum, item) => sum + item.quantity,
 				0
 			);
 			// Track tax type from first item
-			const taxType = action.payload[0]?.tax_type || "exclude";
+			const taxType = newItems[0]?.tax_type || "exclude";
 
 			return {
-				items: action.payload,
+				items: newItems,
 				total: taxCalculation.total,
 				itemCount,
 				subtotal: taxCalculation.subtotal,

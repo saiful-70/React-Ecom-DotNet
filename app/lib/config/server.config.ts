@@ -14,15 +14,22 @@ type CookieConfig = {
 export const getCookieConfig = (
   config?: Partial<CookieConfig>
 ): CookieConfig => {
-  const isProduction = API_CONFIG.SITE_URL === "production";
+  const isProduction = API_CONFIG.NODE_ENV === "production";
 
   return {
     path: "/",
     // Only set domain in production, omit in development
     ...(isProduction && API_CONFIG.SITE_URL
-      ? {
-          domain: new URL(API_CONFIG.SITE_URL).hostname.replace(/^www\./, ""),
-        }
+      ? (() => {
+          try {
+            return {
+              domain: new URL(API_CONFIG.SITE_URL).hostname.replace(/^www\./, ""),
+            };
+          } catch {
+            // If SITE_URL is not a valid URL, omit domain
+            return {};
+          }
+        })()
       : {}),
     // Enable secure cookies in production
     secure: isProduction,

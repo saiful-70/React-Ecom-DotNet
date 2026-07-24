@@ -9,7 +9,7 @@ import {
 } from "@/(app-routes)/products/action";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import type { Product } from "@/(app-routes)/products/model";
-import type { HomeLayoutProps } from "../../types";
+import type { HomeLayoutProps } from "@/templates/types";
 import { GlobalDepartmentSidebar } from "./GlobalDepartmentSidebar";
 import { HeroCarousel } from "./HeroCarousel";
 import { FlashDealSection } from "./FlashDealSection";

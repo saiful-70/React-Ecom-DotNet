@@ -24,6 +24,7 @@ import { loginUser } from "@/(app-routes)/(auth)/action";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { DEFAULT_COUNTRY_CODE } from "@/lib/data/countries";
+import { safeRedirectPath } from "@/lib/utils/safe-redirect";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -37,8 +38,10 @@ export function GlobalLoginPage() {
 	const router = useRouter();
 	const setMiniProfile = useSetAtom(miniProfileAtom);
 	const [isPending, startTransition] = useTransition();
-	const redirectUrl =
-		useSearchParams().get("redirect") || ABSOLUTE_ROUTES.PROFILE;
+	const redirectUrl = safeRedirectPath(
+		useSearchParams().get("redirect"),
+		ABSOLUTE_ROUTES.PROFILE
+	);
 
 	const [usePhone, setUsePhone] = useState(true);
 	const [country, setCountry] = useState(DEFAULT_COUNTRY_CODE);

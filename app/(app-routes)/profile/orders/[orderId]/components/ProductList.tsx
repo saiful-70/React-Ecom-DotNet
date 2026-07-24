@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import Price from "@/components/shared/Price";
-import { OrderDetailsModel, OrderItem } from "../../model";
+import { OrderDetailsModel, OrderItem } from "@/(app-routes)/profile/orders/model";
 import { Separator } from "@radix-ui/react-separator";
 import { CardContent } from "@/components/shared/ui/card";
 import { Button } from "@/components/shared/ui/button";

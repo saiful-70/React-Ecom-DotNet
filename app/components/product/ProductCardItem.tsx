@@ -15,6 +15,7 @@ import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { useAtom } from "jotai";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
 import Price from "@/components/shared/Price";
@@ -31,8 +32,11 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 	const [userProfile] = useAtom(miniProfileAtom);
 	const [wishlistIds, setWishlistIds] = useAtom(wishlistAtom);
 	const router = useRouter();
+	// Wishlist state is localStorage-backed (empty on the server). Gate on
+	// hydration so the first client render matches SSR and avoids a mismatch.
+	const isHydrated = useHydrated();
 
-	const isWishlisted = wishlistIds.includes(product.id);
+	const isWishlisted = isHydrated && wishlistIds.includes(product.id);
 
 	const fallbackImage = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop&q=80";
 	const imageSource = product.thumbnail_image && product.thumbnail_image.trim() !== ""

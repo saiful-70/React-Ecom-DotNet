@@ -14,7 +14,7 @@ import {
 } from "@/components/shared/ui/dialog";
 import { Textarea } from "@/components/shared/ui/textarea";
 import { Button } from "@/components/shared/ui/button";
-import { createReview } from "../../actions";
+import { createReview } from "@/(app-routes)/profile/orders/actions";
 
 interface ReviewDialogProps {
   isOpen: boolean;

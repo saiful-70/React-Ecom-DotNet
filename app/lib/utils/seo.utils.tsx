@@ -208,6 +208,7 @@ export function generateProductMetadata({
  */
 
 export interface ProductStructuredData {
+	id?: string | number;
 	name: string;
 	description: string;
 	image: string;
@@ -230,7 +231,7 @@ export function generateProductSchema(product: ProductStructuredData) {
 		image: product.image.startsWith("http")
 			? product.image
 			: `${SITE_URL}${product.image}`,
-		sku: product.sku || `PRODUCT-${Date.now()}`,
+		sku: product.sku || (product.id !== undefined ? String(product.id) : product.url),
 		brand: product.brand
 			? {
 				"@type": "Brand",
@@ -393,10 +394,17 @@ export function generateReviewSchema(data: ReviewStructuredData) {
  * Helper to render JSON-LD script
  */
 export function renderStructuredData(data: object) {
+	const jsonLd = JSON.stringify(data)
+		.replace(/</g, "\\u003c")
+		.replace(/>/g, "\\u003e")
+		.replace(/&/g, "\\u0026")
+		.replace(/ /g, "\\u2028")
+		.replace(/ /g, "\\u2029");
+
 	return (
 		<script
 			type="application/ld+json"
-			dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+			dangerouslySetInnerHTML={{ __html: jsonLd }}
 		/>
 	);
 }

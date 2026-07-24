@@ -1,5 +1,6 @@
 "use server";
 
+import { cache } from "react";
 import { ApiClient, type ApiResponse } from "@/lib/api-client";
 import { API_ROUTES } from "@/lib/api-route";
 import { getRequestLanguage } from "@/lib/utils/server-language";
@@ -11,15 +12,40 @@ import type {
   ValidateBundleRequest,
 } from "@/lib/bundles/types";
 
-/** Single combo by slug (null when not found / inactive). */
-export async function getCombo(slug: string): Promise<Bundle | null> {
-  const lang = await getRequestLanguage();
-  const response = await new ApiClient(API_ROUTES.BUNDLES.COMBO_DETAILS(slug))
-    .withMethod("GET")
-    .withParams({ lang })
-    .execute<ApiResponse<Bundle | null>>();
+/**
+ * Result of `getCombo`:
+ * - `Bundle` on success.
+ * - `null` for a well-formed "not found" response (request succeeded, no data).
+ * - `"error"` when the request itself failed (network error or non-2xx from
+ *   the backend) - a transport/5xx outage, distinct from a genuine 404.
+ */
+export type ComboFetchResult = Bundle | null | "error";
 
-  return response.success ? (response.data ?? null) : null;
+// A "use server" file may only export async functions, so the request-scoped
+// dedup lives in this unexported helper (wrapped with React `cache()`) rather
+// than on `getCombo` itself. Both `generateMetadata` and the page call the
+// exported `getCombo`, which in turn shares this single cached network call
+// per render.
+const fetchComboResponse = cache(
+  (slug: string, lang: string): Promise<ApiResponse<Bundle | null>> =>
+    new ApiClient(API_ROUTES.BUNDLES.COMBO_DETAILS(slug))
+      .withMethod("GET")
+      .withParams({ lang })
+      .execute<ApiResponse<Bundle | null>>()
+);
+
+/** Single combo by slug. See `ComboFetchResult` for the not-found/error distinction. */
+export async function getCombo(slug: string): Promise<ComboFetchResult> {
+  const lang = await getRequestLanguage();
+  const response = await fetchComboResponse(slug, lang);
+
+  if (!response.success) {
+    // Transport/5xx failure - let callers surface this as an outage
+    // (error boundary) rather than a false "not found" (404).
+    return "error";
+  }
+
+  return response.data ?? null;
 }
 
 /** Active combos list (for the landing grid / home marketing banner). */

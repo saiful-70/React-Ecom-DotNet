@@ -28,14 +28,17 @@ export default async function Profile() {
 		await clearAuthAndRedirect();
 		redirect("/login?redirect=/profile");
 	}
-	const orderHistory = await getUserOrderHistory();
+	const orderHistoryResponse = await getUserOrderHistory();
+	// Normalize at the boundary: on fetch failure `data` is null, so downstream
+	// components always receive a plain array and never need to branch on
+	// `.success` to avoid crashing.
+	const orderHistory = orderHistoryResponse.success
+		? orderHistoryResponse.data ?? []
+		: [];
 	return (
 		<div className="min-h-screen bg-background">
 			<Suspense fallback={<ProfileLoading />}>
-				<ProfilePage
-					model={response.data}
-					orderHistoryResponse={orderHistory}
-				/>
+				<ProfilePage model={response.data} orderHistory={orderHistory} />
 			</Suspense>
 		</div>
 	);

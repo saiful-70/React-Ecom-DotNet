@@ -9,7 +9,7 @@ import {
 import { Separator } from "@/components/shared/ui/separator";
 import { Package } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { OrderDetailsModel, MiniOrderHistory } from "../../model";
+import { OrderDetailsModel, MiniOrderHistory } from "@/(app-routes)/profile/orders/model";
 import { formatText } from "@/lib/utils/utils";
 
 type Props = { orderDetails: OrderDetailsModel };

@@ -3,7 +3,7 @@ import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { NavigationSchema } from "@/components/layout/NavigationSchema";
 import { getAllCategories } from "@/components/shared/actions/categories";
 import { getFeaturedProducts } from "@/(app-routes)/products/action";
-import type { HomeLayoutProps } from "../../types";
+import type { HomeLayoutProps } from "@/templates/types";
 import { DepartmentSidebar } from "./DepartmentSidebar";
 import { BazarCategoryGrid } from "./BazarCategoryGrid";
 import { BazarSectionTitle } from "./BazarSectionTitle";

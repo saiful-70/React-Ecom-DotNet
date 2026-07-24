@@ -13,6 +13,7 @@ export const ABSOLUTE_ROUTES = {
   PRODUCTS: "/products",
   PRODUCTS_BY_CATEGORY: (id: number | string) => `/products?category_id=${id}`,
   PRODUCT_DETAILS: (id: number | string) => `/products/${id}`,
+  COMBO: (slug: string) => `/combo/${slug}`,
   ORDER_DETAILS: (id: number | string) => `/profile/orders/${id}`,
   PRODUCT_BY_SEARCH_PARAMS: (params: string) => `/products?${params}`,
 };

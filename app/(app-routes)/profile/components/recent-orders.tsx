@@ -8,8 +8,7 @@ import {
 	CardTitle,
 } from "@/components/shared/ui/card";
 import { PackageIcon } from "lucide-react";
-import { OrderResponseModel } from "../orders/model";
-import AccountError from "@/components/shared/AccountError";
+import { OrderHistoryModel } from "../orders/model";
 import { useTranslation } from "react-i18next";
 import { getBadgeVariant } from "@/lib/utils/utils";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
@@ -17,17 +16,12 @@ import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import Price from "@/components/shared/Price";
 
 type Props = {
-	orderHistoryResponse: OrderResponseModel;
+	orders: OrderHistoryModel[];
 };
 
-export default function RecentOrders({ orderHistoryResponse }: Props) {
+export default function RecentOrders({ orders }: Props) {
 	const { t } = useTranslation();
 
-	if (!orderHistoryResponse.success) {
-		return <AccountError message={orderHistoryResponse.message} />;
-	}
-
-	const orders = orderHistoryResponse.data;
 	return (
 		<Card>
 			<CardHeader>

@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, Plus } from "lucide-react";
+import { CartLineImage } from "@/components/shared/CartLineImage";
 import Price from "@/components/shared/Price";
 import { cn } from "@/lib/utils/utils";
 import type { Bundle, BundleTier, BundleTierItem } from "@/lib/bundles/types";
@@ -32,7 +32,7 @@ function ThumbCluster({ items }: { items: BundleTierItem[] }) {
                 className="relative size-11 sm:size-12 rounded-md border-2 border-background bg-muted overflow-hidden shadow-sm"
                 style={{ zIndex: 3 - i }}
               >
-                <Image
+                <CartLineImage
                   src={item.thumbnail_image}
                   alt={item.name}
                   fill
@@ -55,6 +55,26 @@ export function BundleTierList({
   showComposition = false,
 }: BundleTierListProps) {
   const { t } = useTranslation();
+
+  // `bundle.save` interpolates `{{amount}}`, but the currency-formatted value
+  // must render through <Price/> (business-settings-driven currency symbol
+  // and format), never a hardcoded currency string. Substitute a sentinel for
+  // `{{amount}}`, then split the resolved string on it so a real <Price/>
+  // element lands wherever the translation places the amount (start or end
+  // of the sentence, per locale).
+  const AMOUNT_SENTINEL = "@@AMOUNT@@";
+  const renderSaveLabel = (amount: number) => {
+    const [before, after] = t("bundle.save", {
+      amount: AMOUNT_SENTINEL,
+    }).split(AMOUNT_SENTINEL);
+    return (
+      <>
+        {before}
+        <Price amount={amount} />
+        {after}
+      </>
+    );
+  };
 
   // No per-tier badge on the wire — derive from real signals: the default tier
   // is "popular"; the highest-savings tier is "best value".
@@ -142,7 +162,7 @@ export function BundleTierList({
               ) : (
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {hasSavings
-                    ? t("bundle.save", { amount: tier.savings })
+                    ? renderSaveLabel(tier.savings)
                     : t("bundle.standardPrice")}
                 </p>
               )}
@@ -180,7 +200,7 @@ export function BundleTierList({
                   isBestValue && !isPopular ? "bg-orange-500" : "bg-primary"
                 )}
               >
-                {t("bundle.save", { amount: tier.savings })}
+                {renderSaveLabel(tier.savings)}
               </span>
             )}
           </button>

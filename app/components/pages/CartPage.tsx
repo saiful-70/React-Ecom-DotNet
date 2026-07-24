@@ -33,9 +33,18 @@ export function CartPage() {
 		setIsHydrated(true);
 	}, []);
 
-	const handleRemoveItem = (id: string, variant_id?: number) => {
-		const item = items.find((item) => item.id.toString() === id);
-		removeFromCart(parseInt(id), variant_id);
+	const handleRemoveItem = (
+		id: string,
+		variant_id?: number,
+		bundle_tier_id?: number
+	) => {
+		const item = items.find(
+			(item) =>
+				item.id.toString() === id &&
+				item.variant_id === variant_id &&
+				item.bundle_tier_id === bundle_tier_id
+		);
+		removeFromCart(parseInt(id), variant_id, bundle_tier_id);
 		if (item) {
 			toast.success(t("cart.itemRemoved") || "Item removed", {
 				description: `${item.name} ${
@@ -58,9 +67,10 @@ export function CartPage() {
 	const handleQuantityChange = (
 		id: string,
 		newQuantity: number,
-		variant_id?: number
+		variant_id?: number,
+		bundle_tier_id?: number
 	) => {
-		updateQuantity(parseInt(id), newQuantity, variant_id);
+		updateQuantity(parseInt(id), newQuantity, variant_id, bundle_tier_id);
 	};
 
 	// Convert cart items to CartItemData format
@@ -72,12 +82,18 @@ export function CartPage() {
 			price: item.price,
 			quantity: item.quantity,
 			variant_id: item.variant_id,
+			stock: item.stock,
 			bundle_tier_id: item.bundle_tier_id,
+			bundle_slug: item.bundle_slug,
 		};
 	});
 
-	const handleProductClick = (id: string) => {
-		router.push(ABSOLUTE_ROUTES.PRODUCT_DETAILS(id));
+	const handleProductClick = (item: CartItemData) => {
+		if (item.bundle_slug) {
+			router.push(ABSOLUTE_ROUTES.COMBO(item.bundle_slug));
+		} else {
+			router.push(ABSOLUTE_ROUTES.PRODUCT_DETAILS(item.id));
+		}
 	};
 
 	// Prevent hydration mismatch by only rendering after hydration
@@ -109,7 +125,7 @@ export function CartPage() {
 				<div className="lg:col-span-2 space-y-4">
 					{cartItems.map((item) => (
 						<CartItem
-							key={item.name}
+							key={`${item.id}-${item.variant_id ?? 0}`}
 							item={item}
 							onRemove={handleRemoveItem}
 							onUpdateQuantity={handleQuantityChange}

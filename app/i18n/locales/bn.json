@@ -4,6 +4,8 @@
     "viewProduct": "পণ্যের বিস্তারিত দেখুন",
     "decreaseQuantity": "পরিমাণ কমান",
     "increaseQuantity": "পরিমাণ বাড়ান",
+    "removeItem": "আইটেম সরান",
+    "backToTop": "উপরে ফিরে যান",
     "toggleTheme": "ডার্ক মোড পরিবর্তন করুন",
     "toggleMenu": "মেনু খুলুন/বন্ধ করুন",
     "changeLanguage": "ভাষা পরিবর্তন করুন",
@@ -16,7 +18,8 @@
     "deals": "অফার",
     "newArrivals": "নতুন পণ্য",
     "login": "লগইন",
-    "profile": "প্রোফাইল"
+    "profile": "প্রোফাইল",
+    "logout": "লগআউট"
   },
   "navigation": {
     "electronics": "ইলেকট্রনিক্স",
@@ -185,6 +188,7 @@
     "billingAddressSame": "বিলিং ঠিকানা শিপিং এর মতো একই",
     "paymentSecure": "আপনার পেমেন্ট তথ্য নিরাপদ এবং এনক্রিপ্ট করা",
     "quantity": "পরিমাণ",
+    "fixedQuantity": "নির্দিষ্ট পরিমাণ — পণ্যের পাতায় নির্ধারিত",
     "subtotal": "সাবটোটাল",
     "shipping": "শিপিং",
     "flatRateShipping": "ফ্ল্যাট রেট",
@@ -393,7 +397,9 @@
     "back": "পিছনে",
     "next": "পরবর্তী",
     "previous": "পূর্ববর্তী",
-    "language": "ভাষা"
+    "language": "ভাষা",
+    "submitting": "জমা দেওয়া হচ্ছে...",
+    "characters": "অক্ষর"
   },
   "productDetails": {
     "home": "হোম",
@@ -447,7 +453,7 @@
     "selectCombo": "কম্বো সিলেক্ট করুন",
     "mostSaved": "সবচেয়ে বেশি সেভ",
     "standardPrice": "স্ট্যান্ডার্ড প্রাইস",
-    "save": "সেভ ৳{{amount}}",
+    "save": "{{amount}} সাশ্রয় করুন",
     "youSaveTotal": "আপনি মোট সেভ করছেন",
     "youSave": "আপনি সেভ করছেন",
     "totalPrice": "মোট দাম",
@@ -469,7 +475,9 @@
     "bestValue": "সেরা ভ্যালু",
     "validationFailed": "বান্ডেল যাচাই ব্যর্থ",
     "validationFailedDescription": "নির্বাচিত বান্ডেলটি এই মুহূর্তে অর্ডার করা যাচ্ছে না।",
-    "fixedQuantity": "কম্বো — নির্দিষ্ট পরিমাণ"
+    "fixedQuantity": "কম্বো — নির্দিষ্ট পরিমাণ",
+    "replacedExisting": "আগের কম্বোটি সরিয়ে নতুনটি যোগ হয়েছে — প্রতি অর্ডারে একটি কম্বো।",
+    "onePerOrder": "প্রতি অর্ডারে শুধুমাত্র একটি কম্বো সমর্থিত।"
   },
   "register": {
     "pageTitle": "অ্যাকাউন্ট তৈরি করুন",
@@ -571,6 +579,21 @@
     "needHelp": "সাহায্য প্রয়োজন?",
     "contactSupport": "আপনি যদি মনে করেন এটি একটি ত্রুটি, অনুগ্রহ করে আমাদের সাপোর্ট টিমের সাথে যোগাযোগ করুন।",
     "contactUs": "সাপোর্টের সাথে যোগাযোগ"
+  },
+  "review": {
+    "writeReview": "রিভিউ লিখুন",
+    "reviewFor": "রিভিউ",
+    "rating": "রেটিং",
+    "message": "আপনার রিভিউ",
+    "placeholder": "এই পণ্য সম্পর্কে আপনার অভিজ্ঞতা শেয়ার করুন...",
+    "submit": "রিভিউ জমা দিন",
+    "success": "রিভিউ সফলভাবে জমা দেওয়া হয়েছে!",
+    "error": "রিভিউ জমা দিতে ব্যর্থ হয়েছে",
+    "ratingRequired": "অনুগ্রহ করে একটি রেটিং নির্বাচন করুন",
+    "reviewMinLength": "রিভিউ অন্তত ১০ অক্ষরের হতে হবে",
+    "reviewMaxLength": "রিভিউ ৫০০ অক্ষরের বেশি হতে পারবে না",
+    "addReview": "রিভিউ যোগ করুন",
+    "deliveredOnly": "আপনি শুধুমাত্র ডেলিভার হওয়া অর্ডারের রিভিউ দিতে পারবেন"
   },
   "maintenance": {
     "title": "রক্ষণাবেক্ষণ চলছে",

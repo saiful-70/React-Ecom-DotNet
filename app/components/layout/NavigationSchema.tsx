@@ -1,5 +1,6 @@
 import { getAllCategories } from "@/components/shared/actions/categories";
 import { API_CONFIG } from "@/lib/config/api.config";
+import { renderStructuredData } from "@/lib/utils/seo.utils";
 
 export const NavigationSchema = async () => {
 	const response = await getAllCategories();
@@ -61,18 +62,8 @@ export const NavigationSchema = async () => {
 
 	return (
 		<>
-			<script
-				type="application/ld+json"
-				dangerouslySetInnerHTML={{
-					__html: JSON.stringify(breadcrumbSchema),
-				}}
-			/>
-			<script
-				type="application/ld+json"
-				dangerouslySetInnerHTML={{
-					__html: JSON.stringify(siteNavigationSchema),
-				}}
-			/>
+			{renderStructuredData(breadcrumbSchema)}
+			{renderStructuredData(siteNavigationSchema)}
 		</>
 	);
 };

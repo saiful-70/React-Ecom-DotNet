@@ -81,18 +81,18 @@ Config constants (`DEMO_PREFIX`, `VARIANT_HEADER`, `SHOWCASE_MODE`, `PINNED_VARI
 
 ### Template layer (layout paradigms)
 
-`client = template × theme × branding × feature flags × language`. A **template** is a reusable layout *paradigm* (different chrome + page composition), not just a theme. Templates are code under `app/templates/<id>/`; a variant selects one via `VariantDescriptor.template` (`TemplateId = "classic" | "bazar"`). The union lives in `app/variants/types.ts` so variants reference templates by id only — never by import.
+`client = template × theme × branding × feature flags × language`. A **template** is a reusable layout *paradigm* (different chrome + page composition), not just a theme. Templates are code under `app/templates/<id>/`; a variant selects one via `VariantDescriptor.template` (`TemplateId = "classic" | "bazar" | "global"`). The union lives in `app/variants/types.ts` so variants reference templates by id only — never by import.
 
 - **Contract:** `app/templates/types.ts` — chrome slots (`Header`, `Navigation`, `Footer`, `MobileNav`, `FloatingActions` — nullable where a paradigm has none) plus `HomeLayout`, `ProductListingLayout`, `ProductDetailsLayout`.
 - **Registry:** `getTemplate(id)` in `app/templates/registry.ts`, falls back to `classic`. Never import this from `app/variants/*` or middleware (it pulls in the whole component tree).
-- **`classic`** re-exports the pre-existing components verbatim (bn-01, intl-01 render identically to before). **`bazar`** (used by bn-02) is a distinct paradigm (contact top bar, department-sidebar home, stock ribbon cards, breadcrumb listing, new PDP, mobile bottom nav + floating call FAB).
+- **`classic`** re-exports the pre-existing components verbatim (used by bn-01). **`bazar`** (used by bn-02) is a distinct paradigm (contact top bar, department-sidebar home, stock ribbon cards, breadcrumb listing, new PDP, mobile bottom nav + floating call FAB). **`global`** (used by intl-01) is a 6Valley-style international marketplace paradigm (utility top bar, category mega-menu, department-rail hero, flash-deal countdown, mobile bottom nav, WhatsApp FAB).
 - **Data stays shared:** the shared routes (`app/layout.tsx`, `app/page.tsx`, `products/page.tsx`, `products/[id]/page.tsx`) fetch data and resolve the template via `getTemplate(variant.template)`, passing serializable props. Page-level template layouts may themselves be async Server Components calling the shared cached actions (as `BazarHome` does). SEO/metadata/actions/models are untouched by templates.
 - Shared `ProductsGrid` / `ProductsInfiniteList` accept an optional `CardComponent` prop (defaults to `ProductCardItem`; a component function can only be passed from a client component, not across the server→client boundary). `BackToTopButton` takes an optional `className` so bottom-nav templates can lift it clear.
 
 ### State
 
 - **Jotai** for client state (`app/store/*.atom.ts` — mini-profile, wishlist, chat, cookie-consent, ui). Use `atomWithStorage` for cross-navigation persistence.
-- **React Context** for the cart (`app/contexts/CartContext.tsx`, reducer + localStorage). Cart math: 10% tax, ৳100 shipping (free over ৳1000).
+- **React Context** for the cart (`app/contexts/CartContext.tsx`, reducer + localStorage). Cart math: tax is per-item percent, applied in "include" or "exclude" mode per product (`app/lib/utils/tax-calculator.ts`). BD shipping (classic/bazar templates) is ৳80 inside Dhaka / ৳130 outside (`app/lib/constants/delivery.ts`), waived above the business-settings `free_shipping_on_over` threshold (default ৳1200) applied at checkout. The `global` template (intl variants) uses a flat rate instead: 10 (store currency units), free over 100 (`INTL_SHIPPING` in the same file).
 - **Server actions** for data fetching — no client-side React Query (devtools is installed but unused).
 
 ### Provider order (do not reorder)
@@ -112,7 +112,7 @@ VariantProvider → JotaiProvider → ThemeProvider → I18nProvider
 
 ### SEO-critical data
 
-Categories must be server-rendered (used in nav). They are cached for 1h via `unstable_cache` in `app/components/shared/actions/categories.ts`; revalidate via `revalidateCategories()`. Don't move categories or product listings to client-only state.
+Categories must be server-rendered (used in nav). They are cached for 1h via `ApiClient.withCache(["categories"], CACHE_TIMES.ONE_HOUR)` in `app/components/shared/actions/categories.ts` (Next.js `fetch` cache, not `unstable_cache`) — there is no separate revalidate helper; the tag expires naturally. Don't move categories or product listings to client-only state.
 
 ### Reusable product UI
 

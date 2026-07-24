@@ -7,12 +7,14 @@ import { ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
 import { cookieConsentAtom } from "@/store/cookie-consent.atom";
 import { useFeature } from "@/components/shared/providers/variant-provider";
+import { useTranslation } from "react-i18next";
 
 interface BackToTopButtonProps {
 	className?: string;
 }
 
 export default function BackToTopButton({ className }: BackToTopButtonProps = {}) {
+	const { t } = useTranslation();
 	const [isVisible, setIsVisible] = useState(false);
 	const cookieConsent = useAtomValue(cookieConsentAtom);
 	const cookieConsentEnabled = useFeature("cookieConsent");
@@ -65,7 +67,7 @@ export default function BackToTopButton({ className }: BackToTopButtonProps = {}
 				})`,
 			}}
 			onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-			aria-label="Back to top"
+			aria-label={t("a11y.backToTop")}
 			size="icon"
 		>
 			<ChevronUp className="size-5 sm:size-7" strokeWidth={4} />

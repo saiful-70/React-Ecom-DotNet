@@ -28,6 +28,10 @@ export interface CartItem {
 	bundle_id?: number;
 	bundle_tier_id?: number;
 	bundle_components?: BundleCartComponent[];
+	// Combo slug for the bundle this line represents, so cart UI can deep-link
+	// to `/combo/<slug>` instead of a product details page (bundle lines use
+	// `id: bundle.id`, which is not a product id).
+	bundle_slug?: string;
 }
 
 interface CartState {
@@ -43,8 +47,17 @@ interface CartContextType extends CartState {
 	addToCart: (
 		item: Omit<CartItem, "quantity"> & { quantity?: number }
 	) => void;
-	removeFromCart: (id: number, variant_id?: number) => void;
-	updateQuantity: (id: number, quantity: number, variant_id?: number) => void;
+	removeFromCart: (
+		id: number,
+		variant_id?: number,
+		bundle_tier_id?: number
+	) => void;
+	updateQuantity: (
+		id: number,
+		quantity: number,
+		variant_id?: number,
+		bundle_tier_id?: number
+	) => void;
 	clearCart: () => void;
 }
 
@@ -53,10 +66,18 @@ type CartAction =
 			type: "ADD_TO_CART";
 			payload: Omit<CartItem, "quantity"> & { quantity?: number };
 	  }
-	| { type: "REMOVE_FROM_CART"; payload: { id: number; variant_id?: number } }
+	| {
+			type: "REMOVE_FROM_CART";
+			payload: { id: number; variant_id?: number; bundle_tier_id?: number };
+	  }
 	| {
 			type: "UPDATE_QUANTITY";
-			payload: { id: number; variant_id?: number; quantity: number };
+			payload: {
+				id: number;
+				variant_id?: number;
+				bundle_tier_id?: number;
+				quantity: number;
+			};
 	  }
 	| { type: "CLEAR_CART" }
 	| { type: "LOAD_CART"; payload: CartItem[] };
@@ -72,12 +93,13 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 					item.id === action.payload.id &&
 					((action.payload.variant_id &&
 						item.variant_id === action.payload.variant_id) ||
-						(!action.payload.variant_id && !item.variant_id))
+						(!action.payload.variant_id && !item.variant_id)) &&
+					item.bundle_tier_id === action.payload.bundle_tier_id
 			);
 
 			const quantityToAdd = isBundleLine
 				? 1
-				: action.payload.quantity || 1;
+				: Math.max(1, Math.floor(action.payload.quantity || 1));
 
 			let newItems: CartItem[];
 			if (existingItem) {
@@ -85,12 +107,18 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 					item.id === action.payload.id &&
 					((action.payload.variant_id &&
 						item.variant_id === action.payload.variant_id) ||
-						(!action.payload.variant_id && !item.variant_id))
+						(!action.payload.variant_id && !item.variant_id)) &&
+					item.bundle_tier_id === action.payload.bundle_tier_id
 						? {
 								...item,
 								quantity: isBundleLine
 									? 1
-									: item.quantity + quantityToAdd,
+									: item.stock != null
+										? Math.min(
+												item.quantity + quantityToAdd,
+												Math.max(item.stock, 0)
+											)
+										: item.quantity + quantityToAdd,
 						  }
 						: item
 				);
@@ -128,7 +156,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 						item.id === action.payload.id &&
 						((action.payload.variant_id &&
 							item.variant_id === action.payload.variant_id) ||
-							(!action.payload.variant_id && !item.variant_id))
+							(!action.payload.variant_id && !item.variant_id)) &&
+						item.bundle_tier_id === action.payload.bundle_tier_id
 					)
 			);
 
@@ -152,23 +181,37 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 		}
 
 		case "UPDATE_QUANTITY": {
-			const newItems = state.items.map((item) =>
-				item.id === action.payload.id &&
-				((action.payload.variant_id &&
-					item.variant_id === action.payload.variant_id) ||
-					(!action.payload.variant_id && !item.variant_id))
-					? {
-							...item,
-							quantity:
-								item.bundle_tier_id != null
-									? 1
-									: Math.min(
-											action.payload.quantity,
-											item.stock || action.payload.quantity
-										),
-					  }
-					: item
-			);
+			const newItems = state.items
+				.map((item) => {
+					const matches =
+						item.id === action.payload.id &&
+						((action.payload.variant_id &&
+							item.variant_id === action.payload.variant_id) ||
+							(!action.payload.variant_id && !item.variant_id)) &&
+						item.bundle_tier_id === action.payload.bundle_tier_id;
+					if (!matches) {
+						return item;
+					}
+					// Bundle lines are always exactly quantity 1 (Phase 0 invariant).
+					if (item.bundle_tier_id != null) {
+						return { ...item, quantity: 1 };
+					}
+					// Quantity dropping to zero or below is treated as removal.
+					if (action.payload.quantity < 1) {
+						return null;
+					}
+					return {
+						...item,
+						quantity:
+							item.stock != null
+								? Math.min(
+										action.payload.quantity,
+										Math.max(item.stock, 0)
+									)
+								: action.payload.quantity,
+					};
+				})
+				.filter((item): item is CartItem => item !== null);
 
 			// Calculate tax from items
 			const taxCalculation = calculateCartTax(newItems);
@@ -200,8 +243,21 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 			};
 
 		case "LOAD_CART": {
+			// Defensive shape validation: drop entries that don't look like a real
+			// cart line (e.g. corrupted/tampered localStorage) before trusting them.
+			const validItems = action.payload.filter(
+				(item) =>
+					typeof item?.id === "number" &&
+					typeof item?.price === "number" &&
+					Number.isFinite(item.price) &&
+					typeof item?.quantity === "number" &&
+					Number.isFinite(item.quantity) &&
+					Number.isInteger(item.quantity) &&
+					item.quantity >= 1
+			);
+
 			// Clamp stale bundle lines to quantity 1 (invariant: bundle_tier_id != null => quantity === 1)
-			const newItems = action.payload.map((item) =>
+			const newItems = validItems.map((item) =>
 				item.bundle_tier_id != null && item.quantity !== 1
 					? { ...item, quantity: 1 }
 					: item
@@ -273,39 +329,55 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 		}
 	}, [state.items, isLoaded]);
 
+	// Cross-tab sync: reload the cart when another tab writes it.
+	useEffect(() => {
+		const onStorage = (event: StorageEvent) => {
+			if (event.key !== "cart") return;
+			try {
+				const cartItems = JSON.parse(event.newValue || "[]");
+				if (Array.isArray(cartItems)) {
+					dispatch({ type: "LOAD_CART", payload: cartItems });
+				}
+			} catch (error) {
+				console.error("Error syncing cart from another tab:", error);
+			}
+		};
+		window.addEventListener("storage", onStorage);
+		return () => window.removeEventListener("storage", onStorage);
+	}, []);
+
 	const addToCart = (
 		item: Omit<CartItem, "quantity"> & { quantity?: number }
 	) => {
 		dispatch({ type: "ADD_TO_CART", payload: item });
 	};
 
-	const removeFromCart = (id: number, variant_id?: number) => {
-		dispatch({ type: "REMOVE_FROM_CART", payload: { id, variant_id } });
+	const removeFromCart = (
+		id: number,
+		variant_id?: number,
+		bundle_tier_id?: number
+	) => {
+		dispatch({
+			type: "REMOVE_FROM_CART",
+			payload: { id, variant_id, bundle_tier_id },
+		});
 	};
 
 	const updateQuantity = (
 		id: number,
 		quantity: number,
-		variant_id?: number
+		variant_id?: number,
+		bundle_tier_id?: number
 	) => {
 		dispatch({
 			type: "UPDATE_QUANTITY",
-			payload: { id, quantity, variant_id },
+			payload: { id, quantity, variant_id, bundle_tier_id },
 		});
 	};
 
 	const clearCart = () => {
 		dispatch({ type: "CLEAR_CART" });
 	};
-
-	if (typeof window !== "undefined") {
-		window.addEventListener("storage", (event) => {
-			if (event.key === "cart") {
-				const cartItems = JSON.parse(event.newValue || "[]");
-				dispatch({ type: "LOAD_CART", payload: cartItems });
-			}
-		});
-	}
 
 	const value: CartContextType = {
 		...state,

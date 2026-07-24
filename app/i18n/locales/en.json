@@ -8,7 +8,9 @@
     "toggleMenu": "Toggle menu",
     "changeLanguage": "Change language",
     "cart": "Cart",
-    "account": "Account"
+    "account": "Account",
+    "removeItem": "Remove item",
+    "backToTop": "Back to top"
   },
   "header": {
     "searchPlaceholder": "Search products...",
@@ -187,6 +189,7 @@
     "billingAddressSame": "Billing address same as shipping",
     "paymentSecure": "Your payment information is secure and encrypted",
     "quantity": "Qty",
+    "fixedQuantity": "Fixed quantity — set on the product page",
     "subtotal": "Subtotal",
     "shipping": "Shipping",
     "flatRateShipping": "Flat Rate",
@@ -450,7 +453,7 @@
     "selectCombo": "Select a Combo",
     "mostSaved": "Save the most",
     "standardPrice": "Standard Price",
-    "save": "Save ৳{{amount}}",
+    "save": "Save {{amount}}",
     "youSaveTotal": "You save in total",
     "youSave": "You save",
     "totalPrice": "Total",
@@ -472,7 +475,9 @@
     "bestValue": "Best Value",
     "validationFailed": "Bundle validation failed",
     "validationFailedDescription": "The selected bundle can't be ordered right now.",
-    "fixedQuantity": "Combo — fixed quantity"
+    "fixedQuantity": "Combo — fixed quantity",
+    "replacedExisting": "Your previous combo was replaced — one combo per order.",
+    "onePerOrder": "Only one combo per order is supported."
   },
   "register": {
     "pageTitle": "Create Account",

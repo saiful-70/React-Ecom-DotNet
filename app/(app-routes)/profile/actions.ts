@@ -1,5 +1,6 @@
 "use server";
 
+import { z } from "zod";
 import { ApiClient, ApiResponse } from "@/lib/api-client";
 import { cookies } from "next/headers";
 import { UserProfileModel } from "./model";
@@ -8,6 +9,18 @@ import { API_ROUTES } from "@/lib/api-route";
 import { revalidatePath } from "next/cache";
 import { AUTH_TOKEN_COOKIE_NAME } from "@/lib/config/auth.config";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
+
+// Lightweight, forward-compatible: only the fields the profile form actually
+// sends are constrained; unknown/extra fields on the Partial<UserMiniProfileModel>
+// input are passed through untouched.
+const UpdateUserProfileSchema = z
+  .object({
+    name: z.string().min(1).max(100),
+    email: z.string().email().or(z.literal("")),
+    phone: z.string().max(20),
+  })
+  .partial()
+  .passthrough();
 
 export async function getUserProfile() {
   return await new ApiClient("auth/get-profile")
@@ -35,10 +48,18 @@ export async function clearAuthAndRedirect() {
 }
 
 export async function updateUserProfile(model: Partial<UserMiniProfileModel>) {
+  const parsed = UpdateUserProfileSchema.safeParse(model);
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: "Invalid input",
+    } as UserProfileModel;
+  }
+
   const response = await new ApiClient(API_ROUTES.AUTH.UPDATE_PROFILE)
     .withMethod("PUT")
     .withCookieHeaders(await cookies())
-    .withBody(model)
+    .withBody(parsed.data)
     .execute<UserProfileModel>();
   revalidatePath(ABSOLUTE_ROUTES.PROFILE);
   return response;

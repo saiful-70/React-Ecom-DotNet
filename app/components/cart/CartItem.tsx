@@ -16,13 +16,20 @@ export interface CartItemData {
 	variant_id?: number;
 	stock?: number;
 	bundle_tier_id?: number;
+	/** Combo slug for bundle lines, so the row can deep-link to `/combo/<slug>`. */
+	bundle_slug?: string;
 }
 
 interface CartItemProps {
 	item: CartItemData;
-	onRemove: (id: string, variant_id?: number) => void;
-	onUpdateQuantity: (id: string, quantity: number, variant_id?: number) => void;
-	onProductClick?: (id: string) => void;
+	onRemove: (id: string, variant_id?: number, bundle_tier_id?: number) => void;
+	onUpdateQuantity: (
+		id: string,
+		quantity: number,
+		variant_id?: number,
+		bundle_tier_id?: number
+	) => void;
+	onProductClick?: (item: CartItemData) => void;
 }
 
 export function CartItem({
@@ -34,9 +41,14 @@ export function CartItem({
 	const { t } = useTranslation();
 	const handleQuantityChange = (newQuantity: number) => {
 		if (newQuantity < 1) {
-			onRemove(item.id, item.variant_id);
+			onRemove(item.id, item.variant_id, item.bundle_tier_id);
 		} else {
-			onUpdateQuantity(item.id, newQuantity, item.variant_id);
+			onUpdateQuantity(
+				item.id,
+				newQuantity,
+				item.variant_id,
+				item.bundle_tier_id
+			);
 		}
 	};
 
@@ -56,7 +68,7 @@ export function CartItem({
 						<div className="flex-1 min-w-0">
 							<h3
 								className="font-semibold text-sm line-clamp-2 cursor-pointer"
-								onClick={() => onProductClick?.(item.id)}
+								onClick={() => onProductClick?.(item)}
 							>
 								{item.name}
 							</h3>
@@ -67,8 +79,9 @@ export function CartItem({
 						<Button
 							variant="ghost"
 							size="sm"
-							onClick={() => onRemove(item.id, item.variant_id)}
+							onClick={() => onRemove(item.id, item.variant_id, item.bundle_tier_id)}
 							className="text-destructive hover:text-destructive flex-shrink-0"
+							aria-label={t("a11y.removeItem")}
 						>
 							<Trash2 className="w-4 h-4" />
 						</Button>
@@ -94,6 +107,7 @@ export function CartItem({
 									}
 									disabled={item.quantity <= 1}
 									className="h-7 w-7 p-0"
+									aria-label={t("a11y.decreaseQuantity")}
 								>
 									<Minus className="w-3 h-3" />
 								</Button>
@@ -108,6 +122,7 @@ export function CartItem({
 									}
 									disabled={item.stock !== undefined && item.quantity >= item.stock}
 									className="h-7 w-7 p-0"
+									aria-label={t("a11y.increaseQuantity")}
 								>
 									<Plus className="w-3 h-3" />
 								</Button>
@@ -136,7 +151,7 @@ export function CartItem({
 							<div className="flex-1">
 								<h3
 									className="font-semibold text-base line-clamp-2 cursor-pointer hover:text-primary"
-									onClick={() => onProductClick?.(item.id)}
+									onClick={() => onProductClick?.(item)}
 								>
 									{item.name}
 								</h3>
@@ -170,6 +185,7 @@ export function CartItem({
 										}
 										disabled={item.quantity <= 1}
 										className="h-8 w-8 p-0"
+										aria-label={t("a11y.decreaseQuantity")}
 									>
 										<Minus className="w-3 h-3" />
 									</Button>
@@ -184,6 +200,7 @@ export function CartItem({
 										}
 										disabled={item.stock !== undefined && item.quantity >= item.stock}
 										className="h-8 w-8 p-0"
+										aria-label={t("a11y.increaseQuantity")}
 									>
 										<Plus className="w-3 h-3" />
 									</Button>
@@ -201,8 +218,9 @@ export function CartItem({
 							<Button
 								variant="ghost"
 								size="sm"
-								onClick={() => onRemove(item.id, item.variant_id)}
+								onClick={() => onRemove(item.id, item.variant_id, item.bundle_tier_id)}
 								className="text-destructive hover:text-destructive"
+								aria-label={t("a11y.removeItem")}
 							>
 								<Trash2 className="w-4 h-4" />
 							</Button>

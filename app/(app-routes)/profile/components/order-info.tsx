@@ -9,25 +9,19 @@ import {
 	CardTitle,
 } from "@/components/shared/ui/card";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
-import { OrderResponseModel } from "../orders/model";
+import { OrderHistoryModel } from "../orders/model";
 import { useTranslation } from "react-i18next";
 import { ORDER_STATUS } from "@/lib/enums";
-import AccountError from "@/components/shared/AccountError";
 import { getBadgeVariant } from "@/lib/utils/utils";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import Price from "@/components/shared/Price";
 
 type Props = {
-	model: OrderResponseModel;
+	model: OrderHistoryModel[];
 };
 
 export default function OrderInfo({ model }: Props) {
 	const { t } = useTranslation();
-
-	if (!model.success) {
-		// return <HistoryCardLoader />;\
-		return <AccountError message={model.message} />;
-	}
 
 	return (
 		<Card>
@@ -36,7 +30,7 @@ export default function OrderInfo({ model }: Props) {
 			</CardHeader>
 			<CardContent>
 				<div className="space-y-4">
-					{model.data.map((order) => (
+					{model.map((order) => (
 						<div key={order.id} className="p-4 border rounded-lg">
 							<div className="flex justify-between items-start mb-3">
 								<div>

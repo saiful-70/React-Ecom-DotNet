@@ -7,6 +7,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useAtom } from "jotai";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
@@ -54,7 +55,10 @@ export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 				? product.variants[0]
 				: null
 		);
-	const isWishlisted = wishlistIds.includes(product.id);
+	// Wishlist state is localStorage-backed (empty on the server). Gate on
+	// hydration so the first client render matches SSR and avoids a mismatch.
+	const isHydrated = useHydrated();
+	const isWishlisted = isHydrated && wishlistIds.includes(product.id);
 
 	// Track product view on mount
 	useEffect(() => {
@@ -200,8 +204,12 @@ export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 			quantity
 		);
 
-		// Navigate to a checkout scoped to just this line.
-		router.push(buyNowCheckoutHref(product.id, selectedVariant?.id));
+		// Navigate to a checkout scoped to just this line, passing the Buy Now
+		// quantity so checkout can display/charge just that amount even if it
+		// merged into a pre-existing cart line.
+		router.push(
+			buyNowCheckoutHref(product.id, selectedVariant?.id, quantity)
+		);
 	};
 
 	const handleToggleWishlist = async () => {

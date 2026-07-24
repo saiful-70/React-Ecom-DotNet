@@ -18,6 +18,14 @@ interface OrderSummaryProps {
 	isProcessing: boolean;
 	onSubmit: () => void;
 	shippingCost?: number;
+	/**
+	 * True once shipping has genuinely been determined (global template, a
+	 * chosen city, a bundle free-delivery perk, or the subtotal clearing the
+	 * free-shipping threshold). When false, a shippingCost of 0 is just the
+	 * not-yet-resolved default and should show the "select city" hint instead
+	 * of "Free".
+	 */
+	shippingResolved?: boolean;
 	subtotal?: number;
 	tax?: number;
 	total?: number;
@@ -28,18 +36,29 @@ interface OrderSummaryProps {
 	 * single scoped line so the summary matches what is being ordered.
 	 */
 	items?: CartItem[];
+	/**
+	 * True when checkout is scoped to a single Buy Now line (`?only=<id>`). The
+	 * displayed quantity is already clamped to the Buy Now amount by the caller
+	 * and does not reflect the real (possibly merged) cart line, so the +/-
+	 * steppers must not be shown here — mutating the clamped display quantity
+	 * would corrupt the real cart line. Render the quantity as static text
+	 * instead, mirroring the bundle-line fixed-quantity display below.
+	 */
+	readOnlyQuantities?: boolean;
 }
 
 export function OrderSummary({
 	isProcessing,
 	onSubmit,
 	shippingCost,
+	shippingResolved = false,
 	subtotal: propSubtotal,
 	tax: propTax,
 	total: propTotal,
 	isFormValid = true,
 	isLoadingPrices = false,
 	items: propItems,
+	readOnlyQuantities = false,
 }: OrderSummaryProps) {
 	const { t } = useTranslation();
 	const {
@@ -79,7 +98,8 @@ export function OrderSummary({
 								updateQuantity(
 									item.id,
 									item.quantity - 1,
-									item.variant_id
+									item.variant_id,
+									item.bundle_tier_id
 								);
 							}
 						};
@@ -88,7 +108,8 @@ export function OrderSummary({
 								updateQuantity(
 									item.id,
 									item.quantity + 1,
-									item.variant_id
+									item.variant_id,
+									item.bundle_tier_id
 								);
 							}
 						};
@@ -119,6 +140,16 @@ export function OrderSummary({
 											>
 												×1
 											</span>
+										) : readOnlyQuantities ? (
+											<span
+												className="w-7 text-center text-sm font-medium tabular-nums shrink-0"
+												title={t("checkout.fixedQuantity") || "Fixed quantity"}
+												aria-label={
+													t("checkout.fixedQuantity") || "Fixed quantity"
+												}
+											>
+												×{item.quantity}
+											</span>
 										) : (
 											<div className="flex items-center gap-1 shrink-0">
 												<Button
@@ -128,7 +159,7 @@ export function OrderSummary({
 													className="h-7 w-7"
 													onClick={handleDecrease}
 													disabled={item.quantity <= 1}
-													aria-label="decrease quantity"
+													aria-label={t("a11y.decreaseQuantity")}
 												>
 													<Minus className="w-3.5 h-3.5" />
 												</Button>
@@ -142,7 +173,7 @@ export function OrderSummary({
 													className="h-7 w-7"
 													onClick={handleIncrease}
 													disabled={atStockLimit}
-													aria-label="increase quantity"
+													aria-label={t("a11y.increaseQuantity")}
 												>
 													<Plus className="w-3.5 h-3.5" />
 												</Button>
@@ -175,12 +206,14 @@ export function OrderSummary({
 					<div className="flex justify-between">
 						<span>{t("checkout.shipping")}</span>
 						<span className="text-foreground">
-							{shippingCost && shippingCost > 0 ? (
-								<Price amount={shippingCost} />
-							) : (
+							{!shippingResolved ? (
 								<span className="text-muted-foreground italic text-sm">
 									{t("checkout.selectCity")}
 								</span>
+							) : shippingCost && shippingCost > 0 ? (
+								<Price amount={shippingCost} />
+							) : (
+								<span>{t("checkout.free")}</span>
 							)}
 						</span>
 					</div>

@@ -1,5 +1,6 @@
 "use client";
 
+import DOMPurify from "isomorphic-dompurify";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/shared/ui/card";
 import {
@@ -61,7 +62,9 @@ export function ProductDetailsTabs({ product }: ProductTabsProps) {
 								<div
 									className="prose prose-sm sm:prose max-w-none text-muted-foreground text-xs sm:text-sm [&>p]:mb-2 [&>ul]:mb-2 [&>ol]:mb-2 [&>h1]:text-base [&>h2]:text-sm [&>h3]:text-sm"
 									dangerouslySetInnerHTML={{
-										__html: product.description,
+										__html: DOMPurify.sanitize(
+											product.description ?? "",
+										),
 									}}
 								/>
 							) : (

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendMetaCapiEvent } from "@/lib/analytics/meta-capi";
-import { API_CONFIG } from "@/lib/config/api.config";
+import {
+  createSlidingWindowRateLimiter,
+  getClientIp,
+  isSameOriginRequest,
+} from "@/lib/analytics/route-guards";
 
 type IncomingEvent = {
   eventName: string;
@@ -29,38 +33,7 @@ const ALLOWED_EVENT_NAMES = new Set([
 // shared store (e.g. Redis) would be needed for a hard global cap.
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 30;
-const requestTimestampsByIp = new Map<string, number[]>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const windowStart = now - RATE_LIMIT_WINDOW_MS;
-  const recent = (requestTimestampsByIp.get(ip) || []).filter((t) => t > windowStart);
-  recent.push(now);
-  requestTimestampsByIp.set(ip, recent);
-  return recent.length > RATE_LIMIT_MAX_REQUESTS;
-}
-
-function getAllowedHost(): string | null {
-  try {
-    return new URL(API_CONFIG.SITE_URL).host;
-  } catch {
-    return null;
-  }
-}
-
-function isSameOriginRequest(req: NextRequest): boolean {
-  const allowedHost = getAllowedHost();
-  if (!allowedHost) return false;
-
-  const source = req.headers.get("origin") || req.headers.get("referer");
-  if (!source) return false;
-
-  try {
-    return new URL(source).host === allowedHost;
-  } catch {
-    return false;
-  }
-}
+const rateLimiter = createSlidingWindowRateLimiter(RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS);
 
 export async function POST(req: NextRequest) {
   // 1. Same-origin check — reject relayed/cross-site calls before doing any work.
@@ -90,12 +63,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const forwarded = req.headers.get("x-forwarded-for");
-  const ip = forwarded?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || null;
+  const ip = getClientIp(req);
   const userAgent = req.headers.get("user-agent") || null;
 
   // 3. Rate limit — sliding window per client IP.
-  if (ip && isRateLimited(ip)) {
+  if (ip && rateLimiter.isLimited(ip)) {
     return NextResponse.json(
       { success: false, error: "Too many requests" },
       { status: 429 }

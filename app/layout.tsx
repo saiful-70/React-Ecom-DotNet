@@ -37,6 +37,7 @@ import { ChatWidget } from "./components/chat";
 import { CookieBanner } from "./components/shared/CookieConsent";
 import { GoogleAnalytics, MetaPixel } from "./lib/analytics";
 import { getTemplate } from "./templates/registry";
+import { AnalyticsTracker } from "./components/analytics/AnalyticsTracker";
 
 // Generate metadata using business settings
 export async function generateMetadata(): Promise<Metadata> {
@@ -178,6 +179,7 @@ export default async function RootLayout({
 			</head>
 			<body className="font-sans">
 				<GlobalProvider language={lang} variant={variant}>
+					<AnalyticsTracker />
 					<Suspense fallback={null}>
 						<GoogleAnalytics />
 					</Suspense>

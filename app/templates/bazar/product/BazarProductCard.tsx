@@ -205,11 +205,11 @@ export function BazarProductCard({ product }: { product: Product }) {
 						</>
 					)}
 				</div>
-				<div className="grid grid-cols-2 gap-2">
+				<div className="grid grid-cols-2 gap-1.5 sm:gap-2">
 					<Button
 						variant="secondary"
 						size="sm"
-						className="text-[11px] font-bold uppercase"
+						className="h-auto min-h-9 whitespace-normal px-2 py-1.5 text-[10px] font-bold uppercase leading-tight sm:text-[11px]"
 						onClick={handleAddToCart}
 						disabled={isOutOfStock}
 					>
@@ -217,7 +217,7 @@ export function BazarProductCard({ product }: { product: Product }) {
 					</Button>
 					<Button
 						size="sm"
-						className="text-[11px] font-bold uppercase"
+						className="h-auto min-h-9 whitespace-normal px-2 py-1.5 text-[10px] font-bold uppercase leading-tight sm:text-[11px]"
 						onClick={handleBuyNow}
 						disabled={isOutOfStock}
 					>

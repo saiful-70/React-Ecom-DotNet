@@ -88,7 +88,7 @@ export function ComboLanding({ combo }: ComboLandingProps) {
   if (!selectedTier) return null;
 
   return (
-    <main className="container mx-auto max-w-3xl px-3 sm:px-4 py-3 sm:py-6 pb-40 lg:pb-8">
+    <main className="container mx-auto max-w-3xl px-3 sm:px-4 py-3 sm:py-6 pb-56 lg:pb-8">
       {/* Offer ribbon */}
       <div className="flex items-center justify-between gap-2 rounded-lg bg-primary/10 px-3 py-2 mb-3">
         <span className="flex items-center gap-1.5 text-sm font-bold text-primary">
@@ -180,7 +180,7 @@ export function ComboLanding({ combo }: ComboLandingProps) {
       {/* Sticky action bar (mobile, two rows) → inline single row (desktop) */}
       <div
         ref={barRef}
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background p-3 lg:static lg:mt-5 lg:rounded-xl lg:border lg:p-4"
+        className="fixed inset-x-0 bottom-16 z-40 border-t border-border bg-background p-3 lg:static lg:bottom-auto lg:mt-5 lg:rounded-xl lg:border lg:p-4"
       >
         <div className="container mx-auto max-w-3xl px-0 flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-3">
           <div className="flex items-center justify-between lg:block lg:shrink-0">

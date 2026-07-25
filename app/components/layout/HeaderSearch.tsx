@@ -35,7 +35,12 @@ export default function HeaderSearch({ onMobileSearch, placement = "desktop" }: 
 	}, [isMobileSearchOpen]);
 
 	const pathname = usePathname();
-	const isProductRoute = pathname === ABSOLUTE_ROUTES.PRODUCTS || pathname.startsWith("/products");
+	// Match ONLY the exact product listing route, not product-detail pages
+	// (`/products/123`). `usePathname()` is prefix-unaware even in showcase mode:
+	// middleware rewrites `/demo/<id>/...` to the real app path before the route
+	// renders, so this exact match works identically in both run modes (same
+	// pattern as `isHome`/`isHomePage` checks elsewhere in the header/nav).
+	const isProductRoute = pathname === ABSOLUTE_ROUTES.PRODUCTS;
 
 	const handleSearch = () => {
 		const trimmedQuery = searchQuery.trim();

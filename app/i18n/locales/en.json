@@ -476,6 +476,7 @@
     "validationFailedDescription": "The selected bundle can't be ordered right now.",
     "fixedQuantity": "Combo — fixed quantity",
     "containsCount": "{{count}} products in this combo",
+    "containsCount_one": "{{count}} product in this combo",
     "replacedExisting": "Your previous combo was replaced — one combo per order.",
     "onePerOrder": "Only one combo per order is supported."
   },

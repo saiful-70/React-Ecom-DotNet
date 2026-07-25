@@ -16,6 +16,8 @@ import { Button } from "@/components/shared/ui/button";
 import { CartLineImage } from "@/components/shared/CartLineImage";
 import Price from "@/components/shared/Price";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
+import { useVariant } from "@/components/shared/providers/variant-provider";
+import { cn } from "@/lib/utils/utils";
 import { BundleTierList } from "./BundleTierList";
 import { useBundleCart } from "./use-bundle-cart";
 import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
@@ -30,6 +32,11 @@ export function ComboLanding({ combo }: ComboLandingProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const { addBundleTier } = useBundleCart();
+  const variant = useVariant();
+  // Only templates with a fixed mobile bottom nav (bazar, global) need the CTA
+  // bar lifted clear of it; classic (the only template combos currently ship
+  // on, via bn-01) has no bottom nav so the bar should sit flush at the bottom.
+  const hasBottomNav = variant.template === "bazar" || variant.template === "global";
 
   // Buy Now: add the selected tier, then go to a checkout scoped to just it
   // (a bundle line's cart identity is bundle id + tier id).
@@ -88,7 +95,12 @@ export function ComboLanding({ combo }: ComboLandingProps) {
   if (!selectedTier) return null;
 
   return (
-    <main className="container mx-auto max-w-3xl px-3 sm:px-4 py-3 sm:py-6 pb-56 lg:pb-8">
+    <main
+      className={cn(
+        "container mx-auto max-w-3xl px-3 sm:px-4 py-3 sm:py-6 lg:pb-8",
+        hasBottomNav ? "pb-56" : "pb-40"
+      )}
+    >
       {/* Offer ribbon */}
       <div className="flex items-center justify-between gap-2 rounded-lg bg-primary/10 px-3 py-2 mb-3">
         <span className="flex items-center gap-1.5 text-sm font-bold text-primary">
@@ -180,7 +192,10 @@ export function ComboLanding({ combo }: ComboLandingProps) {
       {/* Sticky action bar (mobile, two rows) → inline single row (desktop) */}
       <div
         ref={barRef}
-        className="fixed inset-x-0 bottom-16 z-40 border-t border-border bg-background p-3 lg:static lg:bottom-auto lg:mt-5 lg:rounded-xl lg:border lg:p-4"
+        className={cn(
+          "fixed inset-x-0 z-40 border-t border-border bg-background p-3 lg:static lg:bottom-auto lg:mt-5 lg:rounded-xl lg:border lg:p-4",
+          hasBottomNav ? "bottom-16" : "bottom-0"
+        )}
       >
         <div className="container mx-auto max-w-3xl px-0 flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-3">
           <div className="flex items-center justify-between lg:block lg:shrink-0">

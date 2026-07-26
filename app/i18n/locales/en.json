@@ -448,6 +448,9 @@
     "relatedProducts": "Related Products",
     "loginRequired": "Please login to add to wishlist"
   },
+  "product": {
+    "deliveryArea": "Delivery area"
+  },
   "bundle": {
     "selectBundle": "Select a Bundle",
     "selectCombo": "Select a Combo",

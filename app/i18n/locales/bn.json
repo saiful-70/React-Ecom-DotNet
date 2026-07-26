@@ -448,6 +448,9 @@
     "relatedProducts": "সম্পর্কিত পণ্য",
     "loginRequired": "পছন্দের তালিকায় যোগ করতে লগইন করুন"
   },
+  "product": {
+    "deliveryArea": "ডেলিভারি এলাকা"
+  },
   "bundle": {
     "selectBundle": "বান্ডেল সিলেক্ট করুন",
     "selectCombo": "কম্বো সিলেক্ট করুন",

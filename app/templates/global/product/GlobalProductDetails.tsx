@@ -26,6 +26,7 @@ import {
 } from "@/components/product/product-details";
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
 import { ProductBundleSelector } from "@/components/product/bundle/ProductBundleSelector";
+import { DeliveryCitySelector } from "@/components/product/DeliveryCitySelector";
 import type { Product, ProductVariant } from "@/(app-routes)/products/model";
 import type { ProductDetailsLayoutProps } from "@/templates/types";
 import { GlobalSectionTitle } from "../home/GlobalSectionTitle";
@@ -352,6 +353,10 @@ export function GlobalProductDetails({
 					)}
 
 					<GlobalDeliveryInfo />
+
+					{/* Self-hides on the global template — kept here for consistent
+					    mount points across all PDPs. */}
+					<DeliveryCitySelector />
 				</div>
 			</div>
 

@@ -21,6 +21,7 @@ import { toast } from "@/components/shared/ui/sonner";
 import { useCart } from "@/contexts/CartContext";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { businessSettingsAtom } from "@/store/ui-atoms";
+import { deliveryCityAtom } from "@/store/delivery-city.atom";
 import { useAtomValue } from "jotai";
 import { ArrowLeft } from "lucide-react";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
@@ -104,6 +105,7 @@ export function CheckoutPage() {
 	const router = useRouter();
 	const miniProfile = useAtomValue(miniProfileAtom);
 	const businessSettings = useAtomValue(businessSettingsAtom);
+	const persistedDeliveryCity = useAtomValue(deliveryCityAtom);
 	// The global template uses the international checkout (country selector,
 	// international phone, flat shipping); other variants keep the BD flow.
 	const variant = useVariant();
@@ -122,6 +124,21 @@ export function CheckoutPage() {
 			: undefined,
 		zip: isGlobal ? "" : undefined,
 	});
+
+	// Pre-fill the city from the PDP delivery-city selector (localStorage-
+	// backed, see delivery-city.atom.ts) so a choice made before checkout
+	// carries over — this is what lets `runBundleValidations` below send a
+	// real `city_id` instead of `null` on first load. Skipped for the global
+	// template (no Dhaka zones there) and only applied once, before the
+	// shopper has picked/typed a city on this page.
+	useEffect(() => {
+		if (isGlobal || !persistedDeliveryCity || formData.city) return;
+		setFormData((prev) => ({
+			...prev,
+			city: persistedDeliveryCity.value,
+			cityId: persistedDeliveryCity.cityId,
+		}));
+	}, []);
 
 	const handleInputChange = (
 		field: keyof FormData,

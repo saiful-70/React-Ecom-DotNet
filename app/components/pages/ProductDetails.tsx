@@ -12,6 +12,7 @@ import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
 import { ProductBundleSelector } from "@/components/product/bundle/ProductBundleSelector";
+import { DeliveryCitySelector } from "@/components/product/DeliveryCitySelector";
 import { ProductsGrid } from "@/components/product/ProductsGrid";
 import {
 	trackUnifiedAddToCart,
@@ -404,6 +405,8 @@ export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 						)}
 
 						<ProductDeliveryInfo />
+
+						<DeliveryCitySelector />
 					</div>
 				</div>
 			</div>

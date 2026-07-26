@@ -19,7 +19,7 @@ import {
 } from "@/components/shared/ui/select";
 import { Truck } from "lucide-react";
 import type { FormData, FormErrors } from "@/(app-routes)/checkout/model";
-import { CITY_OPTIONS } from "@/lib/constants/delivery";
+import { CITY_OPTIONS, getCityOptionByValue } from "@/lib/constants/delivery";
 
 interface ShippingAddressFormProps {
 	formData: FormData;
@@ -95,7 +95,11 @@ export function ShippingAddressForm({
 					</Label>
 					<Select
 						value={formData.city || ""}
-						onValueChange={(value) => onInputChange("city", value)}
+						onValueChange={(value) => {
+							onInputChange("city", value);
+							const opt = getCityOptionByValue(value);
+							onInputChange("cityId", opt?.backendCityId ?? 0);
+						}}
 					>
 						<SelectTrigger
 							id="city"

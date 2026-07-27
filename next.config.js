@@ -17,7 +17,11 @@
 // the follow-up to maintain an explicit, reviewed CDN host list per
 // deployment instead of relying solely on env-derived hosts.
 const extraHosts = [
-	// "cdn.example.com",
+	// The backend serves uploaded assets (logo, product images, banners) from a
+	// dedicated admin/CDN host that differs from the API host, so it isn't
+	// covered by the env-derived hosts below. next/image throws on an
+	// unconfigured host, which crashes any page that renders such an image.
+	"admin.debuggermind.com",
 ];
 
 function hostnameFromEnv(value) {

@@ -463,7 +463,6 @@
     "secureCheckout": "Secure Checkout",
     "addedToCart": "Added to cart!",
     "bundleAddedDescription": "{{title}} has been added to your cart.",
-    "happyCustomers": "Happy Customers",
     "trustOriginal": "100% Original",
     "trustFastDelivery": "Fast Delivery",
     "trustCod": "Cash on Delivery",
@@ -476,6 +475,8 @@
     "validationFailed": "Bundle validation failed",
     "validationFailedDescription": "The selected bundle can't be ordered right now.",
     "fixedQuantity": "Combo — fixed quantity",
+    "containsCount": "{{count}} products in this combo",
+    "containsCount_one": "{{count}} product in this combo",
     "replacedExisting": "Your previous combo was replaced — one combo per order.",
     "onePerOrder": "Only one combo per order is supported."
   },

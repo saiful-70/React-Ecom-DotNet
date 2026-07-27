@@ -29,7 +29,7 @@ import { wishlistAtom } from "@/store/wishlist.atom";
  */
 export function BazarHeader() {
 	const { t } = useTranslation();
-	const { total } = useCart();
+	const { total, itemCount } = useCart();
 	const wishlistIds = useAtomValue(wishlistAtom);
 	const profile = useAtomValue(miniProfileAtom);
 	const settings = useAtomValue(businessSettingsAtom);
@@ -43,6 +43,7 @@ export function BazarHeader() {
 
 	const cartTotal = isHydrated ? total : 0;
 	const wishlistCount = isHydrated ? wishlistIds.length : 0;
+	const cartCount = isHydrated ? itemCount : 0;
 
 	return (
 		<header className="bg-background">
@@ -148,10 +149,15 @@ export function BazarHeader() {
 						</Link>
 						<Link
 							href={ABSOLUTE_ROUTES.CART}
-							className="rounded-full border bg-card p-2.5 hover:border-primary"
+							className="relative rounded-full border bg-card p-2.5 hover:border-primary"
 							aria-label={t("bazar.cart")}
 						>
 							<ShoppingBag className="h-5 w-5" />
+							{cartCount > 0 && (
+								<span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+									{cartCount}
+								</span>
+							)}
 						</Link>
 						<span className="hidden font-semibold tabular-nums md:inline">
 							<Price amount={cartTotal} />

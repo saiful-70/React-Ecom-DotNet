@@ -285,7 +285,12 @@ export async function getProductBundle(id: number): Promise<Bundle | null> {
       lang,
       message: response.message,
     });
+    return null;
   }
 
-  return response.success ? (response.data ?? null) : null;
+  if (!response.data || !response.data.is_active) {
+    return null;
+  }
+
+  return response.data;
 }

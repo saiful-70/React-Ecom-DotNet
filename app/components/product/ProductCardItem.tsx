@@ -181,7 +181,7 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 				</div>
 
 				{/* Quick Actions - Hover only on desktop */}
-				<div className="hidden lg:flex absolute top-2 right-2 flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+				<div className="hidden lg:flex absolute top-2 right-2 flex-col gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-300">
 					<Button
 						size="icon"
 						variant={isWishlisted ? "default" : "secondary"}
@@ -211,7 +211,7 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 				</div>
 
 				{/* Add to Cart Overlay - Desktop only */}
-				<div className="hidden lg:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-secondary/80 via-secondary/30 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+				<div className="hidden lg:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-secondary/80 via-secondary/30 to-transparent p-4 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-300">
 					<Button
 						className="w-full shadow-warm-md font-medium"
 						onClick={handleAddToCart}

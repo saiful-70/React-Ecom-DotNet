@@ -6,6 +6,7 @@ import { CartLineImage } from "@/components/shared/CartLineImage";
 import { Trash2, Plus, Minus } from "lucide-react";
 import Price from "@/components/shared/Price";
 import { useTranslation } from "react-i18next";
+import type { BundleCartComponent } from "@/lib/bundles/types";
 
 export interface CartItemData {
 	id: string;
@@ -18,6 +19,13 @@ export interface CartItemData {
 	bundle_tier_id?: number;
 	/** Combo slug for bundle lines, so the row can deep-link to `/combo/<slug>`. */
 	bundle_slug?: string;
+	/** Component lines of a combo, so the row can show a "N products" subtitle. */
+	bundle_components?: BundleCartComponent[];
+}
+
+/** Total item count across a combo's component lines (sum of each component's qty). */
+function bundleItemCount(components: BundleCartComponent[]): number {
+	return components.reduce((sum, comp) => sum + comp.qty, 0);
 }
 
 interface CartItemProps {
@@ -52,6 +60,11 @@ export function CartItem({
 		}
 	};
 
+	const comboItemCount =
+		item.bundle_tier_id != null && item.bundle_components?.length
+			? bundleItemCount(item.bundle_components)
+			: null;
+
 	return (
 		<Card>
 			<CardContent className="p-4 sm:p-6">
@@ -72,6 +85,11 @@ export function CartItem({
 							>
 								{item.name}
 							</h3>
+							{comboItemCount != null ? (
+								<p className="text-xs text-muted-foreground mt-0.5">
+									{t("bundle.containsCount", { count: comboItemCount })}
+								</p>
+							) : null}
 							<p className="text-lg font-bold text-primary mt-1">
 								<Price amount={item.price} />
 							</p>
@@ -155,6 +173,11 @@ export function CartItem({
 								>
 									{item.name}
 								</h3>
+								{comboItemCount != null ? (
+									<p className="text-xs text-muted-foreground mt-0.5">
+										{t("bundle.containsCount", { count: comboItemCount })}
+									</p>
+								) : null}
 							</div>
 						</div>
 

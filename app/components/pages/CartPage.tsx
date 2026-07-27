@@ -85,6 +85,7 @@ export function CartPage() {
 			stock: item.stock,
 			bundle_tier_id: item.bundle_tier_id,
 			bundle_slug: item.bundle_slug,
+			bundle_components: item.bundle_components,
 		};
 	});
 

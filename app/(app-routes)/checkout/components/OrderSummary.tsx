@@ -113,6 +113,13 @@ export function OrderSummary({
 								);
 							}
 						};
+						const comboItemCount =
+							item.bundle_tier_id != null && item.bundle_components?.length
+								? item.bundle_components.reduce(
+										(sum, comp) => sum + comp.qty,
+										0
+									)
+								: null;
 						return (
 							<div
 								key={`${item.id}-${item.variant_id ?? "base"}`}
@@ -129,6 +136,11 @@ export function OrderSummary({
 									<p className="font-medium text-sm break-words">
 										{item.name}
 									</p>
+									{comboItemCount != null ? (
+										<p className="text-xs text-muted-foreground">
+											{t("bundle.containsCount", { count: comboItemCount })}
+										</p>
+									) : null}
 									<div className="flex items-center justify-between gap-2 flex-wrap">
 										{item.bundle_tier_id != null ? (
 											<span

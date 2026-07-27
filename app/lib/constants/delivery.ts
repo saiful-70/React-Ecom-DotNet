@@ -6,18 +6,27 @@ export const DELIVERY_RATES = {
 export const CITY_INSIDE_DHAKA = "ঢাকার ভিতরে";
 export const CITY_OUTSIDE_DHAKA = "ঢাকার বাহিরে";
 
+/** Bangladesh's `country_id` in the backend's country/city tables. */
+export const BANGLADESH_COUNTRY_ID = 2;
+
 export const CITY_OPTIONS = [
 	{
 		value: CITY_INSIDE_DHAKA,
 		labelKey: "checkout.cities.insideDhaka",
 		rate: DELIVERY_RATES.insideDhaka,
+		// Backend `city_id` (see storefront API's country/city tables).
+		backendCityId: 4,
 	},
 	{
 		value: CITY_OUTSIDE_DHAKA,
 		labelKey: "checkout.cities.outsideDhaka",
 		rate: DELIVERY_RATES.outsideDhaka,
+		backendCityId: 3,
 	},
 ] as const;
+
+export const getCityOptionByValue = (value: string | undefined) =>
+	CITY_OPTIONS.find((o) => o.value === value);
 
 export const isInsideDhaka = (cityName: string | undefined): boolean => {
 	if (!cityName) return false;

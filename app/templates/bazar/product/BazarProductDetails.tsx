@@ -26,6 +26,7 @@ import {
 } from "@/components/product/product-details";
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
 import { ProductBundleSelector } from "@/components/product/bundle/ProductBundleSelector";
+import { DeliveryCitySelector } from "@/components/product/DeliveryCitySelector";
 import type {
 	Product,
 	ProductVariant,
@@ -331,6 +332,8 @@ export function BazarProductDetails({
 					)}
 
 					<ProductDeliveryInfo />
+
+					<DeliveryCitySelector />
 
 					<div className="flex items-center gap-3 border-t pt-4">
 						<span className="text-sm font-medium">

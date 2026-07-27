@@ -11,6 +11,7 @@ import {
   Product,
 } from "./model";
 import { getRequestLanguage } from "@/lib/utils/server-language";
+import { cookies } from "next/headers";
 import type { Bundle } from "@/lib/bundles/types";
 
 // Fetch Featured Products
@@ -184,12 +185,15 @@ export async function getAllProducts(
   query?: ProductsQuery,
 ): Promise<ProductsResponse> {
   const lang = await getRequestLanguage();
+  // Forward visitor cookies so the backend logs the ProductSearch event
+  // against the right visitor/session (tracking is server-side).
   const client = new ApiClient(API_ROUTES.PRODUCTS.BASE_URL)
     .withMethod("GET")
     .withParams({
       ...(query ?? {}),
       lang,
-    } as Record<string, string | number | boolean | string[]>);
+    } as Record<string, string | number | boolean | string[]>)
+    .withCookieHeaders(await cookies());
 
   const response = await client.execute<RawProductsApiResponse>();
 
@@ -229,9 +233,12 @@ export async function getProductDetails(
   id: number,
 ): Promise<SingleProductResponse> {
   const lang = await getRequestLanguage();
+  // Forward visitor cookies so the backend logs the ProductView event
+  // against the right visitor/session (tracking is server-side).
   const response = await new ApiClient(API_ROUTES.PRODUCTS.DETAILS(id))
     .withMethod("GET")
     .withParams({ lang })
+    .withCookieHeaders(await cookies())
     .execute<RawSingleProductApiResponse>();
 
   // Normalize response - /product-details endpoint returns product directly in data

@@ -195,10 +195,12 @@ export async function getCheckoutData(
   items: CheckoutDataRequestItem[]
 ): Promise<CheckoutDataResponse> {
   try {
-    // API returns { products: [...] } directly without success wrapper
+    // API returns { products: [...] } directly without success wrapper.
+    // Forward visitor cookies so the backend logs the CheckoutStarted event.
     const response = await new ApiClient(API_ROUTES.CHECKOUT.CHECKOUT_DATA)
       .withMethod("POST")
       .withBody(items)
+      .withCookieHeaders(await cookies())
       .execute<{ products: CheckoutDataProduct[] }>();
 
     // The API returns products array directly at root level

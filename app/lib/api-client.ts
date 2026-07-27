@@ -1,9 +1,20 @@
 // API Configuration
 import { API_CONFIG } from "@/lib/config/api.config";
 import { AUTH_TOKEN_COOKIE_NAME } from "@/lib/config/auth.config";
+import { getCookieConfig } from "@/lib/config/server.config";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { isTokenExpired, shouldRefreshToken } from "@/lib/utils/security.utils";
 import { cookies } from "next/headers";
+
+// Cookies the backend sets for its server-side visitor/session analytics
+// (see the backend "Analytics Integration Guide"). They are HttpOnly and
+// browser-scoped: the browser must carry them on every request so the backend
+// recognises returning visitors/sessions. Because this app talks to the
+// backend server-side (not browser→backend directly), the ApiClient acts as a
+// transparent proxy — forwarding the browser's cookies up and relaying these
+// analytics cookies back down. We only re-home cookies under this prefix so we
+// never interfere with the app's own auth cookie (`__token__`).
+const ANALYTICS_COOKIE_PREFIX = "_analytics_";
 // Type-only import — erased at compile time, so it does not reintroduce the
 // runtime circular dependency that the dynamic `import()` below avoids.
 import type { AuthUserResponseModel } from "@/(app-routes)/(auth)/model";
@@ -47,6 +58,12 @@ export class ApiClient {
   private cache?: RequestCache;
   private cacheRevalidate?: number | false;
   private cacheTags?: string[];
+  // Browser cookies to forward to the backend (analytics + any others the
+  // browser holds), built from the request cookie jar in withCookieHeaders().
+  private forwardCookieHeader?: string;
+  // When true, execute() relays the backend's `_analytics_*` Set-Cookie
+  // headers back to the browser so visitor/session tracking persists.
+  private relayVisitorCookies = false;
 
   constructor(endpoint?: string) {
     this.baseURL = API_CONFIG.API_BASE_URL_V1;
@@ -90,6 +107,22 @@ export class ApiClient {
       this.headers.Authorization = `Bearer ${token}`;
       this.headers["X-Auth-Token"] = token; // Store for validation in execute()
     }
+
+    // Forward the backend's visitor/session cookies so its server-side
+    // analytics can read them (the browser-side equivalent of sending
+    // `credentials: 'include'`). We forward ONLY `_analytics_*` — the auth
+    // token already goes as a Bearer header, and forwarding unrelated cookies
+    // (language, consent, …) would leak data the backend doesn't need and risks
+    // a header-encoding failure on non-Latin-1 cookie values.
+    const forwarded = cookieJar
+      .getAll()
+      .filter((c) => c.name.startsWith(ANALYTICS_COOKIE_PREFIX))
+      .map((c) => `${c.name}=${c.value}`)
+      .join("; ");
+    if (forwarded) {
+      this.forwardCookieHeader = forwarded;
+    }
+    this.relayVisitorCookies = true;
 
     return this;
   }
@@ -208,6 +241,13 @@ export class ApiClient {
 
     const url = `${this.baseURL}${this.endpoint ? "/" + this.endpoint : ""}`;
 
+    // Forward the browser's cookies to the backend on uncached calls only.
+    // Cached reads (withCache) are shared/anonymous, so per-visitor cookies
+    // must not vary — and forwarding is a no-op there anyway.
+    if (this.forwardCookieHeader && !this.cache) {
+      this.headers["Cookie"] = this.forwardCookieHeader;
+    }
+
     const config: RequestInit = {
       method: this.method,
       headers: this.headers,
@@ -225,6 +265,16 @@ export class ApiClient {
 
     try {
       const response = await fetch(url, config);
+
+      // Relay the backend's analytics visitor/session cookies to the browser so
+      // tracking persists across requests. Only runs on uncached calls that
+      // opted in via withCookieHeaders(). Safe in any server context: during a
+      // Server Component render the underlying set() throws (read-only cookie
+      // store) and is caught, so it behaves as a no-op; in Server Actions /
+      // Route Handlers it succeeds.
+      if (this.relayVisitorCookies && !this.cache) {
+        await this.relayAnalyticsCookies(response);
+      }
 
       // Read the body once as text, then parse defensively. The upstream API
       // (or a proxy / misconfigured base URL) can return a non-JSON body —
@@ -289,6 +339,56 @@ export class ApiClient {
         data: null,
         error: error as Error,
       } as TResponse;
+    }
+  }
+
+  // Re-home the backend's `_analytics_*` Set-Cookie headers onto this app's
+  // own domain so the browser persists them and forwards them on later calls.
+  // We deliberately drop the backend's Domain attribute (the analytics cookie
+  // lives on the Next app host, forwarded server-to-server) and reuse the app's
+  // own cookie config (path/secure/sameSite) — only name, value and lifetime
+  // come from the backend.
+  private async relayAnalyticsCookies(response: Response): Promise<void> {
+    const getSetCookie = (
+      response.headers as Headers & { getSetCookie?: () => string[] }
+    ).getSetCookie;
+    const setCookies =
+      typeof getSetCookie === "function"
+        ? getSetCookie.call(response.headers)
+        : [];
+    if (setCookies.length === 0) return;
+
+    try {
+      const store = await cookies();
+      for (const raw of setCookies) {
+        const [pair, ...attrs] = raw.split(";");
+        const eq = pair.indexOf("=");
+        if (eq === -1) continue;
+        const name = pair.slice(0, eq).trim();
+        const value = pair.slice(eq + 1).trim();
+        if (!name.startsWith(ANALYTICS_COOKIE_PREFIX)) continue;
+
+        const attrText = attrs.join(";");
+        const maxAgeMatch = attrText.match(/(?:^|;)\s*max-age=(-?\d+)/i);
+        const expiresMatch = attrText.match(/(?:^|;)\s*expires=([^;]+)/i);
+        let lifetime: { maxAge?: number; expires?: Date } = {};
+        if (maxAgeMatch) {
+          lifetime = { maxAge: Number(maxAgeMatch[1]) };
+        } else if (expiresMatch) {
+          const expires = new Date(expiresMatch[1].trim());
+          // Ignore an unparseable Expires rather than passing an Invalid Date
+          // (which would throw in set() and abort relaying later cookies).
+          if (!Number.isNaN(expires.getTime())) {
+            lifetime = { expires };
+          }
+        }
+
+        store.set(name, value, getCookieConfig({ httpOnly: true, ...lifetime }));
+      }
+    } catch {
+      // Setting cookies is not allowed during a Server Component render
+      // (read-only store). The cookie is still forwarded on the next call once
+      // a Server Action / Route Handler issues it — nothing to do here.
     }
   }
 

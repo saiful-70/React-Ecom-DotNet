@@ -1,4 +1,22 @@
 {
+  "enabledPlugins": {
+    "superpowers@superpowers-dev": true,
+    "frontend-design@claude-plugins-official": true
+  },
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "microsoft-learn": {
+      "type": "http",
+      "url": "https://learn.microsoft.com/api/mcp"
+    },
+    "codebase-memory-mcp": {
+      "command": "codebase-memory-mcp",
+      "args": []
+    }
+  },
   "permissions": {
     "deny": [
       "Edit(.env)",
@@ -20,5 +38,12 @@
       "Edit(.env.staging)",
       "Write(.env.staging)"
     ]
+  },
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
+    "OTEL_METRICS_EXPORTER": "none",
+    "OTEL_LOGS_EXPORTER": "none",
+    "DISABLE_TELEMETRY": "1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
   }
 }

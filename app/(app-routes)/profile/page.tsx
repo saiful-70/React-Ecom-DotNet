@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { ProfilePage } from "@/components/pages/ProfilePage";
 import { getUserProfile, clearAuthAndRedirect } from "./actions";
-import ProfileLoading from "./loading";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getUserOrderHistory } from "./orders/actions";
@@ -37,7 +36,7 @@ export default async function Profile() {
 		: [];
 	return (
 		<div className="min-h-screen bg-background">
-			<Suspense fallback={<ProfileLoading />}>
+			<Suspense fallback={null}>
 				<ProfilePage model={response.data} orderHistory={orderHistory} />
 			</Suspense>
 		</div>

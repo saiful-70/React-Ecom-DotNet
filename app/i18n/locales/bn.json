@@ -481,7 +481,16 @@
     "containsCount": "এই কম্বোতে {{count}}টি পণ্য",
     "containsCount_one": "এই কম্বোতে {{count}}টি পণ্য",
     "replacedExisting": "আগের কম্বোটি সরিয়ে নতুনটি যোগ হয়েছে — প্রতি অর্ডারে একটি কম্বো।",
-    "onePerOrder": "প্রতি অর্ডারে শুধুমাত্র একটি কম্বো সমর্থিত।"
+    "onePerOrder": "প্রতি অর্ডারে শুধুমাত্র একটি কম্বো সমর্থিত।",
+    "aboutOffer": "অফার সম্পর্কে",
+    "whatsIncluded": "যা যা থাকছে",
+    "offerEndsIn": "অফার শেষ হবে",
+    "offerEnded": "এই অফারটি শেষ হয়ে গেছে",
+    "terms": "শর্তাবলী",
+    "unitLabel_days": "দিন",
+    "unitLabel_hours": "ঘণ্টা",
+    "unitLabel_minutes": "মিনিট",
+    "unitLabel_seconds": "সেকেন্ড"
   },
   "register": {
     "pageTitle": "অ্যাকাউন্ট তৈরি করুন",

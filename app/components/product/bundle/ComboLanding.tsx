@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Check,
+  Clock,
   Gift,
   RotateCcw,
   ShieldCheck,
@@ -11,12 +12,13 @@ import {
   ShoppingCart,
   Truck,
   Wallet,
+  type LucideIcon,
 } from "lucide-react";
+import DOMPurify from "isomorphic-dompurify";
 import { Button } from "@/components/shared/ui/button";
 import { CartLineImage } from "@/components/shared/CartLineImage";
 import Price from "@/components/shared/Price";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
-import { useVariant } from "@/components/shared/providers/variant-provider";
 import { cn } from "@/lib/utils/utils";
 import { BundleTierList } from "./BundleTierList";
 import { useBundleCart } from "./use-bundle-cart";
@@ -27,16 +29,84 @@ interface ComboLandingProps {
   combo: Bundle;
 }
 
-/** Dedicated combo landing page. Mobile-first, widened for desktop. */
+/** Backend trust-badge `icon` keys mapped to the fixed client icons. */
+const TRUST_ICONS: Record<string, LucideIcon> = {
+  original: ShieldCheck,
+  delivery: Truck,
+  cod: Wallet,
+  return: RotateCcw,
+};
+const FALLBACK_TRUST_ICON = ShieldCheck;
+
+function pad(n: number) {
+  return n.toString().padStart(2, "0");
+}
+
+/**
+ * Live "offer ends in" countdown, driven by the real `ends_at` timestamp.
+ * Renders nothing when there is no end date, the date is invalid, or the
+ * offer has already expired. Client-only (mount-guarded) so SSR and the
+ * first client paint agree before the timer takes over.
+ */
+function OfferCountdown({ endsAt }: { endsAt: string }) {
+  const { t } = useTranslation();
+  const [remaining, setRemaining] = useState<number | null>(null);
+
+  useEffect(() => {
+    const end = new Date(endsAt).getTime();
+    if (Number.isNaN(end)) return;
+    const tick = () => setRemaining(Math.max(0, end - Date.now()));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [endsAt]);
+
+  if (remaining === null || remaining <= 0) return null;
+
+  const totalSeconds = Math.floor(remaining / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const units = [
+    { value: days, label: t("bundle.unitLabel_days") },
+    { value: hours, label: t("bundle.unitLabel_hours") },
+    { value: minutes, label: t("bundle.unitLabel_minutes") },
+    { value: seconds, label: t("bundle.unitLabel_seconds") },
+  ];
+
+  return (
+    <div className="rounded-xl border border-warning/40 bg-warning/10 p-3">
+      <div className="flex items-center gap-1.5 text-xs font-semibold text-warning-foreground/80">
+        <Clock className="size-3.5 animate-pulse" />
+        {t("bundle.offerEndsIn")}
+      </div>
+      <div className="mt-2 flex items-center gap-1.5">
+        {units.map((u, i) => (
+          <div key={u.label} className="flex items-center gap-1.5">
+            {i > 0 && <span className="text-lg font-bold text-warning">:</span>}
+            <div className="flex flex-col items-center">
+              <span className="grid min-w-9 place-items-center rounded-md bg-secondary px-1.5 py-1 font-display text-base font-bold tabular-nums text-secondary-foreground">
+                {pad(u.value)}
+              </span>
+              <span className="mt-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                {u.label}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Dedicated combo landing page — editorial hero, live deal countdown, and an
+ *  in-flow purchase panel (no floating bar) at every breakpoint. */
 export function ComboLanding({ combo }: ComboLandingProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const { addBundleTier } = useBundleCart();
-  const variant = useVariant();
-  // Only templates with a fixed mobile bottom nav (bazar, global) need the CTA
-  // bar lifted clear of it; classic (the only template combos currently ship
-  // on, via bn-01) has no bottom nav so the bar should sit flush at the bottom.
-  const hasBottomNav = variant.template === "bazar" || variant.template === "global";
 
   // Buy Now: add the selected tier, then go to a checkout scoped to just it
   // (a bundle line's cart identity is bundle id + tier id).
@@ -44,26 +114,6 @@ export function ComboLanding({ combo }: ComboLandingProps) {
     addBundleTier(combo, tier);
     router.push(buyNowCheckoutHref(combo.id, tier.id));
   };
-
-  // Publish the mobile action-bar height so the global floating widgets (chat
-  // launcher + back-to-top) lift clear of it instead of overlapping the CTAs.
-  const barRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const root = document.documentElement;
-    const mq = window.matchMedia("(max-width: 1023.98px)");
-    const apply = () => {
-      const h = mq.matches && barRef.current ? barRef.current.offsetHeight : 0;
-      root.style.setProperty("--combo-actionbar-height", h ? `${h}px` : "0px");
-    };
-    apply();
-    window.addEventListener("resize", apply);
-    mq.addEventListener?.("change", apply);
-    return () => {
-      window.removeEventListener("resize", apply);
-      mq.removeEventListener?.("change", apply);
-      root.style.setProperty("--combo-actionbar-height", "0px");
-    };
-  }, []);
 
   const defaultTier = useMemo(
     () =>
@@ -79,97 +129,212 @@ export function ComboLanding({ combo }: ComboLandingProps) {
   const selectedTier =
     combo.tiers.find((tr) => tr.id === selectedTierId) ?? defaultTier;
 
-  // Distinct products in the combo (from the entry tier) for the hero checklist.
-  const heroItems = combo.tiers[0]?.items ?? [];
-  // Server-authoritative: mirror BundleTierList and read the tier's `savings`
-  // field rather than deriving from compare_at_price - price.
-  const heroSave = combo.tiers[0]?.savings ?? 0;
+  // Hero gallery: fall back to the single banner when the backend omits images[].
+  const gallery = useMemo(
+    () => (combo.images?.length ? combo.images : [combo.banner]),
+    [combo.images, combo.banner]
+  );
+  const [activeImage, setActiveImage] = useState(0);
 
-  const trust = [
-    { icon: ShieldCheck, label: t("bundle.trustOriginal") },
-    { icon: Truck, label: t("bundle.trustFastDelivery") },
-    { icon: Wallet, label: t("bundle.trustCod") },
-    { icon: RotateCcw, label: t("bundle.trustReturn") },
-  ];
+  // Trust badges: backend-driven (label + is_active) when provided, else the
+  // built-in defaults. Icons stay client-side, resolved from the `icon` key.
+  const trust: { Icon: LucideIcon; label: string }[] = combo.trust_badges
+    ?.length
+    ? combo.trust_badges
+        .filter((b) => b.is_active)
+        .map((b) => ({
+          Icon: TRUST_ICONS[b.icon] ?? FALLBACK_TRUST_ICON,
+          label: b.label,
+        }))
+    : [
+        { Icon: ShieldCheck, label: t("bundle.trustOriginal") },
+        { Icon: Truck, label: t("bundle.trustFastDelivery") },
+        { Icon: Wallet, label: t("bundle.trustCod") },
+        { Icon: RotateCcw, label: t("bundle.trustReturn") },
+      ];
 
   if (!selectedTier) return null;
 
+  const includedItems = selectedTier.items;
+  const soldOut = selectedTier.is_available === false;
+
   return (
-    <main
-      className={cn(
-        "container mx-auto max-w-3xl px-3 sm:px-4 py-3 sm:py-6 lg:pb-8",
-        hasBottomNav ? "pb-56" : "pb-40"
-      )}
-    >
-      {/* Offer ribbon */}
-      <div className="flex items-center justify-between gap-2 rounded-lg bg-primary/10 px-3 py-2 mb-3">
-        <span className="flex items-center gap-1.5 text-sm font-bold text-primary">
-          <Gift className="size-4" />
-          {combo.description}
+    <main className="container mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-6 pb-12">
+      {/* Eyebrow: offer label + backend badge */}
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary">
+          <Gift className="size-3.5" />
+          {t("bundle.comboOffer")}
         </span>
         {combo.badge && (
-          <span className="rounded-md bg-warning px-2 py-1 text-[11px] font-bold text-warning-foreground">
+          <span className="rounded-full bg-warning px-2.5 py-1 text-[11px] font-bold text-warning-foreground">
             {combo.badge}
           </span>
         )}
       </div>
 
-      {/* Hero */}
-      <div className="grid gap-4 lg:grid-cols-2 lg:items-center">
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-muted">
-          <CartLineImage
-            src={combo.banner}
-            alt={combo.title}
-            fill
-            sizes="(min-width: 1024px) 40vw, 100vw"
-            className="object-cover"
-            priority
-          />
-          {heroSave > 0 && (
-            <span className="absolute right-3 top-3 grid size-14 place-items-center rounded-full bg-destructive text-center text-[11px] font-bold leading-tight text-white">
-              {t("bundle.youSave")}
-              <br />
-              <Price amount={heroSave} />
-            </span>
+      {/* Hero: gallery + summary */}
+      <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
+        {/* Gallery */}
+        <div>
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border bg-muted shadow-warm-sm">
+            <CartLineImage
+              src={gallery[activeImage] ?? combo.banner}
+              alt={combo.title}
+              fill
+              sizes="(min-width: 1024px) 45vw, 100vw"
+              className="object-cover"
+              priority
+            />
+            {selectedTier.savings > 0 && (
+              <span className="absolute right-3 top-3 grid size-16 place-items-center rounded-full bg-destructive text-center text-[11px] font-bold leading-tight text-white shadow-warm">
+                {t("bundle.youSave")}
+                <br />
+                <Price amount={selectedTier.savings} />
+              </span>
+            )}
+          </div>
+
+          {gallery.length > 1 && (
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+              {gallery.map((src, i) => (
+                <button
+                  key={`${src}-${i}`}
+                  type="button"
+                  onClick={() => setActiveImage(i)}
+                  aria-label={`${combo.title} ${i + 1}`}
+                  aria-pressed={i === activeImage}
+                  className={cn(
+                    "relative size-16 shrink-0 overflow-hidden rounded-lg border-2 bg-muted transition-colors",
+                    i === activeImage
+                      ? "border-primary"
+                      : "border-transparent hover:border-primary/40"
+                  )}
+                >
+                  <CartLineImage
+                    src={src}
+                    alt=""
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold leading-tight mb-3">
-            {combo.title}
-          </h1>
-          <ul className="space-y-1.5">
-            {heroItems.map((item, i) => (
-              <li
-                key={`${item.product_id}-${i}`}
-                className="flex items-center gap-2 text-sm"
-              >
-                <Check className="size-4 text-primary shrink-0" />
-                {item.name}
-              </li>
-            ))}
-          </ul>
+        {/* Summary */}
+        <div className="flex flex-col gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold leading-tight">
+              {combo.title}
+            </h1>
+            {combo.description && (
+              <p className="mt-2 text-sm sm:text-base text-muted-foreground leading-relaxed">
+                {combo.description}
+              </p>
+            )}
+          </div>
+
+          {/* Highlights (optional, backend-provided selling points) */}
+          {combo.highlights?.length ? (
+            <ul className="space-y-1.5">
+              {combo.highlights.map((h, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm">
+                  <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                  {h}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          {/* Price block */}
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="text-3xl font-bold text-destructive">
+              <Price amount={selectedTier.price} />
+            </span>
+            {selectedTier.compare_at_price > selectedTier.price && (
+              <span className="text-lg text-muted-foreground line-through">
+                <Price amount={selectedTier.compare_at_price} />
+              </span>
+            )}
+            {selectedTier.savings > 0 && (
+              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+                {t("bundle.youSave")} <Price amount={selectedTier.savings} />
+              </span>
+            )}
+          </div>
+
+          {combo.ends_at && <OfferCountdown endsAt={combo.ends_at} />}
         </div>
       </div>
 
-      {/* Trust row */}
-      <div className="mt-4 grid grid-cols-4 gap-2 rounded-xl border border-border bg-card p-3">
-        {trust.map(({ icon: Icon, label }) => (
+      {/* Trust row (backend-driven; hidden when no active badges) */}
+      {trust.length > 0 && (
+        <div className="mt-6 flex flex-wrap justify-around gap-3 rounded-xl border border-border bg-card p-3 shadow-warm-sm">
+          {trust.map(({ Icon, label }, i) => (
+            <div
+              key={`${label}-${i}`}
+              className="flex min-w-[120px] flex-1 items-center justify-center gap-2 text-center sm:flex-col sm:gap-1"
+            >
+              <Icon className="size-5 shrink-0 text-primary" />
+              <span className="text-xs leading-tight text-muted-foreground">
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* About this offer (optional long-form HTML, sanitized) */}
+      {combo.body && (
+        <section className="mt-8">
+          <h2 className="mb-3 text-lg font-bold">{t("bundle.aboutOffer")}</h2>
           <div
-            key={label}
-            className="flex flex-col items-center gap-1 text-center"
-          >
-            <Icon className="size-5 text-primary" />
-            <span className="text-[10px] sm:text-xs leading-tight text-muted-foreground">
-              {label}
-            </span>
-          </div>
-        ))}
-      </div>
+            className="prose prose-sm sm:prose max-w-none text-sm leading-relaxed text-muted-foreground [&>h1]:text-base [&>h2]:text-sm [&>h3]:text-sm [&>ol]:mb-2 [&>p]:mb-2 [&>ul]:mb-2"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(combo.body),
+            }}
+          />
+        </section>
+      )}
+
+      {/* What's included */}
+      <section className="mt-8">
+        <h2 className="mb-3 flex items-center gap-1.5 text-lg font-bold">
+          <Gift className="size-4 text-primary" />
+          {t("bundle.whatsIncluded")}
+        </h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {includedItems.map((item, i) => (
+            <div
+              key={`${item.product_id}-${i}`}
+              className="flex items-center gap-3 rounded-xl border border-border bg-card p-2.5 shadow-warm-sm"
+            >
+              <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-muted">
+                <CartLineImage
+                  src={item.thumbnail_image}
+                  alt={item.name}
+                  fill
+                  sizes="56px"
+                  className="object-cover"
+                />
+                <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground shadow-sm">
+                  {item.qty}
+                </span>
+              </div>
+              <p className="min-w-0 flex-1 text-sm font-medium leading-tight">
+                {item.name}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Tier selector */}
-      <div className="mt-5">
-        <h2 className="flex items-center gap-1.5 font-bold text-base mb-3">
+      <section className="mt-8">
+        <h2 className="mb-3 flex items-center gap-1.5 text-lg font-bold">
           <Gift className="size-4 text-primary" />
           {t("bundle.selectCombo")}
         </h2>
@@ -179,67 +344,64 @@ export function ComboLanding({ combo }: ComboLandingProps) {
           onSelect={setSelectedTierId}
           showComposition
         />
-      </div>
+      </section>
 
-      {/* Total savings bar */}
-      <div className="mt-3 flex items-center justify-between rounded-lg bg-primary/5 px-3 py-2.5 text-sm">
-        <span className="font-medium">{t("bundle.youSaveTotal")}:</span>
-        <span className="font-bold text-primary">
-          <Price amount={selectedTier.savings} />
-        </span>
-      </div>
-
-      {/* Sticky action bar (mobile, two rows) → inline single row (desktop) */}
-      <div
-        ref={barRef}
-        className={cn(
-          "fixed inset-x-0 z-40 border-t border-border bg-background p-3 lg:static lg:bottom-auto lg:mt-5 lg:rounded-xl lg:border lg:p-4",
-          hasBottomNav ? "bottom-16" : "bottom-0"
-        )}
-      >
-        <div className="container mx-auto max-w-3xl px-0 flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-3">
-          <div className="flex items-center justify-between lg:block lg:shrink-0">
-            <div>
-              <div className="text-[11px] text-muted-foreground leading-none">
-                {t("bundle.totalPrice")}
-              </div>
-              <div className="text-lg font-bold text-destructive">
-                <Price amount={selectedTier.price} />
-              </div>
+      {/* Purchase panel — in-flow at every breakpoint (attached, not floating) */}
+      <section className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-warm sm:p-5">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <div>
+            <div className="text-xs text-muted-foreground">
+              {t("bundle.totalPrice")}
             </div>
-            {selectedTier.savings > 0 && (
-              <div className="text-[11px] font-medium text-primary leading-none lg:mt-0.5">
-                {t("bundle.youSave")} <Price amount={selectedTier.savings} />
-              </div>
-            )}
-          </div>
-          <div className="flex-1">
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => addBundleTier(combo, selectedTier)}
-                disabled={selectedTier.is_available === false}
-                className="flex-1 h-12 text-sm sm:text-base font-bold border-primary text-primary hover:bg-primary/10 hover:text-primary"
-              >
-                <ShoppingCart className="size-5 mr-1.5" />
-                {t("bundle.addComboToCart")}
-              </Button>
-              <Button
-                onClick={() => handleBuyNow(selectedTier)}
-                disabled={selectedTier.is_available === false}
-                className="flex-1 h-12 text-sm sm:text-base font-bold"
-              >
-                <ShoppingBag className="size-5 mr-1.5" />
-                {t("bundle.buyNow")}
-              </Button>
+            <div className="text-2xl font-bold text-destructive">
+              <Price amount={selectedTier.price} />
             </div>
-            <p className="mt-1 flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
-              <ShieldCheck className="size-3" />
-              {t("bundle.secureCheckout")}
-            </p>
           </div>
+          {selectedTier.savings > 0 && (
+            <div className="rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-bold text-primary">
+              {t("bundle.youSaveTotal")}{" "}
+              <Price amount={selectedTier.savings} />
+            </div>
+          )}
         </div>
-      </div>
+
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <Button
+            variant="outline"
+            onClick={() => addBundleTier(combo, selectedTier)}
+            disabled={soldOut}
+            className="h-12 flex-1 border-primary text-sm font-bold text-primary hover:bg-primary/10 hover:text-primary sm:text-base"
+          >
+            <ShoppingCart className="mr-1.5 size-5" />
+            {t("bundle.addComboToCart")}
+          </Button>
+          <Button
+            onClick={() => handleBuyNow(selectedTier)}
+            disabled={soldOut}
+            className="h-12 flex-1 text-sm font-bold sm:text-base"
+          >
+            <ShoppingBag className="mr-1.5 size-5" />
+            {t("bundle.buyNow")}
+          </Button>
+        </div>
+
+        <p className="mt-3 flex items-center justify-center gap-1 text-xs text-muted-foreground">
+          <ShieldCheck className="size-3.5" />
+          {t("bundle.secureCheckout")}
+        </p>
+      </section>
+
+      {/* Terms (optional) */}
+      {combo.terms && (
+        <section className="mt-6">
+          <h2 className="mb-2 text-sm font-bold text-muted-foreground">
+            {t("bundle.terms")}
+          </h2>
+          <div className="whitespace-pre-line text-xs leading-relaxed text-muted-foreground">
+            {combo.terms}
+          </div>
+        </section>
+      )}
     </main>
   );
 }

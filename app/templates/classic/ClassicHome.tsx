@@ -13,9 +13,8 @@ export async function ClassicHome({
 	featuredCategories,
 	features,
 }: HomeLayoutProps) {
-	// Combo marketing banner (mock data for now); gated by the bundles flag.
+	// Combo marketing cards; gated by the bundles flag.
 	const combos = features.bundles ? await getCombos() : [];
-	const featuredCombo = combos[0] ?? null;
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -23,7 +22,7 @@ export async function ClassicHome({
 			<main>
 				<HeroCarousel banners={banners} />
 				<FeaturedCategories categories={featuredCategories} />
-				{featuredCombo && <ComboPromo combo={featuredCombo} />}
+				{combos.length > 0 && <ComboPromo combos={combos} />}
 				{features.topSelling && (
 					<ProductSection
 						id="top-selling"

@@ -52,6 +52,18 @@ export interface BundleTier {
   perks: BundlePerk[];
 }
 
+export interface BundleTrustBadge {
+  /**
+   * Icon key mapped to a fixed client icon (e.g. "original" | "delivery" |
+   * "cod" | "return"). Unknown keys fall back to a default icon.
+   */
+  icon: string;
+  /** Localized badge text. */
+  label: string;
+  /** Whether the badge is shown; inactive badges are filtered out. */
+  is_active: boolean;
+}
+
 export interface Bundle {
   id: number;
   slug: string;
@@ -59,6 +71,26 @@ export interface Bundle {
   description?: string | null;
   badge?: string | null;
   banner: string;
+  /**
+   * Optional hero gallery (absolute URLs). Falls back to `[banner]` when the
+   * backend omits it, so the landing page degrades to a single image.
+   */
+  images?: string[] | null;
+  /**
+   * Optional long-form offer copy (localized) as an **HTML** string, rendered
+   * in the "About this offer" block below the hero (sanitized client-side with
+   * DOMPurify, styled via Tailwind `prose`). Distinct from the short
+   * `description` (used as the hero subtitle). Section is hidden when absent.
+   */
+  body?: string | null;
+  /** Optional localized selling-point bullets shown in the hero. */
+  highlights?: string[] | null;
+  /**
+   * Optional trust/assurance badges shown as a row under the hero. Each badge
+   * carries a backend-controlled `label` and `is_active` flag; only active
+   * badges render. When the field is absent the client shows built-in defaults.
+   */
+  trust_badges?: BundleTrustBadge[] | null;
   /** Anchor product for a PDP (quantity) bundle; null for standalone combos. */
   product_id?: number | null;
   is_active: boolean;

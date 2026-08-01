@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { isChunkLoadError, reloadForStaleChunks } from "@/lib/utils/chunk-error";
 
 interface GlobalErrorPageProps {
 	error: Error & { digest?: string };
@@ -12,9 +13,21 @@ interface GlobalErrorPageProps {
 // styles only, and both languages hardcoded (Bengali first, per the app's
 // default locale, then English).
 export default function GlobalError({ error, reset }: GlobalErrorPageProps) {
+	// A chunk-load failure usually means a new build was deployed while this
+	// tab held the old one — reload once to pick up the fresh chunks.
+	const isChunkError = isChunkLoadError(error);
+
 	useEffect(() => {
+		if (isChunkError && reloadForStaleChunks()) return;
 		console.error(error);
-	}, [error]);
+	}, [error, isChunkError]);
+
+	const handleRetry = () => {
+		// reset() re-renders the same tree — useless for a missing chunk, so
+		// hard-reload instead.
+		if (isChunkError) window.location.reload();
+		else reset();
+	};
 
 	return (
 		<html lang="bn">
@@ -53,7 +66,7 @@ export default function GlobalError({ error, reset }: GlobalErrorPageProps) {
 						Something went wrong
 					</p>
 					<button
-						onClick={reset}
+						onClick={handleRetry}
 						style={{
 							display: "inline-flex",
 							alignItems: "center",

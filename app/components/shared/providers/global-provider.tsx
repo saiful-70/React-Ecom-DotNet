@@ -1,5 +1,6 @@
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, Suspense } from "react";
 import { ThemeProvider } from "./theme-provider";
+import { TopProgressBar } from "@/components/shared/TopProgressBar";
 import { I18nProvider } from "./i18n-provider";
 import { CartProvider } from "@/contexts/CartContext";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
@@ -24,6 +25,9 @@ export default function GlobalProvider({
 }: GlobalProviderProps) {
 	return (
 		<VariantProvider variant={variant}>
+			<Suspense fallback={null}>
+				<TopProgressBar />
+			</Suspense>
 			<JotaiProvider>
 				<ThemeProvider
 					attribute="class"

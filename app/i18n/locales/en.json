@@ -481,7 +481,16 @@
     "containsCount": "{{count}} products in this combo",
     "containsCount_one": "{{count}} product in this combo",
     "replacedExisting": "Your previous combo was replaced — one combo per order.",
-    "onePerOrder": "Only one combo per order is supported."
+    "onePerOrder": "Only one combo per order is supported.",
+    "aboutOffer": "About this offer",
+    "whatsIncluded": "What's included",
+    "offerEndsIn": "Offer ends in",
+    "offerEnded": "This offer has ended",
+    "terms": "Terms & conditions",
+    "unitLabel_days": "Days",
+    "unitLabel_hours": "Hrs",
+    "unitLabel_minutes": "Min",
+    "unitLabel_seconds": "Sec"
   },
   "register": {
     "pageTitle": "Create Account",

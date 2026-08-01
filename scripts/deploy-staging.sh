@@ -106,25 +106,55 @@ rm -rf "$DIR.old"
 mv "$DIR.new" "$DIR"
 
 if [ "$RESTART" = "1" ]; then
-  # The Enhance Node app must be set to Start mode = MANUAL. This script owns the
-  # process — Automatic mode does not reliably respawn on kill on this platform,
-  # and if left Automatic it would fight this script for the port.
+  # This script owns the process, so the Enhance app MUST be Start mode = MANUAL.
+  # On Automatic the platform supervisor respawns node and races this script for
+  # the port: the new build fails to bind (EADDRINUSE), the old build — whose
+  # files were just swapped out — keeps serving broken, and the site shows
+  # "Something went wrong" until a later deploy happens to win the race.
   export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-  pkill -9 -u "$(id -u)" -x node 2>/dev/null || true
-  sleep 1
   cd "$HOME/$DIR"
-  # start detached so it survives this SSH session; logs to app.log
-  PORT="$APP_PORT" HOSTNAME=0.0.0.0 setsid nohup node server.js > "$HOME/$DIR/app.log" 2>&1 < /dev/null &
-  echo "started node server.js (Manual mode); waiting for :$APP_PORT…"
+
+  # Is anything listening on the app port? (bash /dev/tcp — no ss/lsof needed)
+  port_busy() { (exec 3<>"/dev/tcp/127.0.0.1/$APP_PORT") >/dev/null 2>&1; }
+  # Kill whatever holds the port and wait until it is actually released.
+  free_port() {
+    for _ in $(seq 1 15); do
+      port_busy || return 0
+      if command -v fuser >/dev/null 2>&1; then fuser -k "$APP_PORT/tcp" 2>/dev/null || true
+      else pkill -9 -u "$(id -u)" -x node 2>/dev/null || true; fi
+      sleep 1
+    done
+    port_busy && return 1 || return 0
+  }
+  start_app() {
+    : > "$HOME/$DIR/app.log"   # fresh log so a prior EADDRINUSE isn't re-read
+    PORT="$APP_PORT" HOSTNAME=0.0.0.0 setsid nohup node server.js \
+      >> "$HOME/$DIR/app.log" 2>&1 < /dev/null &
+  }
+
+  free_port || echo "⚠️  :$APP_PORT still held after kills — set the Enhance app to Start mode = MANUAL."
+
+  # Start, and if the bind lost a race (EADDRINUSE), free the port and retry.
   up=0
-  for _ in $(seq 1 30); do
-    sleep 1
-    if curl -sf -o /dev/null "http://127.0.0.1:$APP_PORT/"; then up=1; break; fi
+  for attempt in 1 2 3; do
+    start_app
+    echo "attempt $attempt: started node server.js; waiting for :$APP_PORT…"
+    for _ in $(seq 1 20); do
+      sleep 1
+      if grep -q EADDRINUSE "$HOME/$DIR/app.log" 2>/dev/null; then
+        echo "  EADDRINUSE — port still held; freeing and retrying."
+        free_port || true
+        break
+      fi
+      if curl -sf -o /dev/null "http://127.0.0.1:$APP_PORT/"; then up=1; break; fi
+    done
+    [ "$up" = 1 ] && break
   done
+
   if [ "$up" = 1 ]; then
     echo "✅ up on :$APP_PORT with the new build."
   else
-    echo "⚠️  not up after 30s — last log lines:"
+    echo "⚠️  not up after retries — last log lines:"
     tail -n 20 "$HOME/$DIR/app.log" 2>/dev/null || true
   fi
 fi

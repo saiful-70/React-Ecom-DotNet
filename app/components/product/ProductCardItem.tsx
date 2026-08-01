@@ -27,6 +27,9 @@ interface ProductCardItemProps {
 
 export function ProductCardItem({ product }: ProductCardItemProps) {
 	const [isWishlistLoading, setIsWishlistLoading] = useState(false);
+	// Swap to the fallback when the thumbnail URL fails to load (broken/404),
+	// so a bad image renders a placeholder instead of empty whitespace.
+	const [imgError, setImgError] = useState(false);
 	const { addToCart } = useCart();
 	const { t } = useTranslation();
 	const [userProfile] = useAtom(miniProfileAtom);
@@ -157,12 +160,13 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 			<div className="relative aspect-square overflow-hidden bg-muted/40">
 				<Link href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(product.id)}>
 					<Image
-						src={imageSource}
+						src={imgError ? fallbackImage : imageSource}
 						alt={product.name}
 						width={400}
 						height={400}
 						className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
 						sizes="(max-width: 1024px) 50vw, 25vw"
+						onError={() => setImgError(true)}
 					/>
 				</Link>
 
@@ -233,8 +237,8 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 						</h3>
 					</Link>
 
-					{/* Rating */}
-					{reviewCount > 0 ? (
+					{/* Rating — shown only when the product has reviews */}
+					{reviewCount > 0 && (
 						<div className="flex items-center gap-0.5">
 							<div className="flex items-center">
 								{[...Array(5)].map((_, i) => (
@@ -250,10 +254,6 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 							<span className="text-[10px] sm:text-xs text-muted-foreground">
 								({reviewCount})
 							</span>
-						</div>
-					) : (
-						<div className="text-[10px] sm:text-xs text-muted-foreground">
-							{t("productCard.noRatingYet") || "No rating yet"}
 						</div>
 					)}
 

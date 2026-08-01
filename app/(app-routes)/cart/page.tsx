@@ -1,6 +1,5 @@
 import { CartPage } from "@/components/pages/CartPage";
 import { Metadata } from "next";
-import CartLoading from "./loading";
 import { Suspense } from "react";
 import { generateMetadata as genMeta } from "@/lib/utils/seo.utils";
 import { getBusinessSettings } from "@/components/shared/actions/business-settings";
@@ -19,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Cart() {
 	return (
 		<div className=" bg-background">
-			<Suspense fallback={<CartLoading />}>
+			<Suspense fallback={null}>
 				<CartPage />
 			</Suspense>
 		</div>

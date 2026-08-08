@@ -95,6 +95,14 @@ const config: Config = {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        // "You save" pills on bundle/combo tiers. A distinct semantic from
+        // `destructive` (errors) — falls back to it when a variant theme has
+        // not overridden the token.
+        "bundle-save": {
+          DEFAULT: "hsl(var(--bundle-save, var(--destructive)))",
+          foreground:
+            "hsl(var(--bundle-save-foreground, var(--destructive-foreground)))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -490,7 +490,16 @@
     "unitLabel_days": "দিন",
     "unitLabel_hours": "ঘণ্টা",
     "unitLabel_minutes": "মিনিট",
-    "unitLabel_seconds": "সেকেন্ড"
+    "unitLabel_seconds": "সেকেন্ড",
+    "saveShort": "সেভ",
+    "perEach": "/ প্রতিটি",
+    "addToCart": "কার্টে যোগ করুন",
+    "orderNow": "অর্ডার করুন",
+    "selectAxis": "{{axis}} বাছুন",
+    "unavailable": "স্টকে নেই",
+    "unitSelectAllOptions": "এই আইটেমের সব অপশন বাছুন",
+    "unitUnavailableCombination": "এই কম্বিনেশনটি পাওয়া যাচ্ছে না",
+    "unitOutOfStock": "এই পছন্দের জন্য পর্যাপ্ত স্টক নেই"
   },
   "register": {
     "pageTitle": "অ্যাকাউন্ট তৈরি করুন",

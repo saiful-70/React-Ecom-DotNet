@@ -39,6 +39,9 @@ interface ProductDetailsPageProps {
 }
 
 export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
+	// An active bundle takes over the purchase controls: its unit rows own the
+	// size/colour choice, so the page-level variant selector is suppressed.
+	const hasBundle = !!bundle && bundle.tiers.length > 0;
 	const { t } = useTranslation();
 	const router = useRouter();
 	const [userProfile] = useAtom(miniProfileAtom);
@@ -368,7 +371,7 @@ export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 					</div>
 
 					{/* Variant Selection */}
-					{product.variants && product.variants.length > 0 && (
+					{!hasBundle && product.variants && product.variants.length > 0 && (
 						<ProductVariantSelector
 							product={product}
 							onVariantChange={(variant) => {
@@ -381,8 +384,11 @@ export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 						/>
 					)}					{/* Quantity & Actions */}
 					<div className="space-y-2.5 sm:space-y-4 lg:space-y-5">
-						{bundle && bundle.tiers.length > 0 ? (
-							<ProductBundleSelector bundle={bundle} />
+						{bundle && hasBundle ? (
+							<ProductBundleSelector
+									bundle={bundle}
+									product={product}
+								/>
 						) : (
 							<>
 								<QuantitySelector

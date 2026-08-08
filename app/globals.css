@@ -28,6 +28,8 @@
     --success-foreground: 140 30% 98%;
     --warning: 38 88% 50%;             /* amber kept for warnings only */
     --warning-foreground: 30 30% 14%;
+    --bundle-save: 4 74% 64%;          /* soft coral — "SAVE ৳400" pills */
+    --bundle-save-foreground: 0 0% 100%;
     --radius: 0.875rem;
     --sidebar-background: 140 30% 96%;
     --sidebar-foreground: 152 20% 22%;
@@ -71,6 +73,8 @@
     --success-foreground: 152 25% 8%;
     --warning: 38 85% 56%;
     --warning-foreground: 30 25% 10%;
+    --bundle-save: 4 64% 56%;
+    --bundle-save-foreground: 0 0% 100%;
     --sidebar-background: 152 22% 9%;
     --sidebar-foreground: 140 20% 88%;
     --sidebar-primary: 142 52% 44%;

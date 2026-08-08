@@ -21,7 +21,9 @@ import Price from "@/components/shared/Price";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { cn } from "@/lib/utils/utils";
 import { BundleTierList } from "./BundleTierList";
+import { BundleUnitPicker } from "./BundleUnitPicker";
 import { useBundleCart } from "./use-bundle-cart";
+import { useBundleUnits } from "./use-bundle-units";
 import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 import type { Bundle, BundleTier } from "@/lib/bundles/types";
 
@@ -107,11 +109,22 @@ export function ComboLanding({ combo }: ComboLandingProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const { addBundleTier } = useBundleCart();
+  // No anchor product here, so per-unit pickers only appear once the backend
+  // ships `variant_options` on the tier items.
+  const { axesFor, unitsFor, setAxisValue, componentsFor, summaryFor } =
+    useBundleUnits({});
+
+  const handleAddToCart = (tier: BundleTier) => {
+    addBundleTier(combo, tier, {
+      components: componentsFor(tier),
+      summary: summaryFor(tier),
+    });
+  };
 
   // Buy Now: add the selected tier, then go to a checkout scoped to just it
   // (a bundle line's cart identity is bundle id + tier id).
   const handleBuyNow = (tier: BundleTier) => {
-    addBundleTier(combo, tier);
+    handleAddToCart(tier);
     router.push(buyNowCheckoutHref(combo.id, tier.id));
   };
 
@@ -156,7 +169,9 @@ export function ComboLanding({ combo }: ComboLandingProps) {
   if (!selectedTier) return null;
 
   const includedItems = selectedTier.items;
-  const soldOut = selectedTier.is_available === false;
+  // Blocked when sold out, or when a per-unit choice is missing / out of stock.
+  const soldOut =
+    selectedTier.is_available === false || !unitsFor(selectedTier).isReady;
 
   return (
     <main className="container mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-6 pb-12">
@@ -343,6 +358,22 @@ export function ComboLanding({ combo }: ComboLandingProps) {
           selectedTierId={selectedTierId}
           onSelect={setSelectedTierId}
           showComposition
+          renderUnits={(tier) => {
+            const tierUnits = unitsFor(tier);
+            if (!tierUnits.hasPicker) return null;
+            return (
+              <BundleUnitPicker
+                slots={tierUnits.slots}
+                selections={tierUnits.selections}
+                issues={tierUnits.issues}
+                axesFor={axesFor}
+                onAxisChange={(slotKey, item, optionName, value) =>
+                  setAxisValue(tier, slotKey, item, optionName, value)
+                }
+                showItemName={tier.items.length > 1}
+              />
+            );
+          }}
         />
       </section>
 
@@ -368,7 +399,7 @@ export function ComboLanding({ combo }: ComboLandingProps) {
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <Button
             variant="outline"
-            onClick={() => addBundleTier(combo, selectedTier)}
+            onClick={() => handleAddToCart(selectedTier)}
             disabled={soldOut}
             className="h-12 flex-1 border-primary text-sm font-bold text-primary hover:bg-primary/10 hover:text-primary sm:text-base"
           >

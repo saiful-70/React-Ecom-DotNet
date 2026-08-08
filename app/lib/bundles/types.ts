@@ -23,6 +23,44 @@ export interface BundlePerk {
   qty?: number | null;
 }
 
+/**
+ * One selectable axis of a tier item's per-unit variant picker (a dropdown).
+ *
+ * `name` and `values[].value` are NEVER localized — they are stable keys, and
+ * `value` is matched (case-insensitively) against `TierVariant.combination`.
+ * `label` / `values[].label` carry the localized display text.
+ */
+export interface BundleVariantOption {
+  id: number;
+  name: string;
+  label: string;
+  values: {
+    id: number;
+    value: string;
+    label: string;
+    is_available: boolean;
+  }[];
+}
+
+/**
+ * Resolves an axis-value tuple to a concrete variant. Mirrors `ProductVariant`
+ * on the product-details API so one resolution routine serves both.
+ *
+ * `combination` is index-aligned with the item's `variant_options`; `price` is
+ * informational only (tier pricing is flat — see the bundle API contract).
+ */
+export interface TierVariant {
+  variant_id: number;
+  combination: string[];
+  sku?: string;
+  price?: number;
+  stock: number;
+  is_available: boolean;
+}
+
+/** Whether the shopper picks each unit's variant, or the tier fixes it. */
+export type VariantSelectionMode = "fixed" | "customer";
+
 export interface BundleTierItem {
   product_id: number;
   variant_id?: number | null;
@@ -34,6 +72,17 @@ export interface BundleTierItem {
   role: string;
   stock?: number;
   is_available: boolean;
+  /**
+   * "customer" renders one Size/Colour row per unit of `qty`. Absent or
+   * "fixed" keeps the legacy flat card, which is why the field is optional.
+   */
+  variant_selection?: VariantSelectionMode | null;
+  /** Variant pre-selected in every unit row. */
+  default_variant_id?: number | null;
+  /** Dropdown axes, in display order. Required when selection is "customer". */
+  variant_options?: BundleVariantOption[] | null;
+  /** Axis-tuple → variant_id + stock. Required when selection is "customer". */
+  variants?: TierVariant[] | null;
 }
 
 export interface BundleTier {
@@ -48,6 +97,15 @@ export interface BundleTier {
   savings: number;
   is_available: boolean;
   unavailable_reason?: string | null;
+  /**
+   * Authoritative count of individually-configurable units (the numbered rows).
+   * Falls back to the summed `qty` of required items when the backend omits it.
+   */
+  unit_count?: number | null;
+  /** Per-unit price for the "৳X / each" chip. Falls back to price/unit_count. */
+  unit_price?: number | null;
+  /** Localized per-tier label ("Best Value"). Derived client-side when absent. */
+  badge?: string | null;
   items: BundleTierItem[];
   perks: BundlePerk[];
 }

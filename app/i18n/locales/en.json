@@ -490,7 +490,16 @@
     "unitLabel_days": "Days",
     "unitLabel_hours": "Hrs",
     "unitLabel_minutes": "Min",
-    "unitLabel_seconds": "Sec"
+    "unitLabel_seconds": "Sec",
+    "saveShort": "Save",
+    "perEach": "/ each",
+    "addToCart": "Add to Cart",
+    "orderNow": "Order Now",
+    "selectAxis": "Select {{axis}}",
+    "unavailable": "unavailable",
+    "unitSelectAllOptions": "Choose every option for this item",
+    "unitUnavailableCombination": "This combination is not available",
+    "unitOutOfStock": "Not enough stock for this choice"
   },
   "register": {
     "pageTitle": "Create Account",

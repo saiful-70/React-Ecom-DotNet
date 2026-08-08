@@ -8,6 +8,7 @@ import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useCart } from "@/contexts/CartContext";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
+import { trackMenuClick } from "@/lib/analytics/tracking";
 
 /**
  * Fixed bottom navigation (mobile only): Home · Categories · Cart · Wishlist ·
@@ -26,21 +27,38 @@ export function GlobalMobileNav() {
 	const itemClass =
 		"flex flex-col items-center justify-center gap-0.5 text-[11px] font-medium";
 
+	// Bottom-nav items are pure navigation chrome the backend can't attribute,
+	// so each one reports a MenuClick with a language-independent id.
+	const onMenuClick = (menuId: string, menuName: string) => () =>
+		void trackMenuClick({ menuId, menuName });
+
 	return (
 		<nav
 			className="fixed inset-x-0 bottom-0 z-50 border-t bg-background md:hidden"
 			aria-label={t("global.mobileNav")}
 		>
 			<div className="grid h-16 grid-cols-5 items-center">
-				<Link href="/" className={itemClass}>
+				<Link
+					href="/"
+					onClick={onMenuClick("mobile-home", "Home")}
+					className={itemClass}
+				>
 					<Home className="h-5 w-5" />
 					{t("global.nav.home")}
 				</Link>
-				<Link href={ABSOLUTE_ROUTES.PRODUCTS} className={itemClass}>
+				<Link
+					href={ABSOLUTE_ROUTES.PRODUCTS}
+					onClick={onMenuClick("mobile-categories", "Categories")}
+					className={itemClass}
+				>
 					<LayoutGrid className="h-5 w-5" />
 					{t("global.nav.categories")}
 				</Link>
-				<Link href={ABSOLUTE_ROUTES.CART} className={itemClass}>
+				<Link
+					href={ABSOLUTE_ROUTES.CART}
+					onClick={onMenuClick("mobile-cart", "Cart")}
+					className={itemClass}
+				>
 					<span className="relative">
 						<ShoppingCart className="h-5 w-5" />
 						{isHydrated && itemCount > 0 && (
@@ -51,12 +69,20 @@ export function GlobalMobileNav() {
 					</span>
 					{t("global.cart")}
 				</Link>
-				<Link href={ABSOLUTE_ROUTES.WISHLIST} className={itemClass}>
+				<Link
+					href={ABSOLUTE_ROUTES.WISHLIST}
+					onClick={onMenuClick("mobile-wishlist", "Wishlist")}
+					className={itemClass}
+				>
 					<Heart className="h-5 w-5" />
 					{t("global.wishlist")}
 				</Link>
 				<Link
 					href={profile ? ABSOLUTE_ROUTES.PROFILE : ABSOLUTE_ROUTES.LOGIN}
+					onClick={onMenuClick(
+						profile ? "mobile-profile" : "mobile-login",
+						profile ? "Profile" : "Login"
+					)}
 					className={itemClass}
 				>
 					<User className="h-5 w-5" />

@@ -15,6 +15,9 @@ const TRACKING_URL = API_CONFIG.API_BASE_URL_V1.replace(/\/v1\/?$/, "") + "/trac
 
 type IncomingTrackingEvent = {
   eventName: string;
+  // Client-generated GUID so the backend can de-duplicate retries from the
+  // offline queue (Frontend Tracking Integration Guide v3.0).
+  eventId?: string;
   data?: Record<string, unknown>;
   pageUrl?: string;
   pageTitle?: string;
@@ -24,6 +27,9 @@ type IncomingTrackingEvent = {
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
+  // Meta browser/click ids read from the _fbp/_fbc cookies.
+  fbp?: string;
+  fbc?: string;
 };
 
 // Only forward events the frontend actually emits via `trackEvent()`
@@ -50,9 +56,26 @@ const ALLOWED_BROWSER_EVENTS = new Set([
 // only: behind a load balancer with multiple instances, each instance tracks
 // its own counters, so the effective limit scales with instance count. A
 // shared store (e.g. Redis) would be needed for a hard global cap.
+// Budget per page view is roughly 1 PageView + up to 4 ScrollDepth + 2
+// TimeOnPage heartbeats, before any filter/sort/menu interaction. 30/min
+// throttled ordinary browsing; 120 leaves headroom for a fast browser while
+// still capping abuse. Shared-IP traffic (office NAT, mobile carriers) is
+// still counted collectively — see the note on the limiter below.
 const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX_REQUESTS = 30;
+const RATE_LIMIT_MAX_REQUESTS = 120;
 const rateLimiter = createSlidingWindowRateLimiter(RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS);
+
+const IS_PRODUCTION = API_CONFIG.NODE_ENV === "production";
+
+// An ASP.NET developer-exception page or HTML error page can run to tens of KB.
+// Keep enough to identify the exception without flooding the server log.
+const MAX_LOGGED_BODY_CHARS = 1000;
+
+function truncateForLog(text: string): string {
+  const collapsed = text.trim();
+  if (collapsed.length <= MAX_LOGGED_BODY_CHARS) return collapsed;
+  return `${collapsed.slice(0, MAX_LOGGED_BODY_CHARS)}… (${collapsed.length} chars total)`;
+}
 
 /**
  * Parse a Set-Cookie header string into { name, value, maxAge?, expires? }.
@@ -165,14 +188,44 @@ export async function POST(req: NextRequest) {
       cache: "no-store",
     });
 
-    let backendJson: unknown = null;
+    // Read the body as text first. On a backend error it's often a plain-text
+    // stack trace or an HTML error page, and `.json()` would throw and discard
+    // it — which is how a backend 500 used to surface as a bare
+    // `{ success: false }` with no clue what actually went wrong.
+    const rawBody = await backendResponse.text();
+
+    let backendJson: unknown;
     try {
-      backendJson = await backendResponse.json();
+      backendJson = JSON.parse(rawBody);
     } catch {
       backendJson = { success: backendResponse.ok };
     }
 
-    const nextResponse = NextResponse.json(backendJson, { status: backendResponse.status });
+    if (!backendResponse.ok) {
+      console.error(
+        `[tracking] backend rejected ${body.eventName}: POST ${TRACKING_URL} -> ` +
+          `${backendResponse.status} ${backendResponse.statusText}\n` +
+          `  content-type: ${backendResponse.headers.get("content-type") || "(none)"}\n` +
+          `  body: ${truncateForLog(rawBody) || "(empty)"}`
+      );
+    }
+
+    // Surface the backend's own error to the browser in development only —
+    // upstream traces can name internal assemblies and file paths, so they must
+    // never reach a production client.
+    const clientPayload =
+      backendResponse.ok || IS_PRODUCTION
+        ? backendJson
+        : {
+            success: false,
+            message: "backend rejected the event (see server console)",
+            backendStatus: backendResponse.status,
+            backendError: truncateForLog(rawBody) || null,
+          };
+
+    const nextResponse = NextResponse.json(clientPayload, {
+      status: backendResponse.status,
+    });
 
     // 6. Relay only our first-party visitor/session cookies, re-homed to
     // this app's domain (drop the backend's own Domain attribute).
@@ -192,9 +245,14 @@ export async function POST(req: NextRequest) {
     }
 
     return nextResponse;
-  } catch {
+  } catch (error) {
     // Network failure — never throw to the caller; the client's keepalive
-    // fetch should always resolve cleanly.
+    // fetch should always resolve cleanly. Log it, though: an unreachable
+    // backend is otherwise indistinguishable from tracking working fine.
+    console.error(
+      `[tracking] backend unreachable: POST ${TRACKING_URL}`,
+      error instanceof Error ? `${error.name}: ${error.message}` : error
+    );
     return NextResponse.json(
       { success: false, message: "tracking unavailable" },
       { status: 200 }

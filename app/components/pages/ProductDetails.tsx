@@ -17,6 +17,7 @@ import {
 	trackUnifiedAddToCart,
 	trackUnifiedViewProduct,
 } from "@/lib/analytics";
+import { trackShare } from "@/lib/analytics/tracking";
 import {
 	ProductBreadcrumb,
 	ProductImageGallery,
@@ -288,12 +289,16 @@ export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 		try {
 			if (navigator.share) {
 				await navigator.share(shareData);
+				// Only after the sheet resolves — a dismissal throws AbortError
+				// and must not count as a share.
+				void trackShare("web-share", shareUrl);
 				toast.success(
 					t("productDetails.sharedSuccessfully") ||
 					"Shared successfully!"
 				);
 			} else {
 				await navigator.clipboard.writeText(shareUrl);
+				void trackShare("clipboard", shareUrl);
 				toast.success(
 					t("productDetails.linkCopiedToClipboard") ||
 					"Link copied to clipboard!"
@@ -303,6 +308,7 @@ export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 			if ((error as Error).name !== "AbortError") {
 				try {
 					await navigator.clipboard.writeText(shareUrl);
+					void trackShare("clipboard", shareUrl);
 					toast.success(
 						t("productDetails.linkCopiedToClipboard") ||
 						"Link copied to clipboard!"

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Gift, ArrowRight } from "lucide-react";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { CartLineImage } from "@/components/shared/CartLineImage";
+import { trackPromotionClick } from "@/lib/analytics/tracking";
 import Price from "@/components/shared/Price";
 import type { BundleSummary } from "@/lib/bundles/types";
 
@@ -28,6 +29,9 @@ export function ComboPromo({ combos }: ComboPromoProps) {
           <Link
             key={combo.id}
             href={`/combo/${combo.slug}`}
+            onClick={() =>
+              trackPromotionClick({ promotionId: combo.id, code: combo.slug })
+            }
             className="group flex items-center gap-3 overflow-hidden rounded-xl border border-primary/20 bg-primary/5 p-2.5 transition-colors hover:bg-primary/10"
           >
             <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-muted">

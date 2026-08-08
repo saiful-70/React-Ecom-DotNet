@@ -19,8 +19,13 @@ import { useSearchParams } from "next/navigation";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslation } from "react-i18next";
+import { trackFilterChanged } from "@/lib/analytics/tracking";
 import { Brand } from "../shared/models/brand";
 import { Category, ChildCategory } from "../shared/models/category";
+
+// Reported as the FilterChanged `value` when a filter ends up with nothing
+// selected — an empty string would be indistinguishable from a missing value.
+const NO_SELECTION = "(none)";
 
 interface ProductFiltersProps {
 	categories: Category[];
@@ -129,10 +134,36 @@ export function ProductFilters({
 		[searchParams, router]
 	);
 
+	// Report filter values as human-readable names rather than opaque ids —
+	// the analytics dashboard groups on `value`.
+	const categoryNamesById = useMemo(() => {
+		const map = new Map<string, string>();
+		structuredCategories.forEach(({ category }) =>
+			map.set(category.id.toString(), category.name)
+		);
+		return map;
+	}, [structuredCategories]);
+
+	const brandNamesById = useMemo(() => {
+		const map = new Map<string, string>();
+		brands.forEach((brand) => map.set(brand.id.toString(), brand.name));
+		return map;
+	}, [brands]);
+
+	const describeSelection = (ids: string[], names: Map<string, string>) =>
+		ids.length > 0
+			? ids.map((id) => names.get(id) ?? id).join(", ")
+			: NO_SELECTION;
+
 	const handleCategoryChange = (categoryId: string, checked: boolean) => {
 		const updated = checked
 			? [...selectedCategories, categoryId]
 			: selectedCategories.filter((id) => id !== categoryId);
+
+		void trackFilterChanged(
+			"Category",
+			describeSelection(updated, categoryNamesById)
+		);
 
 		const categoryParam = updated.length > 0 ? updated.join(",") : null;
 		updateURL({ category_id: categoryParam, page: "1" });
@@ -142,6 +173,8 @@ export function ProductFilters({
 		const updated = checked
 			? [...selectedBrands, brandId]
 			: selectedBrands.filter((id) => id !== brandId);
+
+		void trackFilterChanged("Brand", describeSelection(updated, brandNamesById));
 
 		const brandParam = updated.length > 0 ? updated.join(",") : null;
 		updateURL({ brand_id: brandParam, page: "1" });
@@ -162,6 +195,10 @@ export function ProductFilters({
 			const currentPriceRange = searchParams.get("price_range");
 
 			if (currentPriceRange !== priceParam) {
+				// Fires after the 800ms settle, so dragging the slider emits one
+				// event for the final range rather than one per pixel.
+				void trackFilterChanged("Price", priceParam);
+
 				const params = new URLSearchParams(searchParams.toString());
 				params.set("price_range", priceParam);
 				params.set("page", "1");
@@ -181,6 +218,7 @@ export function ProductFilters({
 	}, [priceRange, isPriceRangeModified, searchParams, router]);
 
 	const handleFeatureFilterChange = (type: string) => {
+		void trackFilterChanged("SpecialOffer", type || NO_SELECTION);
 		updateURL({
 			is_featured: type === "featured" ? "1" : null,
 			today_deal: type === "today_deal" ? "1" : null,
@@ -190,6 +228,7 @@ export function ProductFilters({
 	};
 
 	const handleClearFilters = () => {
+		void trackFilterChanged("All", "(cleared)");
 		scrollRef.current = window.scrollY;
 		isNavigatingRef.current = true;
 		router.push("/products", { scroll: false });

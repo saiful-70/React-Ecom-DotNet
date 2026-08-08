@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { VariantLink as Link } from "@/components/shared/ui/variant-link";
+import { BannerLink } from "@/components/analytics/TrackedLinks";
 import { NavigationSchema } from "@/components/layout/NavigationSchema";
 import { getAllCategories } from "@/components/shared/actions/categories";
 import { getFeaturedProducts } from "@/(app-routes)/products/action";
@@ -48,8 +48,10 @@ export async function BazarHome({
 				<section className="flex gap-6">
 					<DepartmentSidebar categories={categories} />
 					{heroBanner && (
-						<Link
+						<BannerLink
 							href={heroBanner.cta_url || "/products"}
+							bannerId={heroBanner.id}
+							bannerName={heroBanner.title}
 							className="relative block min-h-[240px] flex-1 overflow-hidden rounded-md md:min-h-[360px] lg:min-h-[420px]"
 						>
 							<Image
@@ -60,7 +62,7 @@ export async function BazarHome({
 								className="object-cover"
 								sizes="(max-width: 1024px) 100vw, 75vw"
 							/>
-						</Link>
+						</BannerLink>
 					)}
 				</section>
 
@@ -77,9 +79,11 @@ export async function BazarHome({
 				{promoBanners.length > 0 && (
 					<section className="grid gap-6 md:grid-cols-2">
 						{promoBanners.slice(0, 2).map((banner) => (
-							<Link
+							<BannerLink
 								key={banner.id}
 								href={banner.cta_url || "/products"}
+								bannerId={banner.id}
+								bannerName={banner.title}
 								className="relative block h-52 overflow-hidden rounded-md md:h-72"
 							>
 								<Image
@@ -89,7 +93,7 @@ export async function BazarHome({
 									className="object-cover"
 									sizes="(max-width: 768px) 100vw, 50vw"
 								/>
-							</Link>
+							</BannerLink>
 						))}
 					</section>
 				)}

@@ -15,6 +15,7 @@ import { useCart } from "@/contexts/CartContext";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { businessSettingsAtom } from "@/store/ui-atoms";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
+import { trackMenuClick } from "@/lib/analytics/tracking";
 
 /**
  * Fixed bottom navigation (mobile only): CATEGORY · CALL · HOME (raised) ·
@@ -42,13 +43,28 @@ export function BazarMobileNav() {
 			aria-label={t("bazar.mobileNav")}
 		>
 			<div className="grid h-16 grid-cols-5 items-center">
-				<Link href={ABSOLUTE_ROUTES.PRODUCTS} className={itemClass}>
+				<Link
+					href={ABSOLUTE_ROUTES.PRODUCTS}
+					onClick={() =>
+						trackMenuClick({
+							menuId: "mobile-category",
+							menuName: "Category",
+						})
+					}
+					className={itemClass}
+				>
 					<LayoutGrid className="h-5 w-5" />
 					{t("bazar.category")}
 				</Link>
 				{settings?.contact_phone ? (
 					<a
 						href={`tel:${settings.contact_phone}`}
+						onClick={() =>
+							trackMenuClick({
+								menuId: "mobile-call",
+								menuName: "Call",
+							})
+						}
 						className={itemClass}
 					>
 						<Phone className="h-5 w-5" />
@@ -59,6 +75,9 @@ export function BazarMobileNav() {
 				)}
 				<Link
 					href="/"
+					onClick={() =>
+						trackMenuClick({ menuId: "mobile-home", menuName: "Home" })
+					}
 					className="flex flex-col items-center justify-end gap-0.5 text-[11px] font-medium uppercase"
 				>
 					<span className="-mt-8 flex h-14 w-14 items-center justify-center rounded-full border-4 border-background bg-primary text-primary-foreground shadow-lg">
@@ -66,7 +85,13 @@ export function BazarMobileNav() {
 					</span>
 					{t("bazar.home")}
 				</Link>
-				<Link href={ABSOLUTE_ROUTES.CART} className={itemClass}>
+				<Link
+					href={ABSOLUTE_ROUTES.CART}
+					onClick={() =>
+						trackMenuClick({ menuId: "mobile-cart", menuName: "Cart" })
+					}
+					className={itemClass}
+				>
 					<span className="relative">
 						<ShoppingCart className="h-5 w-5" />
 						{isHydrated && itemCount > 0 && (
@@ -82,6 +107,12 @@ export function BazarMobileNav() {
 						profile
 							? ABSOLUTE_ROUTES.PROFILE
 							: ABSOLUTE_ROUTES.LOGIN
+					}
+					onClick={() =>
+						trackMenuClick({
+							menuId: profile ? "mobile-profile" : "mobile-login",
+							menuName: profile ? "Profile" : "Login",
+						})
 					}
 					className={itemClass}
 				>

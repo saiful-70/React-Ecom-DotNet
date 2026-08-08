@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import type { Category } from "@/components/shared/models/category";
+import { trackMenuClick } from "@/lib/analytics/tracking";
 
 /** Desktop department sidebar next to the hero banner. */
 export function DepartmentSidebar({
@@ -32,6 +33,12 @@ export function DepartmentSidebar({
 							href={ABSOLUTE_ROUTES.PRODUCTS_BY_CATEGORY(
 								category.id
 							)}
+							onClick={() =>
+								trackMenuClick({
+									menuId: `category-${category.id}`,
+									menuName: category.name,
+								})
+							}
 							className="block px-4 py-3 text-sm transition-colors hover:bg-muted hover:text-primary"
 						>
 							{category.name}

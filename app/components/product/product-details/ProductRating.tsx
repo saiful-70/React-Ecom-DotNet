@@ -14,6 +14,10 @@ export function ProductRating({
 }: ProductRatingProps) {
 	const { t } = useTranslation();
 
+	// An unreviewed product showed "0.0 (0 reviews)" with five empty stars, which
+	// reads as a bad score rather than as no data. Render nothing instead.
+	if (!totalReviews || totalReviews < 1) return null;
+
 	return (
 		<div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3 lg:mb-4">
 			<div className="flex items-center">

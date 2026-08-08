@@ -5,7 +5,7 @@ import { getCurrencySymbol } from "@/lib/utils/business-settings";
 import { useAtomValue } from "jotai";
 
 type Props = {
-	amount: number | string;
+	amount: number | string | null | undefined;
 };
 
 export default function Price({ amount }: Props) {
@@ -14,15 +14,22 @@ export default function Price({ amount }: Props) {
 	// Map the currency code (e.g. "BDT", "USD") to its symbol; defaults to ৳.
 	const symbol = getCurrencySymbol(businessSettings?.currency || "BDT");
 
-	amount =
-		typeof amount === "number"
-			? amount.toFixed(parseInt(businessSettings?.decimal_digits || "2"))
-			: amount;
+	// A missing/NaN amount used to render literally as "undefined৳" to the
+	// shopper whenever an upstream field was absent. Treat any non-finite value
+	// as 0 so a data gap degrades to a price rather than to broken text.
+	const numeric = typeof amount === "string" ? Number(amount) : amount;
+	const formatted = Number.isFinite(numeric)
+		? (numeric as number).toFixed(
+				parseInt(businessSettings?.decimal_digits || "2")
+			)
+		: typeof amount === "string" && amount.trim()
+			? amount
+			: (0).toFixed(parseInt(businessSettings?.decimal_digits || "2"));
 	return (
 		<span>
 			{currencyPosition === "left"
-				? `${symbol}${amount}`
-				: `${amount}${symbol}`}
+				? `${symbol}${formatted}`
+				: `${formatted}${symbol}`}
 		</span>
 	);
 }

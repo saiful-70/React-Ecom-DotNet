@@ -288,9 +288,35 @@ export async function getProductBundle(id: number): Promise<Bundle | null> {
     return null;
   }
 
-  if (!response.data || !response.data.is_active) {
+  const bundle = response.data;
+  if (!bundle || !bundle.is_active) {
     return null;
   }
 
-  return response.data;
+  // The endpoint is queried by product_id, but a misconfigured bundle can still
+  // come back anchored to a different product (or to none at all). Showing an
+  // unrelated combo on a PDP is worse than showing no offer, so drop it.
+  if (bundle.product_id != null && bundle.product_id !== id) {
+    console.warn("[getProductBundle] bundle is anchored to another product", {
+      requested_product_id: id,
+      bundle_id: bundle.id,
+      bundle_product_id: bundle.product_id,
+    });
+    return null;
+  }
+
+  // A tier priced at 0 is unfinished/test data, not a real offer — it would
+  // render a "0.00tk" buy button. Keep only tiers that can actually be sold.
+  const sellableTiers = (bundle.tiers ?? []).filter(
+    (tier) => Number.isFinite(tier.price) && tier.price > 0
+  );
+  if (sellableTiers.length === 0) {
+    console.warn("[getProductBundle] bundle has no sellable tiers", {
+      product_id: id,
+      bundle_id: bundle.id,
+    });
+    return null;
+  }
+
+  return { ...bundle, tiers: sellableTiers };
 }

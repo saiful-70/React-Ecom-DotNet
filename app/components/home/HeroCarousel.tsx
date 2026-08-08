@@ -5,6 +5,7 @@ import Image from "next/image";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { trackBannerClick } from "@/lib/analytics/tracking";
 
 import {
 	Carousel,
@@ -99,7 +100,15 @@ export const HeroCarousel = ({ banners }: HeroCarouselProps) => {
 												size="lg"
 												className="h-11 px-6 text-sm shadow-warm-md hover:shadow-warm-lg sm:h-12 sm:px-8 sm:text-base"
 											>
-												<Link href={slide.cta_url}>
+												<Link
+													href={slide.cta_url}
+													onClick={() =>
+														trackBannerClick({
+															bannerId: slide.id,
+															bannerName: title,
+														})
+													}
+												>
 													{ctaLabel}
 													<ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
 												</Link>

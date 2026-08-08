@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Gift, Sparkles } from "lucide-react";
 import { Button } from "@/components/shared/ui/button";
 import Price from "@/components/shared/Price";
+import { trackPromotionClick } from "@/lib/analytics/tracking";
 import type { CampaignConfig } from "../_data/types";
 
 interface Props {
@@ -21,6 +22,13 @@ export function OfferBlock({ campaign }: Props) {
 	);
 
 	const scrollToOrder = () => {
+		// The offer CTA is the campaign's promotion: the backend never sees this
+		// click because it only scrolls to the order form on the same page.
+		void trackPromotionClick({
+			promotionId: campaign.slug,
+			code: product.name,
+		});
+
 		document
 			.getElementById("campaign-order")
 			?.scrollIntoView({ behavior: "smooth", block: "start" });

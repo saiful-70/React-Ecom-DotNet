@@ -20,10 +20,19 @@ import type { Category } from "@/components/shared/models/category";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import Image from "next/image";
 import { generateCategorySearchParams } from "@/lib/utils/routes.utils";
+import { trackMenuClick } from "@/lib/analytics/tracking";
 
 interface NavigationClientProps {
 	categories: Category[];
 }
+
+// Stable, language-independent names for the non-category nav items, reported
+// as MenuClick `menuName`. Keyed by the homepage section id.
+const SPECIAL_MENU_NAMES: Record<string, string> = {
+	"featured-products": "Featured",
+	"today-deals": "Today's Deals",
+	"top-selling": "Top Selling",
+};
 
 export const NavigationClient = ({ categories }: NavigationClientProps) => {
 	const { t } = useTranslation();
@@ -40,6 +49,13 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 		productsUrl: string
 	) => {
 		e.preventDefault();
+
+		// `sectionId` doubles as a stable menu id — it doesn't shift with the
+		// display language, unlike the translated label.
+		void trackMenuClick({
+			menuId: sectionId,
+			menuName: SPECIAL_MENU_NAMES[sectionId] ?? sectionId,
+		});
 
 		if (isHomePage) {
 			const element = document.getElementById(sectionId);
@@ -148,6 +164,12 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 										)
 									)}
 									passHref
+									onClick={() =>
+										trackMenuClick({
+											menuId: `category-${category.id}`,
+											menuName: category.name,
+										})
+									}
 								>
 									<NavigationMenuTrigger className="whitespace-nowrap hover:bg-primary/10 hover:text-primary transition-colors">
 										{category.name}
@@ -181,6 +203,12 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 											category.id
 										)
 									)}
+									onClick={() =>
+										trackMenuClick({
+											menuId: `category-${category.id}`,
+											menuName: category.name,
+										})
+									}
 								>
 									{category.name}
 								</Link>
@@ -319,6 +347,9 @@ function ListItem({
 		<NavigationMenuLink asChild>
 			<Link
 				href={href}
+				onClick={() =>
+					trackMenuClick({ menuId: `category:${title}`, menuName: title })
+				}
 				className={`block select-none rounded-md p-2 leading-none no-underline outline-none transition-colors ${hoverClass} focus:bg-accent focus:text-accent-foreground`}
 			>
 				<div className={`${textSizeClass} leading-none flex items-center gap-2`}>

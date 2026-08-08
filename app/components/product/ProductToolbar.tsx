@@ -16,6 +16,7 @@ import {
 import { Search, Grid2x2 as Grid, List } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
+import { trackSortChanged } from "@/lib/analytics/tracking";
 
 interface ProductToolbarProps {
 	totalProducts: number;
@@ -86,6 +87,7 @@ export function ProductToolbar({
 	};
 
 	const handleSortChange = (value: string) => {
+		void trackSortChanged(value);
 		updateURL({ sort: value, page: "1" });
 	};
 

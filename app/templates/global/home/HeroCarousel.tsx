@@ -5,6 +5,7 @@ import Image from "next/image";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import type { Banner } from "@/components/home/_data/types";
 import { cn } from "@/lib/utils/utils";
+import { trackBannerClick } from "@/lib/analytics/tracking";
 
 const ROTATE_MS = 5000;
 
@@ -49,6 +50,12 @@ export function HeroCarousel({ banners }: { banners: Banner[] }) {
 				<Link
 					key={banner.id}
 					href={banner.cta_url || "/products"}
+					onClick={() =>
+						trackBannerClick({
+							bannerId: banner.id,
+							bannerName: banner.title,
+						})
+					}
 					aria-hidden={i !== index}
 					tabIndex={i === index ? 0 : -1}
 					className={cn(

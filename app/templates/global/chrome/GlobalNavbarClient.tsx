@@ -7,6 +7,7 @@ import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import type { Category } from "@/components/shared/models/category";
 import { cn } from "@/lib/utils/utils";
+import { trackMenuClick } from "@/lib/analytics/tracking";
 
 /**
  * Global chrome nav: a "Categories" mega-menu (top-level list with a child
@@ -90,7 +91,13 @@ export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 											)}
 											onMouseEnter={() => setActiveId(category.id)}
 											onFocus={() => setActiveId(category.id)}
-											onClick={() => setOpen(false)}
+											onClick={() => {
+												void trackMenuClick({
+													menuId: `category-${category.id}`,
+													menuName: category.name,
+												});
+												setOpen(false);
+											}}
 											className={cn(
 												"flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
 												activeId === category.id &&
@@ -117,7 +124,13 @@ export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 												href={ABSOLUTE_ROUTES.PRODUCTS_BY_CATEGORY(
 													child.id
 												)}
-												onClick={() => setOpen(false)}
+												onClick={() => {
+													void trackMenuClick({
+														menuId: `category-${child.id}`,
+														menuName: child.name,
+													});
+													setOpen(false);
+												}}
 												className="rounded px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
 											>
 												{child.name}
@@ -143,6 +156,9 @@ export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 						<Link
 							key={link.label}
 							href={link.href}
+							onClick={() =>
+								trackMenuClick({ menuId: link.href, menuName: link.label })
+							}
 							className="flex items-center whitespace-nowrap px-3 text-sm font-medium text-primary-foreground/90 transition-colors hover:text-primary-foreground md:px-4"
 						>
 							{link.label}

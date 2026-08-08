@@ -19,6 +19,7 @@ import {
 	trackUnifiedAddToCart,
 	trackUnifiedViewProduct,
 } from "@/lib/analytics";
+import { trackShare } from "@/lib/analytics/tracking";
 import {
 	ProductImageGallery,
 	QuantitySelector,
@@ -181,8 +182,12 @@ export function GlobalProductDetails({
 		try {
 			if (navigator.share) {
 				await navigator.share({ title: product.name, url });
+				// Only after the sheet resolves — a dismissal throws and must
+				// not count as a share.
+				void trackShare("web-share", url);
 			} else {
 				await navigator.clipboard.writeText(url);
+				void trackShare("clipboard", url);
 				toast.success(t("global.linkCopied"));
 			}
 		} catch {

@@ -3,7 +3,7 @@ import { GlobalNavbarClient } from "./GlobalNavbarClient";
 
 /**
  * Global chrome navigation bar (Server Component). Fetches categories via the
- * shared 1h-cached action and hands the top-level tree to the client mega-menu.
+ * shared short-lived cached action and hands the top-level tree to the client mega-menu.
  */
 export async function GlobalNavbar() {
 	const response = await getAllCategories();

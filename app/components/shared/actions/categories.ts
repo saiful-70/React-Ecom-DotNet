@@ -21,7 +21,7 @@ export async function getAllCategories(
   }
 
   const response = await client
-    .withCache(["categories"], CACHE_TIMES.ONE_HOUR)
+    .withCache(["categories"], CACHE_TIMES.VERY_SHORT_TIME)
     .execute<RawCategoriesApiResponse>();
 
   // Normalize response - categories endpoint returns data as array directly

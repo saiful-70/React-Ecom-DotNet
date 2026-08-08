@@ -35,7 +35,7 @@ function isWithinSchedule(banner: Banner, now: number): boolean {
 export async function getBanners(): Promise<Banner[]> {
 	const response = await new ApiClient(API_ROUTES.HOME.BANNERS)
 		.withMethod("GET")
-		.withCache(["banners"], CACHE_TIMES.ONE_HOUR)
+		.withCache(["banners"], CACHE_TIMES.VERY_SHORT_TIME)
 		.execute<BannersApiResponse>();
 
 	if (!response.success || !Array.isArray(response.data)) return [];
@@ -53,7 +53,7 @@ export async function getBanners(): Promise<Banner[]> {
 export async function getFeaturedCategories(): Promise<FeaturedCategory[]> {
 	const response = await new ApiClient(API_ROUTES.HOME.FEATURED_CATEGORIES)
 		.withMethod("GET")
-		.withCache(["featured-categories"], CACHE_TIMES.ONE_HOUR)
+		.withCache(["featured-categories"], CACHE_TIMES.VERY_SHORT_TIME)
 		.execute<FeaturedCategoriesApiResponse>();
 
 	if (!response.success || !Array.isArray(response.data)) return [];

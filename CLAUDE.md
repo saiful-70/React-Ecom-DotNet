@@ -112,7 +112,7 @@ VariantProvider → JotaiProvider → ThemeProvider → I18nProvider
 
 ### SEO-critical data
 
-Categories must be server-rendered (used in nav). They are cached for 1h via `ApiClient.withCache(["categories"], CACHE_TIMES.ONE_HOUR)` in `app/components/shared/actions/categories.ts` (Next.js `fetch` cache, not `unstable_cache`) — there is no separate revalidate helper; the tag expires naturally. Don't move categories or product listings to client-only state.
+Categories must be server-rendered (used in nav). They are cached via `ApiClient.withCache(["categories"], CACHE_TIMES.VERY_SHORT_TIME)` in `app/components/shared/actions/categories.ts` (Next.js `fetch` cache, not `unstable_cache`) — there is no separate revalidate helper; the tag expires naturally. Every cached read in the app currently uses `VERY_SHORT_TIME` (1s), so admin edits show up almost immediately at the cost of near-zero cache benefit. Don't move categories or product listings to client-only state.
 
 ### Reusable product UI
 

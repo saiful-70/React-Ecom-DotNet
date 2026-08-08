@@ -3,7 +3,22 @@
 import { useTranslation } from "react-i18next";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/components/shared/ui/sonner";
-import type { Bundle, BundleTier } from "@/lib/bundles/types";
+import type {
+  Bundle,
+  BundleCartComponent,
+  BundleTier,
+} from "@/lib/bundles/types";
+
+interface AddBundleTierOptions {
+  /**
+   * Per-unit composition from the shopper's variant choices — one row per unit
+   * (coalesced by variant). When omitted, the tier's declared composition is
+   * used, which is correct for tiers with no per-unit picker.
+   */
+  components?: BundleCartComponent[];
+  /** "Black / M" summary appended to the cart line name for shopper clarity. */
+  summary?: string;
+}
 
 /**
  * Adds a selected bundle tier to the cart as ONE line.
@@ -18,9 +33,16 @@ export function useBundleCart() {
   const { t } = useTranslation();
   const { items, addToCart, removeFromCart } = useCart();
 
-  const addBundleTier = (bundle: Bundle, tier: BundleTier) => {
+  const addBundleTier = (
+    bundle: Bundle,
+    tier: BundleTier,
+    options: AddBundleTierOptions = {}
+  ) => {
     // Only "required" rows are part of the enforced composition.
     const requiredItems = tier.items.filter((i) => i.role === "required");
+    const lineName = options.summary
+      ? `${bundle.title} — ${tier.name} (${options.summary})`
+      : `${bundle.title} — ${tier.name}`;
 
     // One combo per order: a different existing bundle line is replaced
     // rather than added alongside (the order payload carries a single
@@ -44,7 +66,7 @@ export function useBundleCart() {
     addToCart({
       id: bundle.id,
       variant_id: tier.id,
-      name: `${bundle.title} — ${tier.name}`,
+      name: lineName,
       price: tier.price,
       image:
         requiredItems.find((i) => i.thumbnail_image?.trim())
@@ -57,17 +79,18 @@ export function useBundleCart() {
       bundle_id: bundle.id,
       bundle_tier_id: tier.bundle_tier_id ?? tier.id,
       bundle_slug: bundle.slug,
-      bundle_components: requiredItems.map((item) => ({
-        product_id: item.product_id,
-        variant_id: item.variant_id ?? null,
-        qty: item.qty,
-      })),
+      bundle_components:
+        options.components?.length
+          ? options.components
+          : requiredItems.map((item) => ({
+              product_id: item.product_id,
+              variant_id: item.variant_id ?? null,
+              qty: item.qty,
+            })),
     });
 
     toast.success(t("bundle.addedToCart"), {
-      description: t("bundle.bundleAddedDescription", {
-        title: `${bundle.title} — ${tier.name}`,
-      }),
+      description: t("bundle.bundleAddedDescription", { title: lineName }),
     });
   };
 

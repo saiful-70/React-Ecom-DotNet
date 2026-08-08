@@ -121,8 +121,14 @@ export default async function RootLayout({
 	const maintenanceEnabled = isMaintenanceModeEnabled(businessSettings);
 
 	// Campaign landing pages render without the global chrome (header/nav/footer/etc.)
+	// `x-pathname` is the demo-prefix-stripped app path (see middleware), so these
+	// checks hold in both showcase and client-deploy mode.
 	const pathname = (await headers()).get("x-pathname") ?? "";
 	const isBareLayoutRoute = pathname.startsWith("/campaigns");
+	// Combo landing pages keep the header (so shoppers can get back to the store)
+	// but drop the footer, which otherwise buries the purchase panel under a wall
+	// of links on a page whose only job is to convert.
+	const hideFooter = pathname.startsWith("/combo");
 
 	// Resolve the UI language server-side from a cookie so SSR and client
 	// hydration render the SAME language (no post-mount switch → no mismatch).
@@ -207,7 +213,7 @@ export default async function RootLayout({
 					{children}
 					{!isBareLayoutRoute && (
 						<>
-							<Footer />
+							{!hideFooter && <Footer />}
 							{MobileNav && <MobileNav />}
 							{FloatingActions && <FloatingActions />}
 						</>

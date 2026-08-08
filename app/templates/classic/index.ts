@@ -8,7 +8,7 @@ import { ClassicProductListing } from "./ClassicProductListing";
 
 /**
  * The original storefront paradigm. Chrome slots are the existing wrapper
- * components (each fetches its own categories via the 1h-cached action, so
+ * components (each fetches its own categories via the short-lived cached action, so
  * there is no extra backend cost). Mobile nav lives inside Header, hence null.
  */
 export const classicTemplate: Template = {

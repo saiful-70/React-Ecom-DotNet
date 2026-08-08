@@ -41,8 +41,19 @@ export function ProductDeliveryInfo() {
 						: null,
 				]);
 				if (!active) return;
-				if (inside?.success) setInsideDhaka(inside.data.shipping_cost);
-				if (outside?.success) setOutsideDhaka(outside.data.shipping_cost);
+				// The API can answer `success: true` with `shipping_cost`
+				// missing; adopting that would blank out the rate, so only a
+				// real number replaces the seeded fallback.
+				const rate = (res: typeof inside): number | null => {
+					const value = res?.success ? res.data?.shipping_cost : null;
+					return typeof value === "number" && Number.isFinite(value)
+						? value
+						: null;
+				};
+				const insideRate = rate(inside);
+				const outsideRate = rate(outside);
+				if (insideRate !== null) setInsideDhaka(insideRate);
+				if (outsideRate !== null) setOutsideDhaka(outsideRate);
 			} catch {
 				// Keep the seeded fallback rates on failure.
 			}

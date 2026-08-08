@@ -1,4 +1,5 @@
 export enum CACHE_TIMES {
+  VERY_SHORT_TIME = 1, //1 second
   SHORT_TIME = 10, //10 seconds
   ONE_HOUR = 1 * 60 * 60,
   SIX_HOURS = 6 * 60 * 60,

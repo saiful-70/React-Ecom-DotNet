@@ -43,6 +43,9 @@ export function GlobalProductDetails({
 	product,
 	bundle,
 }: ProductDetailsLayoutProps) {
+	// An active bundle takes over the purchase controls: its unit rows own the
+	// size/colour choice, so the page-level variant selector is suppressed.
+	const hasBundle = !!bundle && bundle.tiers.length > 0;
 	const { t } = useTranslation();
 	const router = useRouter();
 	const { items, addToCart } = useCart();
@@ -261,7 +264,7 @@ export function GlobalProductDetails({
 						)}
 					</div>
 
-					{product.variants && product.variants.length > 0 && (
+					{!hasBundle && product.variants && product.variants.length > 0 && (
 						<ProductVariantSelector
 							product={product}
 							onVariantChange={(variant) => {
@@ -274,8 +277,11 @@ export function GlobalProductDetails({
 						/>
 					)}
 
-					{bundle && bundle.tiers.length > 0 ? (
-						<ProductBundleSelector bundle={bundle} />
+					{bundle && hasBundle ? (
+						<ProductBundleSelector
+							bundle={bundle}
+							product={product}
+						/>
 					) : (
 						<>
 							<div className="flex flex-wrap items-center gap-4">

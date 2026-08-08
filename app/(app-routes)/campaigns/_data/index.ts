@@ -83,7 +83,7 @@ export async function getCampaign(
 ): Promise<CampaignConfig | null> {
 	const response = await new ApiClient(API_ROUTES.CAMPAIGNS.DETAILS(slug))
 		.withMethod("GET")
-		.withCache(["campaigns", `campaign:${slug}`], CACHE_TIMES.ONE_HOUR)
+		.withCache(["campaigns", `campaign:${slug}`], CACHE_TIMES.VERY_SHORT_TIME)
 		.execute<CampaignApiResponse>();
 
 	if (!response.success || !response.data) return null;
@@ -101,7 +101,7 @@ export async function getCampaign(
 export async function listCampaignSlugs(): Promise<string[]> {
 	const response = await new ApiClient(API_ROUTES.CAMPAIGNS.LIST)
 		.withMethod("GET")
-		.withCache(["campaigns"], CACHE_TIMES.ONE_HOUR)
+		.withCache(["campaigns"], CACHE_TIMES.VERY_SHORT_TIME)
 		.execute<CampaignListApiResponse>();
 
 	if (!response.success || !Array.isArray(response.data)) return [];

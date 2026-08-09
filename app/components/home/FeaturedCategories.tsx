@@ -14,6 +14,7 @@ import {
 	type CarouselApi,
 } from "@/components/shared/ui/carousel";
 import type { FeaturedCategory } from "./_data/types";
+import { SECTION_HEADER_MB, SECTION_Y } from "@/lib/ui/rhythm";
 
 const AUTOPLAY_MS = 3500;
 
@@ -41,19 +42,25 @@ export const FeaturedCategories = ({
 	if (categories.length === 0) return null;
 
 	return (
-		<section className="py-6 sm:py-12 lg:py-16">
-			<div className="container mx-auto px-4 sm:px-6">
-				<div className="mb-4 text-center sm:mb-8 lg:mb-10">
-					<h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+		<section className={SECTION_Y}>
+			<div className="container mx-auto">
+				{/* Matches the shelf-label treatment in SectionHeader: title left,
+				    rule running out to the right. No "view all" — the categories
+				    carousel already exposes every category. */}
+				<div className={`flex items-end gap-3 sm:gap-4 ${SECTION_HEADER_MB}`}>
+					<h2 className="font-display text-lg font-semibold leading-tight tracking-tight sm:text-xl md:text-2xl">
 						{t("home.featuredCategories.title")}
 					</h2>
-					<div className="mx-auto mt-3 h-1 w-16 rounded-full bg-primary/40" />
+					<span
+						aria-hidden="true"
+						className="mb-1.5 hidden h-px flex-1 bg-gradient-to-r from-primary/40 to-primary/5 sm:block"
+					/>
 				</div>
 
 				<Carousel
 					setApi={setApi}
 					opts={{ align: "start", slidesToScroll: 2, loop: true }}
-					className="px-2 sm:px-10"
+					className="sm:px-10"
 					onMouseEnter={() => setPaused(true)}
 					onMouseLeave={() => setPaused(false)}
 					onFocusCapture={() => setPaused(true)}

@@ -14,7 +14,7 @@ interface Props {
 export function TrustStrip({ badges }: Props) {
 	return (
 		<section className="relative border-y border-border/60 bg-card/60 backdrop-blur">
-			<div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+			<div className="container mx-auto py-4 sm:py-6">
 				<div className="grid grid-cols-3 gap-2 sm:gap-6">
 					{badges.map((badge) => {
 						const Icon = ICONS[badge.icon] ?? ShieldCheck;

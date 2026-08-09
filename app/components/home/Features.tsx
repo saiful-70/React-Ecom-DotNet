@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import Price from "../shared/Price";
 import { useAtomValue } from "jotai";
 import { businessSettingsAtom } from "@/store/ui-atoms";
+import { SECTION_Y_FEATURE } from "@/lib/ui/rhythm";
 
 export const Features = () => {
 	const { t } = useTranslation();
@@ -34,8 +35,9 @@ export const Features = () => {
 		},
 	];
 	const businessSettings = useAtomValue(businessSettingsAtom);
+	// Trust strip closes the page, so it keeps the wider feature band.
 	return (
-		<section className="relative py-8 sm:py-14 lg:py-20 bg-muted/40 overflow-hidden">
+		<section className={`relative ${SECTION_Y_FEATURE} bg-muted/40 overflow-hidden`}>
 			<div
 				aria-hidden
 				className="pointer-events-none absolute inset-0 opacity-[0.05]"
@@ -45,14 +47,14 @@ export const Features = () => {
 					backgroundSize: "32px 32px",
 				}}
 			/>
-			<div className="relative container mx-auto px-4 sm:px-6">
-				<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 md:gap-6">
+			<div className="relative container mx-auto">
+				<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
 					{features.map((feature, index) => (
 						<Card
 							key={index}
 							className="group relative text-center border border-border/60 shadow-warm-sm bg-card/80 backdrop-blur hover:shadow-warm-md hover:-translate-y-1 hover:border-primary/30 transition-all duration-300"
 						>
-							<CardContent className="pt-5 sm:pt-8 pb-5 sm:pb-7 px-3 sm:px-6">
+							<CardContent className="px-3 pb-4 pt-4 sm:px-5 sm:pb-5 sm:pt-6">
 								<div className="relative mx-auto mb-3 sm:mb-5 w-12 h-12 sm:w-16 sm:h-16">
 									<div className="absolute inset-0 bg-saffron-gradient rounded-xl sm:rounded-2xl opacity-90 rotate-3 group-hover:rotate-6 transition-transform" />
 									<div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center bg-card/50">

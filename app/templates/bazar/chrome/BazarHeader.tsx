@@ -49,7 +49,7 @@ export function BazarHeader() {
 		<header className="bg-background">
 			{/* Utility top bar (desktop only) */}
 			<div className="hidden border-b bg-muted/40 text-xs md:block">
-				<div className="container mx-auto flex h-9 items-center justify-between px-4">
+				<div className="container mx-auto flex h-9 items-center justify-between">
 					<div className="flex items-center gap-5 text-muted-foreground">
 						{settings?.contact_email && (
 							<a
@@ -107,7 +107,7 @@ export function BazarHeader() {
 
 			{/* Main header */}
 			<div className="border-b shadow-sm">
-				<div className="container mx-auto flex h-16 items-center gap-4 px-4 md:h-20">
+				<div className="container mx-auto flex h-16 items-center gap-4 md:h-20">
 					<Link
 						href="/"
 						className="flex shrink-0 items-center rounded-md bg-secondary px-4 py-2"

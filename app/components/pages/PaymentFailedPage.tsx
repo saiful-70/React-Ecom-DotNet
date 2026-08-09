@@ -21,7 +21,7 @@ export default function PaymentFailed({ message, orderId, orderTrackingNo }: Pay
 	const orderTrackingNoString = Array.isArray(orderTrackingNo) ? orderTrackingNo[0] : orderTrackingNo;
 
 	return (
-		<div className="container mx-auto px-4 py-4 flex items-center justify-center ">
+		<div className="container mx-auto py-4 flex items-center justify-center ">
 			<div className="max-w-md w-full px-8 text-center space-y-3">
 				{/* Icon with Error Overlay */}
 				<div className="flex justify-center">

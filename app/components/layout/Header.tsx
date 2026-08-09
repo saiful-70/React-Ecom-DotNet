@@ -59,7 +59,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 			{/* Top utility bar — phone · tagline · customer help (home page only) */}
 			{isHome && (
 			<div className="hidden border-b border-secondary-foreground/10 bg-secondary text-secondary-foreground/90 sm:block">
-				<div className="container mx-auto px-4">
+				<div className="container mx-auto">
 					<div className="flex h-9 items-center justify-between text-xs">
 						{businessSettings?.contact_phone ? (
 							<a
@@ -89,7 +89,7 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 			)}
 
 			<header className="sticky top-0 z-50 border-b border-secondary-foreground/10 bg-secondary text-secondary-foreground">
-			<div className="container mx-auto px-3 md:px-4">
+			<div className="container mx-auto">
 				<div className="flex items-center justify-between h-16">
 					{/* Logo */}
 					<Link

@@ -186,7 +186,7 @@ export function LoginPage() {
 	};
 
 	return (
-		<main className="container mx-auto px-4 py-12">
+		<main className="container mx-auto py-12">
 			<div className="max-w-md mx-auto">
 				<Button
 					variant="ghost"

@@ -5,7 +5,7 @@ import {
 } from "@/(app-routes)/products/action";
 import { ProductsGrid } from "../product/ProductsGrid";
 import { SectionHeader } from "./SectionHeader";
-import { SectionFooter } from "./SectionFooter";
+import { SECTION_Y } from "@/lib/ui/rhythm";
 
 interface ProductSectionProps {
 	type: "featured" | "top-selling" | "today-deals";
@@ -50,17 +50,14 @@ export async function ProductSection({
 		}
 
 		return (
-			<section
-				id={id}
-				className={`py-6 md:py-12 px-3 md:px-6 lg:px-8 ${bgClass}`}
-			>
-				<div className="md:container mx-auto">
+			<section id={id} className={`${SECTION_Y} ${bgClass}`}>
+				<div className="container mx-auto">
 					<SectionHeader
 						titleKey={titleKey}
 						descriptionKey={descriptionKey}
+						viewAllHref={viewAllHref}
 					/>
 					<ProductsGrid products={response.data.products} />
-					<SectionFooter viewAllHref={viewAllHref} />
 				</div>
 			</section>
 		);

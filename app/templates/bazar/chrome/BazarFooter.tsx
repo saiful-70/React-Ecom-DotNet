@@ -49,7 +49,7 @@ export function BazarFooter() {
 
 	return (
 		<footer className="border-t bg-muted/40 pb-20 md:pb-0">
-			<div className="container mx-auto grid gap-10 px-4 py-10 md:grid-cols-3">
+			<div className="container mx-auto grid gap-10 py-10 md:grid-cols-3">
 				{/* Brand + contact */}
 				<div className="space-y-4">
 					<div className="inline-flex items-center rounded-md bg-secondary px-4 py-2">

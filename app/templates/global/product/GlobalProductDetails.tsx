@@ -200,7 +200,7 @@ export function GlobalProductDetails({
 		: undefined;
 
 	return (
-		<main className="container mx-auto px-4 py-6">
+		<main className="container mx-auto py-6">
 			<nav
 				className="mb-5 flex items-center gap-1.5 text-sm text-muted-foreground"
 				aria-label="Breadcrumb"

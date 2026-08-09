@@ -87,7 +87,7 @@ export const HeroCarousel = ({ banners }: HeroCarouselProps) => {
 									{/* Forest-green wash so the copy stays legible over any image */}
 									<div className="absolute inset-0 bg-gradient-to-r from-secondary/90 via-secondary/60 to-secondary/10" />
 
-									<div className="relative container mx-auto flex h-full items-center px-4 sm:px-6">
+									<div className="relative container mx-auto flex h-full items-center">
 										<div className="max-w-xl space-y-4 text-secondary-foreground sm:space-y-6">
 											<h2 className="font-display text-3xl font-semibold leading-[1.1] tracking-tight text-balance sm:text-4xl lg:text-5xl xl:text-6xl">
 												{title}

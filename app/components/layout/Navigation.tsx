@@ -26,7 +26,7 @@ export const Navigation = async () => {
 			className="hidden md:block bg-muted/30 border-b"
 			aria-label="Product categories"
 		>
-			<div className="container mx-auto px-4">
+			<div className="container mx-auto">
 				<Suspense fallback={<div className="h-12" />}>
 					<NavigationClient
 						categories={parentCategories}

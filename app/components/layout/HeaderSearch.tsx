@@ -139,7 +139,7 @@ export default function HeaderSearch({ onMobileSearch, placement = "desktop" }: 
 					/>
 					{/* Search Bar */}
 					<div className="fixed top-0 left-0 right-0 z-50 bg-background md:hidden border-b">
-						<div className="container mx-auto px-3 py-3 flex items-center gap-2">
+						<div className="container mx-auto py-3 flex items-center gap-2">
 							<div className="relative flex-1">
 								<SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
 								<Input

@@ -5,7 +5,7 @@ export function HeaderSkeleton() {
     <>
       {/* Header Skeleton */}
       <header className="border-b">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto">
           <div className="flex items-center justify-between h-16">
             <Skeleton className="h-8 w-32" />
             <div className="flex items-center gap-4">
@@ -18,7 +18,7 @@ export function HeaderSkeleton() {
 
       {/* Navigation Skeleton */}
       <nav className="border-b">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto">
           <div className="flex items-center gap-6 h-12">
             <Skeleton className="h-6 w-20" />
             <Skeleton className="h-6 w-20" />

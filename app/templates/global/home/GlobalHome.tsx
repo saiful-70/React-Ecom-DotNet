@@ -80,7 +80,7 @@ export async function GlobalHome({ banners, featuredCategories, features }: Home
 	return (
 		<div className="min-h-screen bg-muted/20">
 			<NavigationSchema />
-			<main className="container mx-auto space-y-10 px-4 py-6 md:space-y-12">
+			<main className="container mx-auto space-y-10 py-6 md:space-y-12">
 				{/* Hero: departments + banner carousel */}
 				<section className="flex gap-6">
 					<GlobalDepartmentSidebar categories={topCategories} />

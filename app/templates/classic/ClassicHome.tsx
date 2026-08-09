@@ -23,6 +23,10 @@ export async function ClassicHome({
 				<HeroCarousel banners={banners} />
 				<FeaturedCategories categories={featuredCategories} />
 				{combos.length > 0 && <ComboPromo combos={combos} />}
+				{/* Alternating bands. Previously only the first section had a
+				    background, so three consecutive shelves separated by ~96px of
+				    whitespace read as unrelated blocks. Each band now has a visible
+				    edge against its neighbour. */}
 				{features.topSelling && (
 					<ProductSection
 						id="top-selling"
@@ -52,6 +56,7 @@ export async function ClassicHome({
 						descriptionKey="products.todayDealsDescription"
 						viewAllHref="/products?today_deal=1"
 						perPage={12}
+						bgClass="bg-muted/30"
 					/>
 				)}
 				<Features />

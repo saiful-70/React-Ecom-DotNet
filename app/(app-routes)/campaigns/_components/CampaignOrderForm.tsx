@@ -86,7 +86,7 @@ export function CampaignOrderForm({ campaign }: Props) {
 
 	return (
 		<section id="campaign-order" className="py-12 sm:py-16 lg:py-20 scroll-mt-16">
-			<div className="container mx-auto px-4 sm:px-6 max-w-3xl">
+			<div className="container mx-auto max-w-3xl">
 				<div className="text-center mb-6 sm:mb-8">
 					<div className="inline-flex items-center gap-2 rounded-full border border-success/20 bg-success/10 text-success px-3 py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider mb-3">
 						<ShieldCheck className="h-3.5 w-3.5" />

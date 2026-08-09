@@ -100,7 +100,7 @@ export const Footer = ({ categories = [] }: Props) => {
 				aria-hidden
 				className="pointer-events-none absolute -top-px left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent"
 			/>
-			<div className="relative container mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-6">
+			<div className="relative container mx-auto pt-12 sm:pt-16 pb-6">
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-6 lg:gap-8">
 					{/* Company Info */}
 					<div className="space-y-4">

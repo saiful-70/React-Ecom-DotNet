@@ -43,7 +43,7 @@ export function GlobalHeader() {
 			<GlobalTopBar />
 
 			<div className="border-b shadow-sm">
-				<div className="container mx-auto flex h-16 items-center gap-3 px-4 md:h-20 md:gap-6">
+				<div className="container mx-auto flex h-16 items-center gap-3 md:h-20 md:gap-6">
 					<Link
 						href="/"
 						className="flex shrink-0 items-center"

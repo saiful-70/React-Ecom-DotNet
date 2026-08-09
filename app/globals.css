@@ -115,6 +115,37 @@
 }
 
 @layer utilities {
+  /* Responsive page gutter.
+   *
+   * This has to live here rather than in `theme.container.padding`: because
+   * `theme.container.screens` is pinned to `{ 2xl: 1400px }`, Tailwind emits
+   * container rules for that breakpoint only and silently drops padding keys
+   * for any other screen. A `{ md, lg }` padding object in the config compiles
+   * to nothing but the default.
+   *
+   * The utilities layer is emitted after components, so these win over
+   * Tailwind's own `.container` padding without needing !important.
+   *
+   * The gutter lives here and only here — call sites must not add `px-*` to a
+   * `container` element, or the padding doubles (which is what left a 390px
+   * phone with 294px of usable width). */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  @media (min-width: 768px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
   /* Warm, soft shadows tuned for cream backgrounds */
   .shadow-warm-sm {
     box-shadow: 0 1px 2px 0 hsl(var(--shadow-warm) / 0.06),

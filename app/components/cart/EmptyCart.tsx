@@ -9,7 +9,7 @@ export function EmptyCart() {
 	const { t } = useTranslation();
 
 	return (
-		<main className="container mx-auto px-4 py-16">
+		<main className="container mx-auto py-16">
 			<div className="text-center max-w-md mx-auto">
 				<ShoppingBag className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
 				<h1 className="text-2xl font-bold mb-2">

@@ -89,7 +89,7 @@ export function GlobalFooter() {
 		<footer className="pb-20 md:pb-0">
 			{/* Service-guarantee strip */}
 			<div className="border-y bg-muted/40">
-				<div className="container mx-auto grid grid-cols-2 gap-6 px-4 py-8 md:grid-cols-4">
+				<div className="container mx-auto grid grid-cols-2 gap-6 py-8 md:grid-cols-4">
 					{services.map(({ icon: Icon, label }) => (
 						<div
 							key={label}
@@ -105,7 +105,7 @@ export function GlobalFooter() {
 			</div>
 
 			{/* Help cards */}
-			<div className="container mx-auto grid grid-cols-2 gap-4 px-4 py-8 md:grid-cols-4">
+			<div className="container mx-auto grid grid-cols-2 gap-4 py-8 md:grid-cols-4">
 				{helpCards.map(({ icon: Icon, title, href }) => (
 					<Link
 						key={title}
@@ -120,7 +120,7 @@ export function GlobalFooter() {
 
 			{/* Main footer */}
 			<div className="bg-secondary text-secondary-foreground">
-				<div className="container mx-auto grid gap-10 px-4 py-12 md:grid-cols-4">
+				<div className="container mx-auto grid gap-10 py-12 md:grid-cols-4">
 					<div className="space-y-4 md:col-span-1">
 						{settings?.footer_logo || settings?.header_logo ? (
 							<Image

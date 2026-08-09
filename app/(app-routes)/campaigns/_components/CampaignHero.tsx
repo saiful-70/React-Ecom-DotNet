@@ -29,7 +29,7 @@ export function CampaignHero({ campaign }: Props) {
 			/>
 			<div className="pointer-events-none absolute top-0 right-0 w-72 sm:w-[26rem] h-72 sm:h-[26rem] bg-accent/20 rounded-full blur-3xl translate-x-1/4 -translate-y-1/4" />
 
-			<div className="relative container mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-20">
+			<div className="relative container mx-auto py-8 sm:py-12 lg:py-20">
 				<div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-14 items-center">
 					<div className="space-y-5 sm:space-y-6 order-2 lg:order-1 text-center lg:text-left">
 						<div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 sm:px-4 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium uppercase tracking-wider text-primary">

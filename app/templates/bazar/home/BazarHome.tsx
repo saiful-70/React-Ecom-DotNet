@@ -43,7 +43,7 @@ export async function BazarHome({
 	return (
 		<div className="min-h-screen bg-background">
 			<NavigationSchema />
-			<main className="container mx-auto space-y-10 px-4 py-6 md:space-y-14">
+			<main className="container mx-auto space-y-10 py-6 md:space-y-14">
 				{/* Departments + hero */}
 				<section className="flex gap-6">
 					<DepartmentSidebar categories={categories} />

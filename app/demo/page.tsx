@@ -54,7 +54,7 @@ export default function DemoGalleryPage() {
 	if (!SHOWCASE_MODE) notFound();
 
 	return (
-		<main className="container mx-auto px-4 py-12">
+		<main className="container mx-auto py-12">
 			<header className="mx-auto max-w-2xl text-center">
 				<Badge variant="secondary" className="mb-3">
 					Demo showcase

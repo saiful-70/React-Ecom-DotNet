@@ -100,7 +100,7 @@ export function CartPage() {
 	// Prevent hydration mismatch by only rendering after hydration
 	if (!isHydrated) {
 		return (
-			<main className="container mx-auto px-4 py-16">
+			<main className="container mx-auto py-16">
 				<div className="flex items-center justify-center min-h-screen">
 					<p className="text-muted-foreground">
 						{t("common.loading") || "Loading..."}
@@ -112,14 +112,14 @@ export function CartPage() {
 
 	if (items.length === 0) {
 		return (
-			<main className="container mx-auto px-4 py-16">
+			<main className="container mx-auto py-16">
 				<EmptyCart />
 			</main>
 		);
 	}
 
 	return (
-		<main className="container mx-auto px-4 py-8">
+		<main className="container mx-auto py-8">
 			<CartHeader itemCount={itemCount} onClearCart={handleClearCart} />
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">

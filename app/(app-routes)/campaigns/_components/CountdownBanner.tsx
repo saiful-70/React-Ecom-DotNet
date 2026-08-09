@@ -28,7 +28,7 @@ export function CountdownBanner({ minutes, message }: Props) {
 
 	return (
 		<div className="relative bg-terracotta-gradient text-primary-foreground">
-			<div className="container mx-auto px-3 sm:px-4 py-2 sm:py-2.5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
+			<div className="container mx-auto py-2 sm:py-2.5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
 				<div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
 					<Clock className="w-3.5 h-3.5 sm:w-5 sm:h-5 shrink-0 animate-pulse" />
 					<p className="text-[11px] sm:text-sm leading-tight">

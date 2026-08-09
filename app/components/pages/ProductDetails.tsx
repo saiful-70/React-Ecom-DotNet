@@ -323,7 +323,7 @@ export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 	};
 
 	return (
-		<main className="container mx-auto px-3 sm:px-4 py-3 sm:py-6 lg:py-8">
+		<main className="container mx-auto py-3 sm:py-6 lg:py-8">
 			{/* Breadcrumb */}
 			<ProductBreadcrumb productName={product.name} />
 

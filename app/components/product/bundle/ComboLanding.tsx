@@ -174,7 +174,7 @@ export function ComboLanding({ combo }: ComboLandingProps) {
     selectedTier.is_available === false || !unitsFor(selectedTier).isReady;
 
   return (
-    <main className="container mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-6 pb-12">
+    <main className="container mx-auto max-w-5xl py-4 sm:py-6 pb-12">
       {/* Eyebrow: offer label + backend badge */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary">

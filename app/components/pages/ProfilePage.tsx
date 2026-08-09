@@ -91,7 +91,7 @@ export function ProfilePage({ model, orderHistory }: Props) {
 	];
 
 	return (
-		<main className="container mx-auto px-4 py-8">
+		<main className="container mx-auto py-8">
 			<div className="max-w-4xl mx-auto">
 				<Card className="mb-8">
 					<CardContent className="pt-6">

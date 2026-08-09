@@ -41,7 +41,7 @@ export function BenefitsGrid({
 					backgroundSize: "32px 32px",
 				}}
 			/>
-			<div className="relative container mx-auto px-4 sm:px-6">
+			<div className="relative container mx-auto">
 				<div className="text-center mb-8 sm:mb-12 max-w-2xl mx-auto">
 					<h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-balance leading-tight">
 						{title}

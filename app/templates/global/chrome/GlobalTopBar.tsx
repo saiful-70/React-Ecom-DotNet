@@ -25,7 +25,7 @@ export function GlobalTopBar() {
 
 	return (
 		<div className="border-b bg-muted/40 text-xs">
-			<div className="container mx-auto flex h-9 items-center justify-between px-4">
+			<div className="container mx-auto flex h-9 items-center justify-between">
 				{settings?.contact_phone ? (
 					<a
 						href={`tel:${settings.contact_phone}`}

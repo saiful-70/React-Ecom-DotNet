@@ -536,7 +536,7 @@ export function CheckoutPage() {
 
 	if (items.length === 0) {
 		return (
-			<main className="container mx-auto px-4 py-16">
+			<main className="container mx-auto py-16">
 				<div className="text-center max-w-md mx-auto">
 					<h1 className="text-2xl font-bold mb-2">
 						{t("checkout.noItemsToCheckout")}
@@ -555,7 +555,7 @@ export function CheckoutPage() {
 	}
 
 	return (
-		<main className="container mx-auto px-4 py-8">
+		<main className="container mx-auto py-8">
 			<div className="flex items-center space-x-2 text-sm text-muted-foreground mb-6">
 				<Link href="/cart" className="hover:text-foreground">
 					{t("checkout.cart")}

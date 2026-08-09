@@ -206,7 +206,7 @@ export function BazarProductDetails({
 		: undefined;
 
 	return (
-		<main className="container mx-auto px-4 py-6">
+		<main className="container mx-auto py-6">
 			<nav
 				className="mb-6 rounded-md bg-muted/60 px-4 py-3 text-sm"
 				aria-label="Breadcrumb"

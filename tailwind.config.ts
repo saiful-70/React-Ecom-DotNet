@@ -12,7 +12,11 @@ const config: Config = {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      // The responsive gutter is defined in app/globals.css, NOT here: with
+      // `screens` pinned to 2xl below, Tailwind emits container rules for that
+      // breakpoint only and drops padding keys for any other screen, so a
+      // `{ DEFAULT, md, lg }` object here would compile to just the default.
+      // See the `.container` block in globals.css before changing either.
       screens: {
         "2xl": "1400px",
       },

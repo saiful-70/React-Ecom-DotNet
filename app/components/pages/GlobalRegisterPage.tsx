@@ -110,7 +110,7 @@ export function GlobalRegisterPage() {
 	};
 
 	return (
-		<main className="container mx-auto px-4 py-12">
+		<main className="container mx-auto py-12">
 			<div className="mx-auto max-w-md">
 				<Button
 					variant="ghost"

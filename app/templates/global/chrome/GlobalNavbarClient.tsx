@@ -56,7 +56,7 @@ export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 		<div className="bg-primary text-primary-foreground">
 			<div
 				ref={containerRef}
-				className="container relative mx-auto flex items-stretch px-4"
+				className="container relative mx-auto flex items-stretch"
 			>
 				{/* Categories mega-menu trigger */}
 				<div className="relative">

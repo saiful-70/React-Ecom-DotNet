@@ -15,7 +15,7 @@ export function TestimonialsGrid({
 }: Props) {
 	return (
 		<section className="py-12 sm:py-16 lg:py-20 bg-muted/40">
-			<div className="container mx-auto px-4 sm:px-6">
+			<div className="container mx-auto">
 				<div className="text-center mb-8 sm:mb-10 max-w-2xl mx-auto">
 					<div className="flex items-center justify-center gap-2 mb-3">
 						<div className="flex items-center">

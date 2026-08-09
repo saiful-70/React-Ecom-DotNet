@@ -36,7 +36,7 @@ export function OfferBlock({ campaign }: Props) {
 
 	return (
 		<section className="py-12 sm:py-16 lg:py-20">
-			<div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+			<div className="container mx-auto max-w-4xl">
 				<div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-primary/20 shadow-warm-lg bg-card">
 					<div className="absolute top-0 left-0 right-0 h-1.5 bg-saffron-gradient" />
 

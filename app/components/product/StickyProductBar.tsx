@@ -57,7 +57,7 @@ export function StickyProductBar({
         !visible && "pointer-events-none"
       )}
     >
-      <div className="container mx-auto flex items-center gap-2.5 px-3 py-2.5 sm:gap-3 sm:px-4">
+      <div className="container mx-auto flex items-center gap-2.5 py-2.5 sm:gap-3">
         {/* Product identity */}
         <div className="relative size-11 shrink-0 overflow-hidden rounded-lg border border-border bg-muted sm:size-12">
           <CartLineImage

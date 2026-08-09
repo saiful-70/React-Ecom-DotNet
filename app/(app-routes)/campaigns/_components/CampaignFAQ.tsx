@@ -13,7 +13,7 @@ interface Props {
 export function CampaignFAQ({ faqs }: Props) {
 	return (
 		<section className="py-12 sm:py-16 lg:py-20 bg-muted/40">
-			<div className="container mx-auto px-4 sm:px-6 max-w-3xl">
+			<div className="container mx-auto max-w-3xl">
 				<div className="text-center mb-8 sm:mb-10">
 					<h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-balance leading-tight">
 						সাধারণ জিজ্ঞাসা

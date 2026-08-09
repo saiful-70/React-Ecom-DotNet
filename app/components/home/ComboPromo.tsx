@@ -23,7 +23,7 @@ export function ComboPromo({ combos }: ComboPromoProps) {
   if (!combos.length) return null;
 
   return (
-    <section className="container mx-auto px-3 sm:px-4 py-3">
+    <section className="container mx-auto py-3">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {combos.map((combo) => (
           <Link

@@ -3,9 +3,12 @@
 import {
 	createPurchaseOrder,
 	getCheckoutData,
+	getCountries,
+	getShippingCost,
 } from "@/(app-routes)/checkout/action";
 import { validateBundle } from "@/(app-routes)/combo/action";
 import type {
+	Country,
 	FormData,
 	FormErrors,
 	CheckoutDataProduct,
@@ -20,8 +23,8 @@ import { Button } from "@/components/shared/ui/button";
 import { toast } from "@/components/shared/ui/sonner";
 import { useCart } from "@/contexts/CartContext";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
-import { businessSettingsAtom } from "@/store/ui-atoms";
 import { deliveryCityAtom } from "@/store/delivery-city.atom";
+import { useCities } from "@/hooks/use-cities";
 import { useAtomValue } from "jotai";
 import { ArrowLeft } from "lucide-react";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
@@ -45,8 +48,10 @@ import {
 	toLocalBDPhone,
 } from "@/(app-routes)/checkout/helpers/checkout-helpers";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
-import { getDeliveryCharge, getGlobalDeliveryCharge } from "@/lib/constants/delivery";
-import { getBusinessSettingAsNumber } from "@/lib/utils/business-settings";
+import {
+	BANGLADESH_COUNTRY_ID,
+	getGlobalDeliveryCharge,
+} from "@/lib/constants/delivery";
 import { useVariant } from "@/components/shared/providers/variant-provider";
 import { findCountry, DEFAULT_COUNTRY_CODE } from "@/lib/data/countries";
 import { calculateItemTax } from "@/lib/utils/tax-calculator";
@@ -104,8 +109,9 @@ export function CheckoutPage() {
 	);
 	const router = useRouter();
 	const miniProfile = useAtomValue(miniProfileAtom);
-	const businessSettings = useAtomValue(businessSettingsAtom);
 	const persistedDeliveryCity = useAtomValue(deliveryCityAtom);
+	// Backend city list — provides each city's delivery charge (`GET /cities`).
+	const cities = useCities();
 	// The global template uses the international checkout (country selector,
 	// international phone, flat shipping); other variants keep the BD flow.
 	const variant = useVariant();
@@ -139,6 +145,25 @@ export function CheckoutPage() {
 			cityId: persistedDeliveryCity.cityId,
 		}));
 	}, []);
+
+	// International checkout needs the backend's numeric country id on the
+	// order payload (`shipping_address.country_id`); load the country table
+	// once so the shopper's country name can be resolved at submit. The BD
+	// flow uses the fixed BANGLADESH_COUNTRY_ID instead.
+	const [countries, setCountries] = useState<Country[]>([]);
+	useEffect(() => {
+		if (!isGlobal) return;
+		getCountries().then((res) => {
+			if (res.success && Array.isArray(res.data)) setCountries(res.data);
+		});
+	}, [isGlobal]);
+
+	const resolveCountryId = (): number | undefined => {
+		if (!isGlobal) return BANGLADESH_COUNTRY_ID;
+		const name = formData.country?.trim().toLowerCase();
+		if (!name) return undefined;
+		return countries.find((c) => c.name?.trim().toLowerCase() === name)?.id;
+	};
 
 	const handleInputChange = (
 		field: keyof FormData,
@@ -251,7 +276,7 @@ export function CheckoutPage() {
 	// calculated amount; `subtotal + tax` always reconstructs the true
 	// price × qty, so summing both below can never double-charge an
 	// inclusive-tax line while still surfacing the real tax amount for
-	// display and for `total_vat_amount` at order submission.
+	// display.
 	//
 	// `gross` additionally tracks the customer-facing amount (price × qty) —
 	// for "exclude" lines this equals `subtotal`, but for "include" lines it's
@@ -343,29 +368,76 @@ export function CheckoutPage() {
 	});
 	const bundleGrantsFreeDelivery = bundleShippingReady && bundleHasFreeDeliveryPerk;
 
-	// BD checkout: the advertised free-shipping threshold (business setting
-	// `free_shipping_on_over`, default 1200 — same source the cart badge in
-	// OrderSummary reads) waives the city delivery charge once the subtotal
-	// reaches it; otherwise fall back to the existing per-city rate.
-	const freeShippingOver = businessSettings
-		? getBusinessSettingAsNumber(businessSettings, "free_shipping_on_over", 1200)
-		: 1200;
-
-	// The threshold must be compared against the customer-facing (gross,
-	// tax-inclusive) amount, not `calculatedSubtotal` — for "include" tax-type
-	// lines `calculatedSubtotal` is the reverse-calculated ex-tax base, which
-	// would fail the threshold for a cart whose displayed/shelf price already
-	// clears it (BD shelf prices are tax-inclusive). For "exclude" lines
-	// `normalPricing.gross === normalPricing.subtotal`, so this is a no-op
-	// there and `freeShippingBase === calculatedSubtotal`.
+	// The free-shipping threshold must be compared against the customer-facing
+	// (gross, tax-inclusive) amount, not `calculatedSubtotal` — for "include"
+	// tax-type lines `calculatedSubtotal` is the reverse-calculated ex-tax
+	// base, which would fail the threshold for a cart whose displayed/shelf
+	// price already clears it (BD shelf prices are tax-inclusive). For
+	// "exclude" lines `normalPricing.gross === normalPricing.subtotal`.
 	const freeShippingBase = normalPricing.gross + bundleSubtotal;
 
-	const bdShipping =
-		freeShippingBase >= freeShippingOver
-			? 0
-			: formData.city
-				? getDeliveryCharge(formData.city)
-				: 0;
+	// Documented shipping flow (FRONTEND_API_DOCUMENTATION.md §7): the chosen
+	// city row from `GET /cities` carries the delivery charge, and
+	// `GET /shipping-cost` confirms it and supplies the per-city
+	// `free_shipping_over` threshold. No client-side rate table.
+	const [cityShipping, setCityShipping] = useState<{
+		cityId: number;
+		cost: number;
+		freeOver: number;
+	} | null>(null);
+
+	useEffect(() => {
+		if (isGlobal || !formData.cityId) {
+			setCityShipping(null);
+			return;
+		}
+		let active = true;
+		const cityId = formData.cityId;
+		getShippingCost(BANGLADESH_COUNTRY_ID, cityId)
+			.then((res) => {
+				if (!active) return;
+				const cost = res.success ? res.data?.shipping_cost : null;
+				if (typeof cost === "number" && Number.isFinite(cost)) {
+					setCityShipping({
+						cityId,
+						cost,
+						freeOver: Number(res.data?.free_shipping_over) || 0,
+					});
+				} else {
+					setCityShipping(null);
+				}
+			})
+			.catch(() => {
+				if (active) setCityShipping(null);
+			});
+		return () => {
+			active = false;
+		};
+	}, [isGlobal, formData.cityId]);
+
+	// Only apply a confirmation that matches the currently selected city.
+	const confirmedShipping =
+		cityShipping && cityShipping.cityId === formData.cityId
+			? cityShipping
+			: null;
+	// While shipping-cost is in flight (or unavailable), the city row's own
+	// shipping_cost from `GET /cities` fills in.
+	const selectedCityRate = (() => {
+		const raw = cities.find((c) => c.id === formData.cityId)?.shipping_cost;
+		const n = typeof raw === "string" ? Number(raw) : raw;
+		return typeof n === "number" && Number.isFinite(n) ? n : null;
+	})();
+	const cityRate = confirmedShipping?.cost ?? selectedCityRate;
+
+	// Free shipping only when the backend says so: a free_shipping_over
+	// threshold (> 0) from shipping-cost that the gross subtotal clears.
+	const freeShippingApplies =
+		confirmedShipping != null &&
+		confirmedShipping.freeOver > 0 &&
+		freeShippingBase >= confirmedShipping.freeOver;
+
+	const bdShippingKnown = !!formData.city && cityRate != null;
+	const bdShipping = bdShippingKnown ? (freeShippingApplies ? 0 : cityRate) : 0;
 
 	// One delivery charge per order (PRODUCT DECISION): a mixed cart (bundle +
 	// normal items) normally falls back to the city/global rate, but if the
@@ -388,14 +460,11 @@ export function CheckoutPage() {
 	const calculatedTotal = calculatedSubtotal + calculatedTax + finalShipping;
 
 	// Shipping is only "known" once we have a real signal that determined it:
-	// a global (no-city) template, a chosen city, a bundle free-delivery perk,
-	// or the subtotal clearing the free-shipping threshold. Otherwise a
-	// shippingCost of 0 is just the not-yet-resolved default, not "free".
+	// a global (no-city) template, a chosen city with its API rate, or a
+	// bundle free-delivery perk. Otherwise a shippingCost of 0 is just the
+	// not-yet-resolved default, not "free".
 	const shippingResolved =
-		isGlobal ||
-		!!formData.city ||
-		bundleGrantsFreeDelivery ||
-		freeShippingBase >= freeShippingOver;
+		isGlobal || bdShippingKnown || bundleGrantsFreeDelivery;
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -450,15 +519,13 @@ export function CheckoutPage() {
 			const orderData = prepareOrderData({
 				formData,
 				cartItems: items,
-				cartTotals: {
-					subtotal: calculatedSubtotal,
-					tax: calculatedTax,
-					shipping: finalShipping,
-				},
+				shippingCost: finalShipping,
 				shippingMethod: "standard",
 				serverPrices: serverPrices.length > 0 ? serverPrices : undefined,
 				international: isGlobal,
 				bundleValidations: validations,
+				countryId: resolveCountryId(),
+				email: miniProfile?.email || undefined,
 			});
 
 			const response = await createPurchaseOrder(orderData);
@@ -475,11 +542,15 @@ export function CheckoutPage() {
 						"N/A"
 					} - ${t("checkout.orderPlacedDescription")}`,
 				});
-				router.push(
-					ABSOLUTE_ROUTES.PAYMENT_SUCCESS(
-						response.data?.order_tracking_number || ""
-					)
-				);
+				// The success page displays whatever reference it gets; prefer the
+				// tracking number, then the documented order_number / order_id.
+				const orderRef =
+					response.data?.order_tracking_number ||
+					response.data?.order_number ||
+					(response.data?.order_id != null
+						? String(response.data.order_id)
+						: "");
+				router.push(ABSOLUTE_ROUTES.PAYMENT_SUCCESS(orderRef));
 				// A scoped "Buy Now" order clears only its own line, leaving the
 				// rest of the cart intact; a full checkout clears everything.
 				if (onlyId) {

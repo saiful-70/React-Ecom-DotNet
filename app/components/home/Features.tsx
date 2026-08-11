@@ -65,7 +65,10 @@ export const Features = () => {
 									{t(feature.titleKey)}
 								</h3>
 								<div className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-									{feature.isFreeShipping ? (
+									{feature.isFreeShipping &&
+									Number(businessSettings?.free_shipping_on_over) > 0 ? (
+										// Only advertise a threshold the store actually
+										// configured — "free shipping over ৳0" is a lie.
 										<div className="flex gap-1 flex-wrap justify-center">
 											{t(
 												"features.freeShipping.firstTitle"

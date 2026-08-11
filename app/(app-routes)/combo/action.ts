@@ -5,6 +5,7 @@ import { ApiClient, type ApiResponse } from "@/lib/api-client";
 import { API_ROUTES } from "@/lib/api-route";
 import { getRequestLanguage } from "@/lib/utils/server-language";
 import { cookies } from "next/headers";
+import { normalizeBundle, sellableSummaries } from "@/lib/bundles/normalize";
 import type {
   Bundle,
   BundleSummary,
@@ -45,7 +46,24 @@ export async function getCombo(slug: string): Promise<ComboFetchResult> {
     return "error";
   }
 
-  return response.data ?? null;
+  const combo = response.data;
+  // Same guards as the PDP's getProductBundle: an inactive combo or one with
+  // no sellable tiers (price ≤ 0 — unfinished/test data) must not render a
+  // "0.00tk" landing page. The page treats empty tiers as notFound().
+  if (!combo || !combo.is_active) {
+    return null;
+  }
+
+  const normalized = normalizeBundle(combo);
+  if (normalized.tiers.length === 0) {
+    console.warn("[getCombo] combo has no sellable tiers", {
+      slug,
+      bundle_id: combo.id,
+    });
+    return null;
+  }
+
+  return normalized;
 }
 
 /** Active combos list (for the landing grid / home marketing banner). */
@@ -56,7 +74,9 @@ export async function getCombos(perPage: number = 12): Promise<BundleSummary[]> 
     .withParams({ page: 1, per_page: perPage, lang })
     .execute<ApiResponse<BundleSummary[]>>();
 
-  return response.success && Array.isArray(response.data) ? response.data : [];
+  return response.success && Array.isArray(response.data)
+    ? sellableSummaries(response.data)
+    : [];
 }
 
 /**

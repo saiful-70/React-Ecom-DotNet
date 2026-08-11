@@ -1,6 +1,7 @@
 import type {
   FormData,
   PurchaseOrderRequest,
+  ShippingAddress,
   ShippingMethod,
   CheckoutDataProduct,
   OrderItem,
@@ -24,19 +25,6 @@ interface CartItem {
 /** Validation results keyed by `bundle_tier_id`. */
 export type BundleValidationMap = Record<number, BundleValidationResult>;
 
-interface CartTotals {
-  subtotal: number;
-  tax: number | null;
-  shipping: number | null;
-}
-
-const BD_DEFAULTS = {
-  country: "Bangladesh",
-  email: "",
-  zip_code: "",
-  address_type: "home",
-} as const;
-
 // Normalize any BD phone input to the local "01XXXXXXXXX" format, dropping a
 // leading +880/880 country-code prefix that may come from a prefilled profile.
 export const toLocalBDPhone = (raw: string): string => {
@@ -51,42 +39,33 @@ export const toLocalBDPhone = (raw: string): string => {
 const formatBDPhone = (raw: string): string => toLocalBDPhone(raw);
 
 interface AddressOptions {
-  /** International checkout: keep the E.164 phone and use the form's country/zip. */
+  /** International checkout: keep the E.164 phone and use the form's zip. */
   international?: boolean;
+  /** Backend country id (`GET /countries`); required by `purchase-order`. */
+  countryId?: number;
+  /** Account email, forwarded so guest/authed orders stay contactable. */
+  email?: string;
 }
 
 export const prepareShippingAddress = (
   formData: FormData,
   opts: AddressOptions = {},
-) => ({
-  contact_person_name: formData.name.trim(),
-  phone: opts.international ? formData.phone.trim() : formatBDPhone(formData.phone),
-  email: BD_DEFAULTS.email,
-  address_type: BD_DEFAULTS.address_type,
-  country: opts.international
-    ? formData.country?.trim() || ""
-    : BD_DEFAULTS.country,
-  city: formData.city,
-  zip_code: opts.international ? formData.zip?.trim() || "" : BD_DEFAULTS.zip_code,
-  address: formData.address.trim(),
-  is_billing: false,
-});
+): ShippingAddress => {
+  const email = opts.email?.trim();
+  const postalCode = opts.international ? formData.zip?.trim() : "";
 
-export const prepareBillingAddress = (
-  formData: FormData,
-  opts: AddressOptions = {},
-) => ({
-  contact_person_name: formData.name.trim(),
-  phone: opts.international ? formData.phone.trim() : formatBDPhone(formData.phone),
-  email: BD_DEFAULTS.email,
-  address_type: BD_DEFAULTS.address_type,
-  country: opts.international
-    ? formData.country?.trim() || ""
-    : BD_DEFAULTS.country,
-  city: formData.city,
-  zip_code: opts.international ? formData.zip?.trim() || "" : BD_DEFAULTS.zip_code,
-  address: formData.address.trim(),
-});
+  return {
+    name: formData.name.trim(),
+    phone: opts.international
+      ? formData.phone.trim()
+      : formatBDPhone(formData.phone),
+    ...(email ? { email } : {}),
+    address: formData.address.trim(),
+    city: formData.city,
+    ...(postalCode ? { postal_code: postalCode } : {}),
+    ...(opts.countryId ? { country_id: opts.countryId } : {}),
+  };
+};
 
 export const prepareOrderItems = (
   cartItems: CartItem[],
@@ -106,7 +85,7 @@ export const prepareOrderItems = (
         // real order lines — skip it rather than falling through to the
         // normal-item branch below (which would fabricate a fake
         // `product_id: bundle.id` line). Combined with Task 24's non-empty
-        // `order_items` check, an order made up entirely of degenerate
+        // `items` check, an order made up entirely of degenerate
         // bundle lines is rejected instead of silently submitted empty.
         console.warn(
           `[checkout] Skipping degenerate bundle cart line: bundle_id=${item.bundle_id} bundle_tier_id=${item.bundle_tier_id} has no bundle_components.`,
@@ -124,7 +103,9 @@ export const prepareOrderItems = (
           product_id: comp.product_id,
           quantity: comp.qty * item.quantity,
           price: allocated ? allocated.allocated_unit_price : 0,
-          variant_id: comp.variant_id || 0,
+          // variant_id is optional on the API — omit it for variant-less rows
+          // instead of sending a fake 0 id.
+          ...(comp.variant_id ? { variant_id: comp.variant_id } : {}),
           bundle_id: item.bundle_id,
           bundle_tier_id: item.bundle_tier_id,
         });
@@ -140,47 +121,38 @@ export const prepareOrderItems = (
       product_id: item.id,
       quantity: item.quantity,
       price: serverPrice ? serverPrice.discount_price : item.price,
-      variant_id: item.variant_id || 0,
+      ...(item.variant_id ? { variant_id: item.variant_id } : {}),
     });
   }
 
   return orderItems;
 };
 
-export const calculateTotals = (cartTotals: CartTotals) => {
-  const vatAmount = cartTotals.tax || 0;
-  const shippingCost = cartTotals.shipping || 0;
-  const totalPrice = cartTotals.subtotal + vatAmount + shippingCost;
-
-  return {
-    vatAmount,
-    shippingCost,
-    totalPrice,
-  };
-};
-
 export const prepareOrderData = (params: {
   formData: FormData;
   cartItems: CartItem[];
-  cartTotals: CartTotals;
+  shippingCost: number;
   shippingMethod?: ShippingMethod;
-  shippingDuration?: number;
   serverPrices?: CheckoutDataProduct[];
   international?: boolean;
   bundleValidations?: BundleValidationMap;
+  /** Backend country id — `BANGLADESH_COUNTRY_ID` on the BD flow. */
+  countryId?: number;
+  email?: string;
+  notes?: string;
 }): PurchaseOrderRequest => {
   const {
     formData,
     cartItems,
-    cartTotals,
+    shippingCost,
     shippingMethod = "standard",
-    shippingDuration = 3,
     serverPrices,
     international = false,
     bundleValidations,
+    countryId,
+    email,
+    notes,
   } = params;
-
-  const totals = calculateTotals(cartTotals);
 
   // Single-bundle order path: attach the first bundle line's quote at the top
   // level (the backend re-validates against it and applies server pricing).
@@ -190,17 +162,16 @@ export const prepareOrderData = (params: {
     : undefined;
 
   return {
-    total_price: totals.totalPrice,
-    order_status: "pending",
-    payment_status: "unpaid",
-    payment_method: "cash_on_delivery",
+    items: prepareOrderItems(cartItems, serverPrices, bundleValidations),
+    shipping_address: prepareShippingAddress(formData, {
+      international,
+      countryId,
+      email,
+    }),
+    payment_method: "cod",
     shipping_method: shippingMethod,
-    shipping_cost: totals.shippingCost,
-    shipping_duration: shippingDuration,
-    total_vat_amount: totals.vatAmount,
-    shipping_address: prepareShippingAddress(formData, { international }),
-    billing_address: prepareBillingAddress(formData, { international }),
-    order_items: prepareOrderItems(cartItems, serverPrices, bundleValidations),
+    shipping_cost: shippingCost,
+    ...(notes?.trim() ? { notes: notes.trim() } : {}),
     ...(firstBundle && firstQuote
       ? {
           bundle_id: firstBundle.bundle_id,

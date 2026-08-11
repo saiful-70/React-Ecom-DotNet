@@ -37,6 +37,7 @@ const envHosts = [
 	hostnameFromEnv(process.env.API_BASE_URL),
 	hostnameFromEnv(process.env.API_BASE_URL_V1),
 	hostnameFromEnv(process.env.NEXT_PUBLIC_SITE_URL),
+	"pogiecom.pogiit.com",
 	"images.unsplash.com", // known static demo/placeholder image host
 	...extraHosts,
 ].filter(Boolean);

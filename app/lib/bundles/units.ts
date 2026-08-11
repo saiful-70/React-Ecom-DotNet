@@ -117,11 +117,33 @@ export function buildUnitSlots(tier: BundleTier): UnitSlot[] {
 /* ------------------------------------------------------------------ */
 
 /**
+ * Validate that an option/variant payload is actually usable for per-unit
+ * selection: every axis must offer at least one value, and at least one
+ * variant's `combination` must be index-aligned with the axes (same length) —
+ * otherwise no tuple can ever resolve to a `variant_id` and the dropdowns
+ * would render empty and unfixable. Misaligned variants are dropped rather
+ * than kept as dead entries.
+ */
+function usableAxes(
+  options: BundleVariantOption[],
+  variants: TierVariant[]
+): UnitAxes | null {
+  if (options.length === 0 || variants.length === 0) return null;
+  if (options.some((o) => !o.values?.length)) return null;
+  const aligned = variants.filter(
+    (v) => (v.combination?.length ?? 0) === options.length
+  );
+  if (aligned.length === 0) return null;
+  return { options, variants: aligned };
+}
+
+/**
  * Axes for a tier item, or `null` when the unit is not shopper-configurable.
  *
  * Returns null for `"fixed"` items, and also when the backend claims
- * `"customer"` but ships no usable options/variants — the UI then degrades to
- * the legacy flat card rather than rendering empty dropdowns.
+ * `"customer"` but ships no usable options/variants (empty, valueless axes,
+ * or combinations that can't align to the axes) — the UI then degrades to the
+ * legacy flat card rather than rendering empty dropdowns.
  */
 export function itemAxes(
   item: BundleTierItem,
@@ -129,13 +151,12 @@ export function itemAxes(
 ): UnitAxes | null {
   if (item.variant_selection !== "customer") return null;
 
-  const options = item.variant_options ?? [];
-  const variants = item.variants ?? [];
-  if (options.length > 0 && variants.length > 0) return { options, variants };
+  const wire = usableAxes(item.variant_options ?? [], item.variants ?? []);
+  if (wire) return wire;
 
-  // Backend hasn't shipped the option payload yet — use the PDP-derived bridge.
-  if (fallback && fallback.options.length > 0 && fallback.variants.length > 0) {
-    return fallback;
+  // Backend hasn't shipped a usable option payload — use the PDP-derived bridge.
+  if (fallback) {
+    return usableAxes(fallback.options, fallback.variants);
   }
   return null;
 }

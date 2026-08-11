@@ -12,6 +12,7 @@ import {
 } from "./model";
 import { getRequestLanguage } from "@/lib/utils/server-language";
 import { cookies } from "next/headers";
+import { normalizeBundle } from "@/lib/bundles/normalize";
 import type { Bundle } from "@/lib/bundles/types";
 
 // Fetch Featured Products
@@ -305,12 +306,11 @@ export async function getProductBundle(id: number): Promise<Bundle | null> {
     return null;
   }
 
-  // A tier priced at 0 is unfinished/test data, not a real offer — it would
-  // render a "0.00tk" buy button. Keep only tiers that can actually be sold.
-  const sellableTiers = (bundle.tiers ?? []).filter(
-    (tier) => Number.isFinite(tier.price) && tier.price > 0
-  );
-  if (sellableTiers.length === 0) {
+  // Shared sanitation with getCombo: coerce wire numerics and drop tiers
+  // priced at 0 (unfinished/test data) — rendering a "0.00tk" buy button is
+  // worse than showing no offer.
+  const normalized = normalizeBundle(bundle);
+  if (normalized.tiers.length === 0) {
     console.warn("[getProductBundle] bundle has no sellable tiers", {
       product_id: id,
       bundle_id: bundle.id,
@@ -318,5 +318,5 @@ export async function getProductBundle(id: number): Promise<Bundle | null> {
     return null;
   }
 
-  return { ...bundle, tiers: sellableTiers };
+  return normalized;
 }

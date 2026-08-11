@@ -78,7 +78,11 @@ export async function getCities(countryId: number): Promise<CitiesResponse> {
 }
 
 /**
- * Server action: Fetch shipping cost by country ID and city ID
+ * Server action: Fetch shipping cost by country ID and city ID.
+ *
+ * The live endpoint answers in camelCase (`shippingCost`, `freeShippingOver`,
+ * `estDeliveryDays`) while the docs show snake_case — normalize both here so
+ * callers always read the documented snake_case shape.
  */
 export async function getShippingCost(
   countryId: number,
@@ -89,7 +93,11 @@ export async function getShippingCost(
       API_ROUTES.CHECKOUT.SHIPPING_COST(countryId, cityId)
     )
       .withMethod("GET")
-      .execute<ShippingCostResponse>();
+      .execute<{
+        success: boolean;
+        message: string;
+        data?: Record<string, unknown>;
+      }>();
 
     if (!response.success) {
       return {
@@ -106,7 +114,29 @@ export async function getShippingCost(
       };
     }
 
-    return response;
+    const raw = response.data ?? {};
+    const pick = (snake: string, camel: string): unknown =>
+      raw[snake] ?? raw[camel];
+    const toNum = (value: unknown): number => {
+      const n = typeof value === "string" ? Number(value) : (value as number);
+      return typeof n === "number" && Number.isFinite(n) ? n : 0;
+    };
+
+    return {
+      success: true,
+      message: response.message,
+      data: {
+        country_id: toNum(pick("country_id", "countryId")) || countryId,
+        city_id: toNum(pick("city_id", "cityId")) || cityId,
+        shipping_method:
+          (pick("shipping_method", "shippingMethod") as string) ?? "",
+        shipping_cost: toNum(pick("shipping_cost", "shippingCost")),
+        est_delivery_days: toNum(pick("est_delivery_days", "estDeliveryDays")),
+        free_shipping_over: toNum(
+          pick("free_shipping_over", "freeShippingOver")
+        ),
+      },
+    };
   } catch (error) {
     console.error("Error fetching shipping cost:", error);
     return {
@@ -137,9 +167,12 @@ export async function createPurchaseOrder(
   try {
     const parsed = PurchaseOrderSchema.safeParse(orderData);
     if (!parsed.success) {
+      const first = parsed.error.issues[0];
       return {
         success: false,
-        error: "Invalid input",
+        error: first
+          ? `Invalid input: ${first.path.join(".")} — ${first.message}`
+          : "Invalid input",
       };
     }
 
@@ -147,11 +180,33 @@ export async function createPurchaseOrder(
       .withMethod("POST")
       .withBody(parsed.data)
       .withCookieHeaders(await cookies())
-      .execute<PurchaseOrderResponse>();
+      .execute<PurchaseOrderResponse & { errors?: Record<string, unknown> }>();
     if (!response.success) {
+      // Full request/response dump on the Next server console so a generic
+      // backend message ("Something went wrong") can be diagnosed. Shows in
+      // the terminal running `npm run dev` / the server logs.
+      console.error("[purchase-order] backend rejected the order", {
+        request: parsed.data,
+        message: response.message,
+        errors: response.errors,
+      });
+
+      const errorEntries =
+        response.errors && typeof response.errors === "object"
+          ? Object.entries(response.errors)
+          : [];
+      const detail =
+        errorEntries.length > 0
+          ? ` (${errorEntries
+              .map(([field, msg]) =>
+                `${field}: ${Array.isArray(msg) ? msg.join(", ") : String(msg)}`
+              )
+              .join("; ")})`
+          : "";
+
       return {
         success: false,
-        error: response.message || "Failed to create order",
+        error: `${response.message || "Failed to create order"}${detail}`,
       };
     }
 
@@ -175,11 +230,14 @@ export async function createPurchaseOrder(
 export async function getStripeRedirectLink(
   orderId: number
 ) {
-  return new ApiClient(API_ROUTES.PAYMENT_METHOD.STRIPE)
+  // Documented gateway route (`POST /payments/stripe/initiate`) requires JWT,
+  // so forward the auth cookie like every other authenticated call.
+  return new ApiClient(API_ROUTES.PAYMENT_METHOD.STRIPE_INITIATE)
     .withMethod("POST")
     .withBody({
       order_id: orderId
     })
+    .withCookieHeaders(await cookies())
     .execute<{
       success: boolean;
       data: string;

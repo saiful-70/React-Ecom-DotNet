@@ -21,34 +21,49 @@ interface BundleTierCardProps {
   children?: ReactNode;
 }
 
-/** Overlapping thumbnails: `min(qty, 3)` per item, a "+" between items. */
+/**
+ * Overlapping thumbnails, capped so a long composition can never squeeze the
+ * title/price out of the card on narrow screens: a single-item tier shows
+ * `min(qty, 3)` copies; a multi-item tier shows one thumb per item (max 3)
+ * with a "+N" chip for the overflow.
+ */
 function ThumbCluster({ items }: { items: BundleTierItem[] }) {
+  if (items.length === 0) return null;
+
+  const single = items.length === 1;
+  const thumbs = single
+    ? Array.from(
+        { length: Math.min(Math.max(items[0].qty || 1, 1), 3) },
+        () => items[0]
+      )
+    : items.slice(0, 3);
+  const overflow = single ? 0 : items.length - thumbs.length;
+
   return (
     <div className="flex shrink-0 items-center">
-      {items.map((item, itemIdx) => (
-        <div key={`${item.product_id}-${itemIdx}`} className="flex items-center">
-          {itemIdx > 0 && (
-            <Plus className="mx-0.5 size-3.5 shrink-0 text-muted-foreground" />
-          )}
-          <div className="flex -space-x-3">
-            {Array.from({ length: Math.min(item.qty, 3) }).map((_, i) => (
-              <div
-                key={i}
-                className="relative size-10 overflow-hidden rounded-md border-2 border-background bg-muted shadow-sm sm:size-11"
-                style={{ zIndex: 3 - i }}
-              >
-                <CartLineImage
-                  src={item.thumbnail_image}
-                  alt={item.name}
-                  fill
-                  sizes="44px"
-                  className="object-cover"
-                />
-              </div>
-            ))}
+      <div className="flex -space-x-3">
+        {thumbs.map((item, i) => (
+          <div
+            key={`${item.product_id}-${i}`}
+            className="relative size-9 overflow-hidden rounded-md border-2 border-background bg-muted shadow-sm sm:size-11"
+            style={{ zIndex: thumbs.length - i }}
+          >
+            <CartLineImage
+              src={item.thumbnail_image}
+              alt={item.name}
+              fill
+              sizes="44px"
+              className="object-cover"
+            />
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      {overflow > 0 && (
+        <span className="ml-1 flex items-center rounded-md bg-muted px-1 py-0.5 text-[10px] font-bold text-muted-foreground">
+          <Plus className="size-2.5" />
+          {overflow}
+        </span>
+      )}
     </div>
   );
 }
@@ -97,76 +112,87 @@ export function BundleTierCard({
         aria-pressed={selected}
         disabled={disabled}
         className={cn(
-          "flex w-full items-center gap-2.5 p-3 text-left sm:gap-3 sm:p-3.5",
+          "w-full p-3 text-left sm:p-3.5",
           disabled && "cursor-not-allowed"
         )}
       >
-        {/* Radio */}
-        <span
-          className={cn(
-            "grid size-5 shrink-0 place-items-center rounded-full border-2 transition-colors",
-            selected ? "border-primary" : "border-muted-foreground/40"
-          )}
-        >
-          {selected && <span className="size-2.5 rounded-full bg-primary" />}
-        </span>
+        {/* Header row: radio + thumbs + title + price. The composition list
+            renders full-width below so long product names wrap across the
+            card instead of squeezing this row on narrow screens. */}
+        <div className="flex w-full items-center gap-2.5 sm:gap-3">
+          {/* Radio */}
+          <span
+            className={cn(
+              "grid size-5 shrink-0 place-items-center rounded-full border-2 transition-colors",
+              selected ? "border-primary" : "border-muted-foreground/40"
+            )}
+          >
+            {selected && <span className="size-2.5 rounded-full bg-primary" />}
+          </span>
 
-        <ThumbCluster items={tier.items} />
+          <ThumbCluster items={tier.items} />
 
-        {/* Title + savings pill */}
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold leading-snug sm:text-base">
-            {tier.name}
-          </p>
-
-          {hasSavings && (
-            <span className="mt-1 inline-block rounded-md bg-bundle-save px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-bundle-save-foreground">
-              {t("bundle.saveShort")} <Price amount={tier.savings} />
-            </span>
-          )}
-
-          {showComposition && (
-            <ul className="mt-1 space-y-0.5">
-              {tier.items.map((item, i) => (
-                <li
-                  key={`${item.product_id}-${i}`}
-                  className="text-xs leading-tight text-muted-foreground"
-                >
-                  {item.qty}× {item.name}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {tier.perks.length > 0 && (
-            <p className="mt-1 text-[11px] font-medium leading-tight text-primary">
-              {tier.perks.map((p) => `+ ${p.label}`).join("  ")}
+          {/* Title + savings pill */}
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold leading-snug sm:text-base">
+              {tier.name}
             </p>
-          )}
 
-          {disabled && tier.unavailable_reason && (
-            <p className="mt-1 text-[11px] font-medium leading-tight text-destructive">
-              {tier.unavailable_reason}
-            </p>
-          )}
-        </div>
-
-        {/* Price column */}
-        <div className="shrink-0 text-right">
-          {tier.compare_at_price > tier.price && (
-            <div className="text-xs leading-tight text-muted-foreground line-through">
-              <Price amount={tier.compare_at_price} />
-            </div>
-          )}
-          <div className="text-base font-bold leading-tight text-primary sm:text-lg">
-            <Price amount={tier.price} />
+            {hasSavings && (
+              <span className="mt-1 inline-block rounded-md bg-bundle-save px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-bundle-save-foreground">
+                {t("bundle.saveShort")} <Price amount={tier.savings} />
+              </span>
+            )}
           </div>
-          {unitCount > 1 && (
-            <div className="mt-1 inline-block rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
-              <Price amount={unitPrice} /> {t("bundle.perEach")}
+
+          {/* Price column */}
+          <div className="shrink-0 text-right">
+            {tier.compare_at_price > tier.price && (
+              <div className="whitespace-nowrap text-xs leading-tight text-muted-foreground line-through">
+                <Price amount={tier.compare_at_price} />
+              </div>
+            )}
+            <div className="whitespace-nowrap text-base font-bold leading-tight text-primary sm:text-lg">
+              <Price amount={tier.price} />
             </div>
-          )}
+            {unitCount > 1 && (
+              <div className="mt-1 inline-block whitespace-nowrap rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                <Price amount={unitPrice} /> {t("bundle.perEach")}
+              </div>
+            )}
+          </div>
         </div>
+
+        {(showComposition ||
+          tier.perks.length > 0 ||
+          (disabled && tier.unavailable_reason)) && (
+          <div className="mt-2 space-y-1 pl-7 sm:pl-8">
+            {showComposition && (
+              <ul className="space-y-0.5">
+                {tier.items.map((item, i) => (
+                  <li
+                    key={`${item.product_id}-${i}`}
+                    className="text-xs leading-tight text-muted-foreground"
+                  >
+                    {item.qty}× {item.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {tier.perks.length > 0 && (
+              <p className="text-[11px] font-medium leading-tight text-primary">
+                {tier.perks.map((p) => `+ ${p.label}`).join("  ")}
+              </p>
+            )}
+
+            {disabled && tier.unavailable_reason && (
+              <p className="text-[11px] font-medium leading-tight text-destructive">
+                {tier.unavailable_reason}
+              </p>
+            )}
+          </div>
+        )}
       </button>
 
       {/* Per-unit picker — sibling of the radio button, never nested inside it */}

@@ -47,7 +47,8 @@ export const API_ROUTES = {
     CREATE: "create-review",
   },
   PAYMENT_METHOD: {
-    STRIPE: "stripe",
+    /** Preferred gateway controller (JWT): body `{ order_id }`. */
+    STRIPE_INITIATE: "payments/stripe/initiate",
   },
   CHAT: {
     ASK: "ask",

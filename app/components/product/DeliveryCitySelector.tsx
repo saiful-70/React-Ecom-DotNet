@@ -13,7 +13,7 @@ import {
 } from "@/components/shared/ui/select";
 import { useVariant } from "@/components/shared/providers/variant-provider";
 import { useHydrated } from "@/hooks/use-hydrated";
-import { CITY_OPTIONS, getCityOptionByValue } from "@/lib/constants/delivery";
+import { useCities } from "@/hooks/use-cities";
 import { deliveryCityAtom } from "@/store/delivery-city.atom";
 
 /**
@@ -26,6 +26,8 @@ export function DeliveryCitySelector() {
 	const { t } = useTranslation();
 	const variant = useVariant();
 	const isHydrated = useHydrated();
+	// Backend city list (`GET /cities`); each row carries its delivery charge.
+	const cities = useCities();
 	const [deliveryCity, setDeliveryCity] = useAtom(deliveryCityAtom);
 
 	if (variant.template === "global") {
@@ -37,12 +39,16 @@ export function DeliveryCitySelector() {
 	const selected = isHydrated ? deliveryCity : null;
 
 	const handleChange = (value: string) => {
-		const option = getCityOptionByValue(value);
-		if (!option) return;
+		const city = cities.find((c) => c.name === value);
+		if (!city) return;
+		const rate =
+			typeof city.shipping_cost === "string"
+				? Number(city.shipping_cost)
+				: city.shipping_cost;
 		setDeliveryCity({
-			value: option.value,
-			cityId: option.backendCityId,
-			rate: option.rate,
+			value: city.name,
+			cityId: city.id,
+			rate: typeof rate === "number" && Number.isFinite(rate) ? rate : 0,
 		});
 	};
 
@@ -57,14 +63,14 @@ export function DeliveryCitySelector() {
 					<SelectValue placeholder={t("checkout.selectCity")} />
 				</SelectTrigger>
 				<SelectContent>
-					{CITY_OPTIONS.map((option) => (
-						<SelectItem key={option.value} value={option.value}>
-							{t(option.labelKey)}
+					{cities.map((city) => (
+						<SelectItem key={city.id} value={city.name}>
+							{city.name}
 						</SelectItem>
 					))}
 				</SelectContent>
 			</Select>
-			{selected && (
+			{selected && selected.rate > 0 && (
 				<p className="text-sm text-muted-foreground">
 					{t("checkout.shipping")}: <Price amount={selected.rate} />
 				</p>

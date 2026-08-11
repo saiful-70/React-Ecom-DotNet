@@ -31,13 +31,13 @@ export function OrderSummary({ subtotal, tax, total }: OrderSummaryProps) {
 	const { t } = useTranslation();
 	const businessSettings = useAtomValue(businessSettingsAtom);
 	const { taxType } = useCart();
+	// Only advertise free shipping when the store actually configures a
+	// threshold — the real charge is resolved at checkout via the backend
+	// `shipping-cost` API, so a hardcoded default here could promise a
+	// discount the backend never grants.
 	const freeShippingThreshold = businessSettings
-		? getBusinessSettingAsNumber(
-				businessSettings,
-				"free_shipping_on_over",
-				1200
-			)
-		: 1200;
+		? getBusinessSettingAsNumber(businessSettings, "free_shipping_on_over", 0)
+		: 0;
 
 	// `subtotal`/`tax`/`total` are already correctly computed by the cart
 	// reducer via `calculateCartTax` (reverse-calculated for "include"). The
@@ -88,15 +88,17 @@ export function OrderSummary({ subtotal, tax, total }: OrderSummaryProps) {
 					</Button>
 				</div>
 
-				<div className="text-center">
-					<Badge variant="secondary" className="text-xs">
-						{t("cart.freeShippingBadge", {
-							amount: `${getCurrencySymbol(
-								businessSettings?.currency || "BDT"
-							)}${freeShippingThreshold}`,
-						})}
-					</Badge>
-				</div>
+				{freeShippingThreshold > 0 && (
+					<div className="text-center">
+						<Badge variant="secondary" className="text-xs">
+							{t("cart.freeShippingBadge", {
+								amount: `${getCurrencySymbol(
+									businessSettings?.currency || "BDT"
+								)}${freeShippingThreshold}`,
+							})}
+						</Badge>
+					</div>
+				)}
 			</CardContent>
 		</Card>
 	);

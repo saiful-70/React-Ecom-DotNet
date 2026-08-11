@@ -18,8 +18,9 @@ import {
 	SelectValue,
 } from "@/components/shared/ui/select";
 import { Truck } from "lucide-react";
+import { useEffect } from "react";
 import type { FormData, FormErrors } from "@/(app-routes)/checkout/model";
-import { CITY_OPTIONS, getCityOptionByValue } from "@/lib/constants/delivery";
+import { useCities } from "@/hooks/use-cities";
 
 interface ShippingAddressFormProps {
 	formData: FormData;
@@ -33,6 +34,18 @@ export function ShippingAddressForm({
 	errors = {},
 }: ShippingAddressFormProps) {
 	const { t } = useTranslation();
+	// Backend city list (`GET /cities`); each row carries its delivery charge.
+	const cities = useCities();
+
+	// A city persisted before the list loaded (PDP selector) may hold a stale
+	// name; reconcile by city id so the dropdown matches one of its options.
+	useEffect(() => {
+		if (!formData.cityId) return;
+		const match = cities.find((c) => c.id === formData.cityId);
+		if (match && match.name !== formData.city) {
+			onInputChange("city", match.name);
+		}
+	}, [cities, formData.cityId]);
 
 	const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value.replace(/\D/g, "").slice(0, 11);
@@ -97,8 +110,8 @@ export function ShippingAddressForm({
 						value={formData.city || ""}
 						onValueChange={(value) => {
 							onInputChange("city", value);
-							const opt = getCityOptionByValue(value);
-							onInputChange("cityId", opt?.backendCityId ?? 0);
+							const city = cities.find((c) => c.name === value);
+							onInputChange("cityId", city?.id ?? 0);
 						}}
 					>
 						<SelectTrigger
@@ -108,12 +121,12 @@ export function ShippingAddressForm({
 							<SelectValue placeholder={t("checkout.selectCity")} />
 						</SelectTrigger>
 						<SelectContent>
-							{CITY_OPTIONS.map((option) => (
-								<SelectItem
-									key={option.value}
-									value={option.value}
-								>
-									{t(option.labelKey)} - {option.rate}
+							{cities.map((city) => (
+								<SelectItem key={city.id} value={city.name}>
+									{city.name}
+									{city.shipping_cost != null
+										? ` - ${city.shipping_cost}`
+										: ""}
 								</SelectItem>
 							))}
 						</SelectContent>

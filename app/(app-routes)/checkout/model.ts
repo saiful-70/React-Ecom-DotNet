@@ -27,17 +27,19 @@ export interface CheckoutDataResponse {
   };
 }
 
-// Types for checkout addresses
+// Shipping address — mirrors the documented `POST /purchase-order` contract
+// (FRONTEND_API_DOCUMENTATION.md §8): name/phone/address/city are required,
+// the rest is optional and omitted when empty.
 export interface ShippingAddress {
-  contact_person_name: string;
+  name: string;
   phone: string;
-  email: string;
-  address_type: string;
-  country: string;
-  city: string;
-  zip_code: string;
+  email?: string;
   address: string;
-  is_billing: boolean;
+  city: string;
+  postal_code?: string;
+  district?: string;
+  /** Backend country id (see `GET /countries`). */
+  country_id?: number;
 }
 
 // Country type
@@ -47,10 +49,13 @@ export interface Country {
   code: string;
 }
 
-// City type
+// City type — `GET /cities?country_id=` rows carry the per-city delivery
+// charge (see FRONTEND_API_DOCUMENTATION.md §7).
 export interface City {
   id: number;
   name: string;
+  country_id?: number;
+  shipping_cost?: number | string | null;
 }
 
 // Shipping cost type
@@ -82,23 +87,15 @@ export interface ShippingCostResponse {
   data: ShippingCost;
 }
 
-export interface BillingAddress {
-  contact_person_name: string;
-  phone: string;
-  email: string;
-  address_type: string;
-  country: string;
-  city: string;
-  zip_code: string;
-  address: string;
-}
-
-// Order item type
+// Order item type — documented fields are product_id/quantity/variant_id;
+// price and the bundle tags are additive (backend re-prices server-side and
+// re-verifies bundles against the quote).
 export interface OrderItem {
   product_id: number;
   quantity: number;
-  price: number;
-  variant_id: number;
+  /** Omitted for non-variant products (the API marks it optional). */
+  variant_id?: number;
+  price?: number;
   /** Set on lines that belong to a bundle tier, grouping them for the backend. */
   bundle_id?: number;
   bundle_tier_id?: number;
@@ -121,21 +118,19 @@ export interface CartItem {
   }[];
 }
 
-// Purchase order request and response types
+// Purchase order request — matches the documented `POST /purchase-order`
+// contract: items + shipping_address + payment_method (+ shipping extras).
+// The API accepts `items` | `order_items` | `products` as the list key; we
+// send the primary `items`.
 export interface PurchaseOrderRequest {
-  total_price: number;
-  order_status: OrderStatus;
-  payment_status: PaymentStatus;
+  items: OrderItem[];
+  shipping_address: ShippingAddress;
   payment_method: PaymentMethod;
   shipping_method: ShippingMethod;
   shipping_cost: number;
-  shipping_duration: number;
-  total_vat_amount: number;
-  shipping_address: ShippingAddress;
-  billing_address: BillingAddress;
-  order_items: OrderItem[];
+  notes?: string;
   // Bundle order (single-bundle path): the backend re-validates against this
-  // short-lived quote and applies server pricing. Each bundle order_item is also
+  // short-lived quote and applies server pricing. Each bundle item is also
   // tagged with bundle_id/bundle_tier_id.
   bundle_id?: number;
   bundle_tier_id?: number;
@@ -154,44 +149,35 @@ export interface PurchaseOrderRequest {
 // string (e.g. "+15551234567").
 const PHONE_REGEX = /^\+?[0-9]{6,15}$/;
 
-const AddressFieldsSchema = z.object({
-  contact_person_name: z.string().min(1).max(200),
+const ShippingAddressSchema = z.object({
+  name: z.string().min(1).max(200),
   phone: z.string().max(20).regex(PHONE_REGEX, "Invalid phone number"),
-  email: z.string().max(320).email().or(z.literal("")),
-  address_type: z.string().max(50),
-  country: z.string().max(500),
-  city: z.string().max(500),
-  zip_code: z.string().max(50),
+  email: z.string().max(320).email().optional(),
   address: z.string().min(1).max(500),
+  city: z.string().min(1).max(500),
+  postal_code: z.string().max(50).optional(),
+  district: z.string().max(500).optional(),
+  // Optional here so an unresolved international country still submits and the
+  // backend's own "country_id is required." message can surface in the toast.
+  country_id: z.number().int().positive().optional(),
 });
-
-const ShippingAddressSchema = AddressFieldsSchema.extend({
-  is_billing: z.boolean(),
-});
-
-const BillingAddressSchema = AddressFieldsSchema;
 
 const OrderItemSchema = z.object({
   product_id: z.number().int().positive(),
   quantity: z.number().int().min(1),
-  price: z.number().finite().min(0),
-  variant_id: z.number().int().min(0),
+  variant_id: z.number().int().positive().optional(),
+  price: z.number().finite().min(0).optional(),
   bundle_id: z.number().int().positive().optional(),
   bundle_tier_id: z.number().int().positive().optional(),
 });
 
 export const PurchaseOrderSchema = z.object({
-  total_price: z.number().finite().min(0),
-  order_status: z.enum(["pending", "processing", "completed", "cancelled"]),
-  payment_status: z.enum(["unpaid", "paid", "refunded"]),
-  payment_method: z.enum(["cash_on_delivery"]),
+  items: z.array(OrderItemSchema).min(1),
+  shipping_address: ShippingAddressSchema,
+  payment_method: z.enum(["cod"]),
   shipping_method: z.enum(["standard", "express", "overnight"]),
   shipping_cost: z.number().finite().min(0),
-  shipping_duration: z.number().int().min(0),
-  total_vat_amount: z.number().finite().min(0),
-  shipping_address: ShippingAddressSchema,
-  billing_address: BillingAddressSchema,
-  order_items: z.array(OrderItemSchema).min(1),
+  notes: z.string().max(1000).optional(),
   bundle_id: z.number().int().positive().optional(),
   bundle_tier_id: z.number().int().positive().optional(),
   server_quote_id: z.string().max(200).optional(),
@@ -201,10 +187,12 @@ export interface PurchaseOrderResponse {
   success: boolean;
   message?: string;
   data?: {
-    id: number;
+    order_id?: number;
+    order_number?: string;
     order_tracking_number?: string;
-    status: string;
-    total: number;
+    amount?: number;
+    payment_method?: string;
+    status?: string;
     [key: string]: unknown;
   };
   error?: string;
@@ -224,13 +212,10 @@ export interface FormData {
   zip?: string;
 }
 
-export type PaymentMethod = "cash_on_delivery";
+/** Documented payment method key for cash on delivery. */
+export type PaymentMethod = "cod";
 
 export type ShippingMethod = "standard" | "express" | "overnight";
-
-export type OrderStatus = "pending" | "processing" | "completed" | "cancelled";
-
-export type PaymentStatus = "unpaid" | "paid" | "refunded";
 
 export interface ShippingAddressFormProps {
   formData: FormData;

@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
-import { Star, Zap } from "lucide-react";
+import { Gift, Star, Zap } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
+import { useFeature } from "@/components/shared/providers/variant-provider";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -32,10 +33,12 @@ const SPECIAL_MENU_NAMES: Record<string, string> = {
 	"featured-products": "Featured",
 	"today-deals": "Today's Deals",
 	"top-selling": "Top Selling",
+	"combo-offers": "Combo Offer",
 };
 
 export const NavigationClient = ({ categories }: NavigationClientProps) => {
 	const { t } = useTranslation();
+	const bundlesEnabled = useFeature("bundles");
 
 	const router = useRouter();
 	const pathname = usePathname();
@@ -311,6 +314,36 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 						</Link>
 					</Button>
 				</NavigationMenuItem>
+
+				{/* Combo (combo offers shelf on the homepage) */}
+				{bundlesEnabled && (
+					<NavigationMenuItem>
+						<Button
+							variant="ghost"
+							className="whitespace-nowrap hover:bg-primary/10 transition-colors"
+							asChild
+						>
+							<Link
+								href={isHomePage ? "#combo-offers" : "/#combo-offers"}
+								onClick={(e) =>
+									handleSpecialLinkClick(
+										e,
+										"combo-offers",
+										"/#combo-offers"
+									)
+								}
+								aria-label={
+									t("navigation.viewComboOffers") ||
+									"View combo offers"
+								}
+								className="text-foreground hover:text-primary"
+							>
+								{t("navigation.combo") || "Combo"}
+								<Gift className="w-4 h-4 text-primary" />
+							</Link>
+						</Button>
+					</NavigationMenuItem>
+				)}
 			</NavigationMenuList>
 		</NavigationMenu>
 	);

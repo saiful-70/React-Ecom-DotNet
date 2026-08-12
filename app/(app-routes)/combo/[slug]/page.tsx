@@ -62,5 +62,9 @@ export default async function ComboPage({ params }: Props) {
 		notFound();
 	}
 
+	// The combo API is the single source for per-unit variant selection: tier
+	// items must ship their own `variant_options` + `variants` (see
+	// docs/api/bundle-per-unit-variant-contract.md). No product-details calls
+	// here — when the payload is unusable the picker degrades to the flat card.
 	return <ComboLanding combo={combo} />;
 }

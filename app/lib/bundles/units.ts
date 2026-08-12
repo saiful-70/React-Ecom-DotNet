@@ -22,7 +22,7 @@ import type {
   TierVariant,
 } from "./types";
 
-/** One individually-configurable unit of a tier. */
+/** One configurable slot of a tier: a single unit, or a whole item in bulk mode. */
 export interface UnitSlot {
   /** Stable React key / state key: `<itemIndex>-<unitIndexWithinItem>`. */
   key: string;
@@ -30,6 +30,11 @@ export interface UnitSlot {
   index: number;
   item: BundleTierItem;
   itemIndex: number;
+  /**
+   * How many units this slot's selection applies to. `1` in per-unit mode;
+   * the item's full `qty` in bulk mode (tiers above MAX_CONFIGURABLE_UNITS).
+   */
+  span: number;
 }
 
 /** The option axes + variant table backing one tier item's unit rows. */
@@ -70,6 +75,29 @@ export const requiredItems = (tier: BundleTier): BundleTierItem[] =>
   tier.items.filter((i) => i.role === "required");
 
 /**
+ * Required items coalesced by product for DISPLAY (composition lists, "what's
+ * included" cards, thumbnails). A tier may declare the same product as several
+ * rows — e.g. "Buy 2" as two qty-1 rows — which must read as one entry with a
+ * summed qty, not duplicate cards. Slot building intentionally does NOT use
+ * this: each declared row keeps its own per-unit selection rows.
+ */
+export function displayItems(tier: BundleTier): BundleTierItem[] {
+  const rows = new Map<number, BundleTierItem>();
+  for (const item of requiredItems(tier)) {
+    const existing = rows.get(item.product_id);
+    if (existing) {
+      rows.set(item.product_id, {
+        ...existing,
+        qty: (existing.qty || 1) + (item.qty || 1),
+      });
+    } else {
+      rows.set(item.product_id, { ...item });
+    }
+  }
+  return [...rows.values()];
+}
+
+/**
  * Number of numbered unit rows. Trusts the backend's `unit_count`; falls back to
  * the summed `qty` of required items. A disagreement between the two is a data
  * bug on the backend side — `unit_count` wins.
@@ -94,26 +122,36 @@ export const tierHasUnitPicker = (tier: BundleTier): boolean =>
 /**
  * Ceiling on individually-configurable units per tier. The per-unit picker is
  * designed for small packs (a 2-5 piece combo); a tier declaring dozens of
- * units — in practice unfinished admin data, e.g. qty 22 — would render an
- * unusable wall of dropdowns. Past this cap the tier degrades to the flat
- * fixed card (composition falls back to each item's default variant).
+ * units would render an unusable wall of dropdowns. Past this cap the tier
+ * switches to BULK mode: one selector row per item whose choice applies to
+ * all of that item's units.
  */
 export const MAX_CONFIGURABLE_UNITS = 8;
 
+/** Bulk-mode slots: one row per required item, spanning its whole `qty`. */
+function buildBulkSlots(tier: BundleTier): UnitSlot[] {
+  return requiredItems(tier).map((item, itemIndex) => ({
+    key: `${itemIndex}-bulk`,
+    index: itemIndex,
+    item,
+    itemIndex,
+    span: Math.max(1, item.qty || 1),
+  }));
+}
+
 /**
- * Effective axes accessor for one tier: the given `axesFor`, unless the tier's
- * configurable unit count exceeds `MAX_CONFIGURABLE_UNITS`, in which case every
- * item reads as fixed. Both the picker UI and the cart-composition builder must
- * use this same accessor so what the shopper sees is exactly what is ordered.
+ * The tier's effective slot list — per-unit rows for small packs, bulk rows
+ * (one per item, selection applied to all its units) above the cap. Both the
+ * picker UI and the cart-composition builder MUST use this same function so
+ * what the shopper sees is exactly what is ordered.
  */
-export function tierAxesFor(
+export function unitSlotsFor(
   tier: BundleTier,
   axesFor: (item: BundleTierItem) => UnitAxes | null
-): (item: BundleTierItem) => UnitAxes | null {
-  const configurable = buildUnitSlots(tier).filter((s) =>
-    axesFor(s.item)
-  ).length;
-  return configurable > MAX_CONFIGURABLE_UNITS ? () => null : axesFor;
+): UnitSlot[] {
+  const perUnit = buildUnitSlots(tier);
+  const configurable = perUnit.filter((s) => axesFor(s.item)).length;
+  return configurable > MAX_CONFIGURABLE_UNITS ? buildBulkSlots(tier) : perUnit;
 }
 
 /**
@@ -131,6 +169,7 @@ export function buildUnitSlots(tier: BundleTier): UnitSlot[] {
         index: slots.length,
         item,
         itemIndex,
+        span: 1,
       });
     }
   });
@@ -341,15 +380,15 @@ export function seedSelections(
   const selections: Record<string, UnitSelection> = {};
   const committed = new Map<number, number>();
 
-  const commit = (variantId: number | null) => {
+  const commit = (variantId: number | null, span: number) => {
     if (variantId != null) {
-      committed.set(variantId, (committed.get(variantId) ?? 0) + 1);
+      committed.set(variantId, (committed.get(variantId) ?? 0) + span);
     }
   };
 
   for (const slot of slots) {
     if (!axesFor(slot.item)) continue;
-    if (edits[slot.key]) commit(edits[slot.key].variantId);
+    if (edits[slot.key]) commit(edits[slot.key].variantId, slot.span);
   }
 
   for (const slot of slots) {
@@ -362,7 +401,7 @@ export function seedSelections(
     }
     const seeded = defaultSelection(axes, slot.item, committed);
     selections[slot.key] = seeded;
-    commit(seeded.variantId);
+    commit(seeded.variantId, slot.span);
   }
 
   return selections;
@@ -452,7 +491,7 @@ export function unitIssues(
       issues[slot.key] = "unresolved";
       continue;
     }
-    demand.set(sel.variantId, (demand.get(sel.variantId) ?? 0) + 1);
+    demand.set(sel.variantId, (demand.get(sel.variantId) ?? 0) + slot.span);
   }
 
   for (const slot of slots) {
@@ -476,10 +515,11 @@ export function unitIssues(
 /**
  * Build the `bundle_components` payload from the shopper's selections.
  *
- * Configurable units expand to one row per unit, then identical selections are
- * coalesced by (product_id, variant_id) with summed qty — the backend validates
- * on summed quantity per product, not row count, so both forms are accepted.
- * Fixed items pass through with their declared variant and qty.
+ * Configurable slots expand to their `span` (1 in per-unit mode, the item's
+ * full qty in bulk mode), then identical selections are coalesced by
+ * (product_id, variant_id) with summed qty — the backend validates on summed
+ * quantity per product, not row count, so both forms are accepted. Fixed
+ * items pass through with their declared variant and qty.
  */
 export function toBundleComponents(
   tier: BundleTier,
@@ -500,10 +540,14 @@ export function toBundleComponents(
   };
 
   const configurable = new Set<BundleTierItem>();
-  for (const slot of buildUnitSlots(tier)) {
+  for (const slot of unitSlotsFor(tier, axesFor)) {
     if (!axesFor(slot.item)) continue;
     configurable.add(slot.item);
-    push(slot.item.product_id, selections[slot.key]?.variantId ?? null, 1);
+    push(
+      slot.item.product_id,
+      selections[slot.key]?.variantId ?? null,
+      slot.span
+    );
   }
 
   for (const item of requiredItems(tier)) {

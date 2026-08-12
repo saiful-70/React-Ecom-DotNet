@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
-import { ChevronDown, ChevronRight, Star, Flame, Zap } from "lucide-react";
+import { ChevronDown, ChevronRight, Gift, Star, Flame, Zap } from "lucide-react";
 import { Button } from "@/components/shared/ui/button";
 import {
 	Collapsible,
@@ -136,6 +136,26 @@ export const MobileNavigationClient = ({
 				>
 					<Flame className="w-5 h-5 text-accent fill-accent" />
 					<span className="text-sm">Sale</span>
+				</Link>
+
+				{/* Combo */}
+				<Link
+					href={isHomePage ? "#combo-offers" : "/#combo-offers"}
+					onClick={(e) =>
+						handleSpecialLinkClick(
+							e,
+							"combo-offers",
+							"/#combo-offers"
+						)
+					}
+					className={cn(
+						"flex items-center gap-2 py-3 px-3 rounded-md transition-all duration-200",
+						"bg-primary/10 text-primary hover:bg-primary/20 active:scale-95 font-medium"
+					)}
+					aria-label="View combo offers"
+				>
+					<Gift className="w-5 h-5 text-primary" />
+					<span className="text-sm">Combo</span>
 				</Link>
 			</div>
 

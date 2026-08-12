@@ -4,15 +4,14 @@ import { useCallback, useMemo, useState } from "react";
 import {
   applyAxisChange,
   axesFromProduct,
-  buildUnitSlots,
   itemAxes,
   seedSelections,
   selectionLabel,
-  tierAxesFor,
   tierUnitCount,
   tierUnitPrice,
   toBundleComponents,
   unitIssues,
+  unitSlotsFor,
   type ProductAxesSource,
   type UnitAxes,
   type UnitSelection,
@@ -25,9 +24,9 @@ import type {
 
 interface UseBundleUnitsArgs {
   /**
-   * PDP anchor product, used only as a bridge for deriving option axes while the
-   * backend has not yet shipped `variant_options` / `variants` on tier items.
-   * Omitted on the combo landing page, which has no anchor product.
+   * Anchor product bridge for deriving option axes while the backend does not
+   * ship usable `variant_options` / `variants` on tier items. Unused on the
+   * combo page: there the combo API must be self-contained.
    */
   product?: ProductAxesSource | null;
 }
@@ -55,21 +54,16 @@ export function useBundleUnits({ product }: UseBundleUnitsArgs) {
   /**
    * Slots + resolved selections + issues for one tier.
    *
-   * Uses the tier-scoped effective axes (`tierAxesFor`): a tier whose
-   * configurable unit count exceeds MAX_CONFIGURABLE_UNITS degrades to the
-   * flat fixed card instead of rendering dozens of dropdown rows.
+   * Uses `unitSlotsFor`: per-unit rows for small packs, or bulk rows (one per
+   * item, the choice applied to all its units) when the tier's configurable
+   * unit count exceeds MAX_CONFIGURABLE_UNITS.
    */
   const unitsFor = useCallback(
     (tier: BundleTier) => {
-      const effAxesFor = tierAxesFor(tier, axesFor);
-      const slots = buildUnitSlots(tier);
-      const selections = seedSelections(
-        slots,
-        effAxesFor,
-        edits[tier.id] ?? {}
-      );
-      const configurable = slots.filter((s) => effAxesFor(s.item));
-      const issues = unitIssues(slots, effAxesFor, selections);
+      const slots = unitSlotsFor(tier, axesFor);
+      const selections = seedSelections(slots, axesFor, edits[tier.id] ?? {});
+      const configurable = slots.filter((s) => axesFor(s.item));
+      const issues = unitIssues(slots, axesFor, selections);
 
       return {
         slots: configurable,
@@ -99,7 +93,11 @@ export function useBundleUnits({ product }: UseBundleUnitsArgs) {
         // Base the change on the *seeded* selection, not a bare default — an
         // untouched unit may hold a stock-spread default, and snapping it back
         // to the item default before applying the change would lose that.
-        const seeded = seedSelections(buildUnitSlots(tier), axesFor, tierEdits);
+        const seeded = seedSelections(
+          unitSlotsFor(tier, axesFor),
+          axesFor,
+          tierEdits
+        );
         const current = seeded[slotKey] ?? { axisValues: {}, variantId: null };
         return {
           ...prev,
@@ -116,11 +114,7 @@ export function useBundleUnits({ product }: UseBundleUnitsArgs) {
   /** `bundle_components` for a tier, ready for the cart line / validate call. */
   const componentsFor = useCallback(
     (tier: BundleTier): BundleCartComponent[] =>
-      toBundleComponents(
-        tier,
-        tierAxesFor(tier, axesFor),
-        unitsFor(tier).selections
-      ),
+      toBundleComponents(tier, axesFor, unitsFor(tier).selections),
     [axesFor, unitsFor]
   );
 

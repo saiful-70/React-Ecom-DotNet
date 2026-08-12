@@ -37,7 +37,9 @@
     "products": "products",
     "viewFeaturedProducts": "View featured products",
     "viewTodaysDeals": "View today's deals",
-    "viewTopSellingProducts": "View top selling products"
+    "viewTopSellingProducts": "View top selling products",
+    "combo": "Combo",
+    "viewComboOffers": "View combo offers"
   },
   "hero": {
     "title": "Discover Amazing Products",
@@ -473,6 +475,7 @@
     "comboNotFound": "Combo not found",
     "viewCombo": "View Combo Offer",
     "comboOffer": "Combo Offer",
+    "comboOfferDescription": "Bundle deals with bigger savings",
     "popular": "Most Popular",
     "bestValue": "Best Value",
     "validationFailed": "Bundle validation failed",

@@ -83,15 +83,38 @@ export async function getCombos(perPage: number = 12): Promise<BundleSummary[]> 
  * Validate a selected tier at checkout: returns server-authoritative pricing and
  * a short-lived `server_quote_id`. Failed validation still resolves with
  * `is_valid: false` + structured errors (the API returns 200 with success:false).
+ *
+ * The live endpoint binds camelCase request keys (`bundleId`, `items[].productId`)
+ * while the docs and its own response use snake_case — send both spellings so
+ * the call works regardless of which convention the backend settles on.
  */
 export async function validateBundle(
   request: ValidateBundleRequest
 ): Promise<BundleValidationResult | null> {
   const lang = await getRequestLanguage();
+
+  const body = {
+    bundle_id: request.bundle_id,
+    bundleId: request.bundle_id,
+    bundle_tier_id: request.bundle_tier_id,
+    bundleTierId: request.bundle_tier_id,
+    city_id: request.city_id ?? null,
+    cityId: request.city_id ?? null,
+    shipping_type: request.shipping_type,
+    shippingType: request.shipping_type,
+    items: request.items.map((item) => ({
+      product_id: item.product_id,
+      productId: item.product_id,
+      variant_id: item.variant_id ?? null,
+      variantId: item.variant_id ?? null,
+      qty: item.qty,
+    })),
+  };
+
   const response = await new ApiClient(API_ROUTES.BUNDLES.VALIDATE)
     .withMethod("POST")
     .withParams({ lang })
-    .withBody(request)
+    .withBody(body)
     .withCookieHeaders(await cookies())
     .execute<ApiResponse<BundleValidationResult>>();
 

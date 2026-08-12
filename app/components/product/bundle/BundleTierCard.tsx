@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import { CartLineImage } from "@/components/shared/CartLineImage";
 import Price from "@/components/shared/Price";
 import { cn } from "@/lib/utils/utils";
-import { requiredItems, tierUnitCount, tierUnitPrice } from "@/lib/bundles/units";
+import { displayItems, tierUnitCount, tierUnitPrice } from "@/lib/bundles/units";
 import type { BundleTier, BundleTierItem } from "@/lib/bundles/types";
 
 interface BundleTierCardProps {
@@ -89,9 +89,10 @@ export function BundleTierCard({
   const hasSavings = tier.savings > 0;
   const unitCount = tierUnitCount(tier);
   const unitPrice = tierUnitPrice(tier);
-  // Only the enforced composition is shown — optional add-on rows are not
+  // Only the enforced composition, coalesced by product (duplicate rows of
+  // the same product read as one "×N" line) — optional add-on rows are not
   // part of what the shopper gets for the tier price.
-  const included = requiredItems(tier);
+  const included = displayItems(tier);
 
   return (
     <div

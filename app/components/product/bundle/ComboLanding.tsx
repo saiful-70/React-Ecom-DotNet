@@ -24,7 +24,7 @@ import { BundleTierList } from "./BundleTierList";
 import { BundleUnitPicker } from "./BundleUnitPicker";
 import { useBundleCart } from "./use-bundle-cart";
 import { useBundleUnits } from "./use-bundle-units";
-import { requiredItems } from "@/lib/bundles/units";
+import { displayItems } from "@/lib/bundles/units";
 import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 import type { Bundle, BundleTier } from "@/lib/bundles/types";
 
@@ -110,8 +110,9 @@ export function ComboLanding({ combo }: ComboLandingProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const { addBundleTier } = useBundleCart();
-  // No anchor product here, so per-unit pickers only appear once the backend
-  // ships `variant_options` on the tier items.
+  // Per-unit pickers are driven ONLY by the tier items' own `variant_options`
+  // / `variants` from the combo API; unusable payloads degrade to the flat
+  // card (see docs/api/bundle-per-unit-variant-contract.md).
   const { axesFor, unitsFor, setAxisValue, componentsFor, summaryFor } =
     useBundleUnits({});
 
@@ -169,9 +170,10 @@ export function ComboLanding({ combo }: ComboLandingProps) {
 
   if (!selectedTier) return null;
 
-  // Only the enforced composition — optional add-on rows aren't included in
-  // the tier price and must not be presented as part of the box.
-  const includedItems = requiredItems(selectedTier);
+  // Only the enforced composition, coalesced by product — a tier declaring the
+  // same product as several rows must read as ONE card with a summed qty, and
+  // optional add-on rows aren't part of the tier price.
+  const includedItems = displayItems(selectedTier);
   // Blocked when sold out, or when a per-unit choice is missing / out of stock.
   const soldOut =
     selectedTier.is_available === false || !unitsFor(selectedTier).isReady;
@@ -324,25 +326,29 @@ export function ComboLanding({ combo }: ComboLandingProps) {
           <Gift className="size-4 text-primary" />
           {t("bundle.whatsIncluded")}
         </h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {includedItems.map((item, i) => (
             <div
               key={`${item.product_id}-${i}`}
               className="flex items-center gap-3 rounded-xl border border-border bg-card p-2.5 shadow-warm-sm"
             >
-              <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-muted">
-                <CartLineImage
-                  src={item.thumbnail_image}
-                  alt={item.name}
-                  fill
-                  sizes="56px"
-                  className="object-cover"
-                />
-                <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground shadow-sm">
-                  {item.qty}
+              {/* Badge sits on an unclipped wrapper — putting it inside the
+                  overflow-hidden image box cropped it into a blob. */}
+              <div className="relative shrink-0">
+                <div className="relative size-14 overflow-hidden rounded-lg bg-muted">
+                  <CartLineImage
+                    src={item.thumbnail_image}
+                    alt={item.name}
+                    fill
+                    sizes="56px"
+                    className="object-cover"
+                  />
+                </div>
+                <span className="absolute -right-1.5 -top-1.5 grid min-w-5 place-items-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold leading-none text-primary-foreground shadow-sm">
+                  ×{item.qty}
                 </span>
               </div>
-              <p className="min-w-0 flex-1 text-sm font-medium leading-tight">
+              <p className="min-w-0 flex-1 text-sm font-medium leading-snug">
                 {item.name}
               </p>
             </div>
@@ -401,6 +407,14 @@ export function ComboLanding({ combo }: ComboLandingProps) {
 
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <Button
+            onClick={() => handleBuyNow(selectedTier)}
+            disabled={soldOut}
+            className="h-12 flex-1 text-sm font-bold sm:text-base"
+          >
+            <ShoppingBag className="mr-1.5 size-5" />
+            {t("bundle.buyNow")}
+          </Button>
+          <Button
             variant="outline"
             onClick={() => handleAddToCart(selectedTier)}
             disabled={soldOut}
@@ -408,14 +422,6 @@ export function ComboLanding({ combo }: ComboLandingProps) {
           >
             <ShoppingCart className="mr-1.5 size-5" />
             {t("bundle.addComboToCart")}
-          </Button>
-          <Button
-            onClick={() => handleBuyNow(selectedTier)}
-            disabled={soldOut}
-            className="h-12 flex-1 text-sm font-bold sm:text-base"
-          >
-            <ShoppingBag className="mr-1.5 size-5" />
-            {t("bundle.buyNow")}
           </Button>
         </div>
 

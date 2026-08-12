@@ -4,8 +4,10 @@ import { useTranslation } from "react-i18next";
 import { Gift, ArrowRight } from "lucide-react";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { CartLineImage } from "@/components/shared/CartLineImage";
+import { SectionHeader } from "./SectionHeader";
 import { trackPromotionClick } from "@/lib/analytics/tracking";
 import Price from "@/components/shared/Price";
+import { SECTION_Y } from "@/lib/ui/rhythm";
 import type { BundleSummary } from "@/lib/bundles/types";
 
 interface ComboPromoProps {
@@ -63,19 +65,26 @@ export function ComboOfferCard({ combo }: { combo: BundleSummary }) {
 }
 
 /**
- * Home-page combo offers — compact cards in a responsive grid so multiple
- * combos append one by one instead of each taking a full-width strip. Each
- * card links to its combo landing page.
+ * Home-page "Combo Offer" shelf — a titled section like the product shelves
+ * (Top Selling / Featured), with compact cards in a responsive grid. Each
+ * card links to its combo landing page. `id="combo-offers"` is the smooth-
+ * scroll target of the navigation's "Combo" link.
  */
 export function ComboPromo({ combos }: ComboPromoProps) {
   if (!combos.length) return null;
 
   return (
-    <section className="container mx-auto py-3">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {combos.map((combo) => (
-          <ComboOfferCard key={combo.id} combo={combo} />
-        ))}
+    <section id="combo-offers" className={SECTION_Y}>
+      <div className="container mx-auto">
+        <SectionHeader
+          titleKey="bundle.comboOffer"
+          descriptionKey="bundle.comboOfferDescription"
+        />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {combos.map((combo) => (
+            <ComboOfferCard key={combo.id} combo={combo} />
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -37,7 +37,9 @@
     "products": "পণ্য",
     "viewFeaturedProducts": "বিশেষ পণ্য দেখুন",
     "viewTodaysDeals": "আজকের অফার দেখুন",
-    "viewTopSellingProducts": "সেরা বিক্রিত পণ্য দেখুন"
+    "viewTopSellingProducts": "সেরা বিক্রিত পণ্য দেখুন",
+    "combo": "কম্বো",
+    "viewComboOffers": "কম্বো অফার দেখুন"
   },
   "hero": {
     "title": "অসাধারণ পণ্য আবিষ্কার করুন",
@@ -473,6 +475,7 @@
     "comboNotFound": "কম্বো পাওয়া যায়নি",
     "viewCombo": "কম্বো অফার দেখুন",
     "comboOffer": "কম্বো অফার",
+    "comboOfferDescription": "একসাথে কিনলে বাড়তি সাশ্রয়",
     "popular": "সবচেয়ে জনপ্রিয়",
     "bestValue": "সেরা ভ্যালু",
     "validationFailed": "বান্ডেল যাচাই ব্যর্থ",

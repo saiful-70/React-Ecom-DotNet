@@ -68,9 +68,9 @@ export function BundleUnitPicker({
 
         return (
           <div key={slot.key} className="flex items-start gap-2.5 sm:gap-3">
-            {/* Unit ordinal */}
-            <span className="mt-8 w-5 shrink-0 text-right text-sm font-bold tabular-nums text-foreground/70">
-              {slot.index + 1}.
+            {/* Unit ordinal — in bulk mode the row spans all units ("22×") */}
+            <span className="mt-8 w-7 shrink-0 text-right text-sm font-bold tabular-nums text-foreground/70">
+              {slot.span > 1 ? `${slot.span}×` : `${slot.index + 1}.`}
             </span>
 
             <div className="min-w-0 flex-1 space-y-1.5">

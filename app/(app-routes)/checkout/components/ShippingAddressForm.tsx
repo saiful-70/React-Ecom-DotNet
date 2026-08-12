@@ -17,7 +17,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/shared/ui/select";
-import { Truck } from "lucide-react";
+import {
+	RadioGroup,
+	RadioGroupItem,
+} from "@/components/shared/ui/radio-group";
+import { Truck, Wallet } from "lucide-react";
 import { useEffect } from "react";
 import type { FormData, FormErrors } from "@/(app-routes)/checkout/model";
 import { useCities } from "@/hooks/use-cities";
@@ -156,6 +160,24 @@ export function ShippingAddressForm({
 							{t(errors.address)}
 						</p>
 					)}
+				</div>
+
+				{/* Payment method — COD is the only supported method (the order
+				    payload always sends "cod"), shown pre-selected for clarity. */}
+				<div>
+					<Label className="flex items-center mb-2">
+						{t("checkout.paymentMethod")}
+					</Label>
+					<RadioGroup value="cod" className="gap-2">
+						<Label
+							htmlFor="payment-cod"
+							className="flex cursor-pointer items-center gap-2.5 rounded-md border border-primary/40 bg-primary/5 px-3 py-3 font-medium"
+						>
+							<RadioGroupItem value="cod" id="payment-cod" />
+							<Wallet className="h-4 w-4 text-primary" />
+							{t("checkout.cashOnDelivery")}
+						</Label>
+					</RadioGroup>
 				</div>
 			</CardContent>
 		</Card>

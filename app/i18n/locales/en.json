@@ -183,6 +183,7 @@
     "cart": "Cart",
     "backToCart": "Back to Cart",
     "cashOnDelivery": "Cash on Delivery",
+    "paymentMethod": "Payment Method",
     "creditDebitCard": "Credit/Debit Card",
     "mobileBanking": "Mobile Banking (bKash/Nagad)",
     "paypal": "PayPal",

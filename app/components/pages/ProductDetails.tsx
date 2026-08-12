@@ -11,7 +11,7 @@ import { useHydrated } from "@/hooks/use-hydrated";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
-import { ProductBundleSelector } from "@/components/product/bundle/ProductBundleSelector";
+import { ComboOfferCard } from "@/components/home/ComboPromo";
 import { ProductsGrid } from "@/components/product/ProductsGrid";
 import {
 	trackUnifiedAddToCart,
@@ -31,18 +31,16 @@ import {
 	ProductDetailsTabs,
 } from "@/components/product/product-details";
 import type { Product, ProductVariant } from "@/(app-routes)/products/model";
-import type { Bundle } from "@/lib/bundles/types";
+import type { BundleSummary } from "@/lib/bundles/types";
 import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 
 interface ProductDetailsPageProps {
 	product: Product;
-	bundle?: Bundle | null;
+	/** Combo offers anchored to this product — rendered as link cards only. */
+	combos?: BundleSummary[];
 }
 
-export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
-	// An active bundle takes over the purchase controls: its unit rows own the
-	// size/colour choice, so the page-level variant selector is suppressed.
-	const hasBundle = !!bundle && bundle.tiers.length > 0;
+export function ProductDetails({ product, combos }: ProductDetailsPageProps) {
 	const { t } = useTranslation();
 	const router = useRouter();
 	const [userProfile] = useAtom(miniProfileAtom);
@@ -377,7 +375,7 @@ export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 					</div>
 
 					{/* Variant Selection */}
-					{!hasBundle && product.variants && product.variants.length > 0 && (
+					{product.variants && product.variants.length > 0 && (
 						<ProductVariantSelector
 							product={product}
 							onVariantChange={(variant) => {
@@ -390,30 +388,30 @@ export function ProductDetails({ product, bundle }: ProductDetailsPageProps) {
 						/>
 					)}					{/* Quantity & Actions */}
 					<div className="space-y-2.5 sm:space-y-4 lg:space-y-5">
-						{bundle && hasBundle ? (
-							<ProductBundleSelector
-									bundle={bundle}
-									product={product}
-								/>
-						) : (
-							<>
-								<QuantitySelector
-									quantity={quantity}
-									onQuantityChange={setQuantity}
-									stock={availableStock}
-								/>
-
-								<ProductActionButtons
-									onAddToCart={handleAddToCart}
-									onBuyNow={handleBuyNow}
-									onToggleWishlist={handleToggleWishlist}
-									onShare={handleShare}
-									availableStock={availableStock}
-									isWishlisted={isWishlisted}
-									isWishlistLoading={isWishlistLoading}
-								/>
-							</>
+						{/* Combo offers anchored to this product — link to /combo/[slug] */}
+						{combos && combos.length > 0 && (
+							<div className="space-y-2">
+								{combos.map((combo) => (
+									<ComboOfferCard key={combo.id} combo={combo} />
+								))}
+							</div>
 						)}
+
+						<QuantitySelector
+							quantity={quantity}
+							onQuantityChange={setQuantity}
+							stock={availableStock}
+						/>
+
+						<ProductActionButtons
+							onAddToCart={handleAddToCart}
+							onBuyNow={handleBuyNow}
+							onToggleWishlist={handleToggleWishlist}
+							onShare={handleShare}
+							availableStock={availableStock}
+							isWishlisted={isWishlisted}
+							isWishlistLoading={isWishlistLoading}
+						/>
 
 						<ProductDeliveryInfo />
 					</div>

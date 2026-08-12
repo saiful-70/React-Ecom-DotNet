@@ -1,7 +1,6 @@
 /**
- * Server-side sanitation for bundle/combo API payloads, shared by
- * `getProductBundle` (PDP) and `getCombo` (combo landing) so both surfaces
- * apply identical rules:
+ * Server-side sanitation for bundle/combo API payloads (used by `getCombo` /
+ * `getCombos` — bundles are a combo-page concern only):
  *
  *  - numeric money fields are coerced (the .NET serializer can emit decimals
  *    as strings depending on converter config) so `tier.price > 0` checks and

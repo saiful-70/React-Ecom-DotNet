@@ -92,6 +92,31 @@ export const tierHasUnitPicker = (tier: BundleTier): boolean =>
   requiredItems(tier).some((i) => i.variant_selection === "customer");
 
 /**
+ * Ceiling on individually-configurable units per tier. The per-unit picker is
+ * designed for small packs (a 2-5 piece combo); a tier declaring dozens of
+ * units — in practice unfinished admin data, e.g. qty 22 — would render an
+ * unusable wall of dropdowns. Past this cap the tier degrades to the flat
+ * fixed card (composition falls back to each item's default variant).
+ */
+export const MAX_CONFIGURABLE_UNITS = 8;
+
+/**
+ * Effective axes accessor for one tier: the given `axesFor`, unless the tier's
+ * configurable unit count exceeds `MAX_CONFIGURABLE_UNITS`, in which case every
+ * item reads as fixed. Both the picker UI and the cart-composition builder must
+ * use this same accessor so what the shopper sees is exactly what is ordered.
+ */
+export function tierAxesFor(
+  tier: BundleTier,
+  axesFor: (item: BundleTierItem) => UnitAxes | null
+): (item: BundleTierItem) => UnitAxes | null {
+  const configurable = buildUnitSlots(tier).filter((s) =>
+    axesFor(s.item)
+  ).length;
+  return configurable > MAX_CONFIGURABLE_UNITS ? () => null : axesFor;
+}
+
+/**
  * Expand required items into one slot per unit, so a `qty: 3` item yields three
  * independently configurable rows. Multi-product combos interleave naturally:
  * item order is preserved, units within an item are consecutive.
@@ -483,7 +508,14 @@ export function toBundleComponents(
 
   for (const item of requiredItems(tier)) {
     if (configurable.has(item)) continue;
-    push(item.product_id, item.variant_id ?? null, item.qty);
+    // Fixed rows fall back to the item's default variant so a degraded
+    // "customer" item (unusable options / over the unit cap) still resolves
+    // to a purchasable variant instead of `null`.
+    push(
+      item.product_id,
+      item.variant_id ?? item.default_variant_id ?? null,
+      item.qty
+    );
   }
 
   return [...rows.values()];

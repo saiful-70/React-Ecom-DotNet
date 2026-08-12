@@ -4,7 +4,7 @@ import type { Product, PaginationMeta } from "@/(app-routes)/products/model";
 import type { Category } from "@/components/shared/models/category";
 import type { Brand } from "@/components/shared/models/brand";
 import type { FeatureFlags, TemplateId } from "@/variants/types";
-import type { Bundle } from "@/lib/bundles/types";
+import type { BundleSummary } from "@/lib/bundles/types";
 
 /**
  * Template system types.
@@ -51,11 +51,11 @@ export interface ProductListingLayoutProps {
 export interface ProductDetailsLayoutProps {
   product: Product;
   /**
-   * Quantity bundle attached to this product, when the `bundles` feature flag is
-   * on and the backend/mock returns one. Optional so templates that don't render
-   * bundles simply ignore it.
+   * Combo offers anchored to this product (when the `bundles` feature flag is
+   * on). The PDP renders them only as compact link cards to the combo landing
+   * page — bundle configuration itself lives on `/combo/[slug]`.
    */
-  bundle?: Bundle | null;
+  combos?: BundleSummary[];
 }
 
 export interface TemplateChrome {

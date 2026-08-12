@@ -24,6 +24,7 @@ import { BundleTierList } from "./BundleTierList";
 import { BundleUnitPicker } from "./BundleUnitPicker";
 import { useBundleCart } from "./use-bundle-cart";
 import { useBundleUnits } from "./use-bundle-units";
+import { requiredItems } from "@/lib/bundles/units";
 import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 import type { Bundle, BundleTier } from "@/lib/bundles/types";
 
@@ -168,7 +169,9 @@ export function ComboLanding({ combo }: ComboLandingProps) {
 
   if (!selectedTier) return null;
 
-  const includedItems = selectedTier.items;
+  // Only the enforced composition — optional add-on rows aren't included in
+  // the tier price and must not be presented as part of the box.
+  const includedItems = requiredItems(selectedTier);
   // Blocked when sold out, or when a per-unit choice is missing / out of stock.
   const soldOut =
     selectedTier.is_available === false || !unitsFor(selectedTier).isReady;

@@ -26,7 +26,7 @@ import {
 	ProductDetailsTabs,
 } from "@/components/product/product-details";
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
-import { ProductBundleSelector } from "@/components/product/bundle/ProductBundleSelector";
+import { ComboOfferCard } from "@/components/home/ComboPromo";
 import type { Product, ProductVariant } from "@/(app-routes)/products/model";
 import type { ProductDetailsLayoutProps } from "@/templates/types";
 import { GlobalSectionTitle } from "../home/GlobalSectionTitle";
@@ -42,11 +42,8 @@ import { cn } from "@/lib/utils/utils";
  */
 export function GlobalProductDetails({
 	product,
-	bundle,
+	combos,
 }: ProductDetailsLayoutProps) {
-	// An active bundle takes over the purchase controls: its unit rows own the
-	// size/colour choice, so the page-level variant selector is suppressed.
-	const hasBundle = !!bundle && bundle.tiers.length > 0;
 	const { t } = useTranslation();
 	const router = useRouter();
 	const { items, addToCart } = useCart();
@@ -269,7 +266,7 @@ export function GlobalProductDetails({
 						)}
 					</div>
 
-					{!hasBundle && product.variants && product.variants.length > 0 && (
+					{product.variants && product.variants.length > 0 && (
 						<ProductVariantSelector
 							product={product}
 							onVariantChange={(variant) => {
@@ -282,13 +279,16 @@ export function GlobalProductDetails({
 						/>
 					)}
 
-					{bundle && hasBundle ? (
-						<ProductBundleSelector
-							bundle={bundle}
-							product={product}
-						/>
-					) : (
-						<>
+					{/* Combo offers anchored to this product — link to /combo/[slug] */}
+					{combos && combos.length > 0 && (
+						<div className="space-y-2">
+							{combos.map((combo) => (
+								<ComboOfferCard key={combo.id} combo={combo} />
+							))}
+						</div>
+					)}
+
+					<>
 							<div className="flex flex-wrap items-center gap-4">
 								<QuantitySelector
 									quantity={quantity}
@@ -359,8 +359,7 @@ export function GlobalProductDetails({
 									<Share2 className="h-5 w-5" />
 								</Button>
 							</div>
-						</>
-					)}
+					</>
 
 					<GlobalDeliveryInfo />
 				</div>

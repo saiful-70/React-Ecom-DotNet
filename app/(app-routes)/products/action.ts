@@ -1,6 +1,6 @@
 "use server";
 
-import { ApiClient, type ApiResponse } from "@/lib/api-client";
+import { ApiClient } from "@/lib/api-client";
 import { API_ROUTES } from "@/lib/api-route";
 import {
   ProductsResponse,
@@ -12,8 +12,6 @@ import {
 } from "./model";
 import { getRequestLanguage } from "@/lib/utils/server-language";
 import { cookies } from "next/headers";
-import { normalizeBundle } from "@/lib/bundles/normalize";
-import type { Bundle } from "@/lib/bundles/types";
 
 // Fetch Featured Products
 async function fetchFeaturedProductsFromAPI(
@@ -272,51 +270,5 @@ export async function getProductDetails(
   };
 }
 
-// Fetch the primary bundle for a product's PDP (null when none active).
-export async function getProductBundle(id: number): Promise<Bundle | null> {
-  const lang = await getRequestLanguage();
-  const response = await new ApiClient(API_ROUTES.BUNDLES.PRODUCT_BUNDLE)
-    .withMethod("GET")
-    .withParams({ product_id: id, lang })
-    .execute<ApiResponse<Bundle | null>>();
-
-  if (!response.success) {
-    console.error("[getProductBundle] request failed", {
-      product_id: id,
-      lang,
-      message: response.message,
-    });
-    return null;
-  }
-
-  const bundle = response.data;
-  if (!bundle || !bundle.is_active) {
-    return null;
-  }
-
-  // The endpoint is queried by product_id, but a misconfigured bundle can still
-  // come back anchored to a different product (or to none at all). Showing an
-  // unrelated combo on a PDP is worse than showing no offer, so drop it.
-  if (bundle.product_id != null && bundle.product_id !== id) {
-    console.warn("[getProductBundle] bundle is anchored to another product", {
-      requested_product_id: id,
-      bundle_id: bundle.id,
-      bundle_product_id: bundle.product_id,
-    });
-    return null;
-  }
-
-  // Shared sanitation with getCombo: coerce wire numerics and drop tiers
-  // priced at 0 (unfinished/test data) — rendering a "0.00tk" buy button is
-  // worse than showing no offer.
-  const normalized = normalizeBundle(bundle);
-  if (normalized.tiers.length === 0) {
-    console.warn("[getProductBundle] bundle has no sellable tiers", {
-      product_id: id,
-      bundle_id: bundle.id,
-    });
-    return null;
-  }
-
-  return normalized;
-}
+// NOTE: the PDP intentionally has no bundle fetch — bundle offers are a
+// combo-page concern only (`app/(app-routes)/combo/action.ts`).

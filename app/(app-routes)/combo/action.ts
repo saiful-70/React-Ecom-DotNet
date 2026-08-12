@@ -47,9 +47,9 @@ export async function getCombo(slug: string): Promise<ComboFetchResult> {
   }
 
   const combo = response.data;
-  // Same guards as the PDP's getProductBundle: an inactive combo or one with
-  // no sellable tiers (price ≤ 0 — unfinished/test data) must not render a
-  // "0.00tk" landing page. The page treats empty tiers as notFound().
+  // An inactive combo or one with no sellable tiers (price ≤ 0 —
+  // unfinished/test data) must not render a "0.00tk" landing page. The page
+  // treats empty tiers as notFound().
   if (!combo || !combo.is_active) {
     return null;
   }

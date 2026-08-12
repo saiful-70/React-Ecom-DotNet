@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProductDetails, getProductBundle } from "../action";
+import { getProductDetails } from "../action";
+import { getCombos } from "@/(app-routes)/combo/action";
 import { getBusinessSettings } from "@/components/shared/actions/business-settings";
 import {
 	generateProductMetadata,
@@ -94,16 +95,18 @@ export default async function ProductDetailsPage({ params }: Props) {
 	const variant = await getActiveVariant();
 	const template = getTemplate(variant.template);
 
-	// Bundle offers are gated by the `bundles` feature flag.
-	const bundle = variant.features.bundles
-		? await getProductBundle(product.id)
-		: null;
+	// PRODUCT DECISION: bundle configuration lives on the combo page only. The
+	// PDP just surfaces compact "combo offer" link cards for combos anchored to
+	// this product, so the shopper can navigate to `/combo/[slug]`.
+	const combos = variant.features.bundles
+		? (await getCombos()).filter((combo) => combo.product_id === product.id)
+		: [];
 
 	return (
 		<>
 			{renderStructuredData(productSchema)}
 			{renderStructuredData(breadcrumbSchema)}
-			<template.ProductDetailsLayout product={product} bundle={bundle} />
+			<template.ProductDetailsLayout product={product} combos={combos} />
 		</>
 	);
 }

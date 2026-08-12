@@ -8,6 +8,7 @@ import {
   itemAxes,
   seedSelections,
   selectionLabel,
+  tierAxesFor,
   tierUnitCount,
   tierUnitPrice,
   toBundleComponents,
@@ -51,13 +52,24 @@ export function useBundleUnits({ product }: UseBundleUnitsArgs) {
     [productAxes]
   );
 
-  /** Slots + resolved selections + issues for one tier. */
+  /**
+   * Slots + resolved selections + issues for one tier.
+   *
+   * Uses the tier-scoped effective axes (`tierAxesFor`): a tier whose
+   * configurable unit count exceeds MAX_CONFIGURABLE_UNITS degrades to the
+   * flat fixed card instead of rendering dozens of dropdown rows.
+   */
   const unitsFor = useCallback(
     (tier: BundleTier) => {
+      const effAxesFor = tierAxesFor(tier, axesFor);
       const slots = buildUnitSlots(tier);
-      const selections = seedSelections(slots, axesFor, edits[tier.id] ?? {});
-      const configurable = slots.filter((s) => axesFor(s.item));
-      const issues = unitIssues(slots, axesFor, selections);
+      const selections = seedSelections(
+        slots,
+        effAxesFor,
+        edits[tier.id] ?? {}
+      );
+      const configurable = slots.filter((s) => effAxesFor(s.item));
+      const issues = unitIssues(slots, effAxesFor, selections);
 
       return {
         slots: configurable,
@@ -104,7 +116,11 @@ export function useBundleUnits({ product }: UseBundleUnitsArgs) {
   /** `bundle_components` for a tier, ready for the cart line / validate call. */
   const componentsFor = useCallback(
     (tier: BundleTier): BundleCartComponent[] =>
-      toBundleComponents(tier, axesFor, unitsFor(tier).selections),
+      toBundleComponents(
+        tier,
+        tierAxesFor(tier, axesFor),
+        unitsFor(tier).selections
+      ),
     [axesFor, unitsFor]
   );
 

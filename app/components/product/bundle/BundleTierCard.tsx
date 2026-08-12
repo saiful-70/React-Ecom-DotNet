@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 import { CartLineImage } from "@/components/shared/CartLineImage";
 import Price from "@/components/shared/Price";
 import { cn } from "@/lib/utils/utils";
-import { tierUnitCount, tierUnitPrice } from "@/lib/bundles/units";
+import { requiredItems, tierUnitCount, tierUnitPrice } from "@/lib/bundles/units";
 import type { BundleTier, BundleTierItem } from "@/lib/bundles/types";
 
 interface BundleTierCardProps {
@@ -89,6 +89,9 @@ export function BundleTierCard({
   const hasSavings = tier.savings > 0;
   const unitCount = tierUnitCount(tier);
   const unitPrice = tierUnitPrice(tier);
+  // Only the enforced composition is shown — optional add-on rows are not
+  // part of what the shopper gets for the tier price.
+  const included = requiredItems(tier);
 
   return (
     <div
@@ -130,7 +133,7 @@ export function BundleTierCard({
             {selected && <span className="size-2.5 rounded-full bg-primary" />}
           </span>
 
-          <ThumbCluster items={tier.items} />
+          <ThumbCluster items={included} />
 
           {/* Title + savings pill */}
           <div className="min-w-0 flex-1">
@@ -169,7 +172,7 @@ export function BundleTierCard({
           <div className="mt-2 space-y-1 pl-7 sm:pl-8">
             {showComposition && (
               <ul className="space-y-0.5">
-                {tier.items.map((item, i) => (
+                {included.map((item, i) => (
                   <li
                     key={`${item.product_id}-${i}`}
                     className="text-xs leading-tight text-muted-foreground"

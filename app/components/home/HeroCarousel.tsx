@@ -75,21 +75,30 @@ export const HeroCarousel = ({ banners }: HeroCarouselProps) => {
 
 						return (
 							<CarouselItem key={slide.id} className="pl-0">
-								<div className="relative h-[300px] sm:h-[400px] lg:h-[480px] w-full overflow-hidden">
+								<div className="relative h-[340px] sm:h-[420px] lg:h-[500px] w-full overflow-hidden">
 									<Image
 										src={slide.image_url}
 										alt={title}
 										fill
 										priority={index === 0}
 										sizes="100vw"
-										className="object-cover"
+										// Slow drift on the slide currently on screen: the only
+										// authored motion in the hero besides the timer rail.
+										className={cn(
+											"object-cover transition-transform duration-[6000ms] ease-out",
+											selected === index
+												? "motion-safe:scale-[1.06]"
+												: "scale-100"
+										)}
 									/>
-									{/* Forest-green wash so the copy stays legible over any image */}
-									<div className="absolute inset-0 bg-gradient-to-r from-secondary/90 via-secondary/60 to-secondary/10" />
+									{/* Forest-green wash so the copy stays legible over any
+									    image. Phones read bottom-up (the copy sits low in the
+									    frame); from `sm` the scrim turns side-on. */}
+									<div className="absolute inset-0 bg-gradient-to-t from-secondary via-secondary/70 to-secondary/10 sm:bg-gradient-to-r sm:from-secondary/95 sm:via-secondary/65 sm:to-secondary/5" />
 
-									<div className="relative container mx-auto flex h-full items-center">
-										<div className="max-w-xl space-y-4 text-secondary-foreground sm:space-y-6">
-											<h2 className="font-display text-3xl font-semibold leading-[1.1] tracking-tight text-balance sm:text-4xl lg:text-5xl xl:text-6xl">
+									<div className="relative container mx-auto flex h-full items-end pb-14 sm:items-center sm:pb-0">
+										<div className="max-w-xl space-y-3 text-secondary-foreground sm:space-y-6">
+											<h2 className="font-display text-4xl font-bold leading-[1.05] tracking-tight text-balance sm:text-5xl lg:text-6xl">
 												{title}
 											</h2>
 											<p className="max-w-lg text-sm leading-relaxed text-secondary-foreground/85 sm:text-base lg:text-lg">
@@ -98,7 +107,7 @@ export const HeroCarousel = ({ banners }: HeroCarouselProps) => {
 											<Button
 												asChild
 												size="lg"
-												className="h-11 px-6 text-sm shadow-warm-md hover:shadow-warm-lg sm:h-12 sm:px-8 sm:text-base"
+												className="h-12 bg-terracotta-gradient px-7 text-sm font-bold shadow-warm-md transition-[filter,box-shadow] hover:shadow-warm-lg hover:brightness-110 sm:h-14 sm:px-9 sm:text-base"
 											>
 												<Link
 													href={slide.cta_url}
@@ -122,8 +131,11 @@ export const HeroCarousel = ({ banners }: HeroCarouselProps) => {
 				</CarouselContent>
 			</Carousel>
 
-			{/* Dot indicators */}
-			<div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 sm:bottom-6">
+			{/* Slide timer rail. The active track fills over one autoplay cycle,
+			    so the indicator says how long is left, not just where you are.
+			    `key={selected}` restarts the fill on every advance; the fill is
+			    a transform, so it costs no layout on a cheap phone. */}
+			<div className="absolute bottom-5 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 sm:bottom-7 sm:gap-2">
 				{slides.map((slide, i) => (
 					<button
 						key={slide.id}
@@ -132,12 +144,26 @@ export const HeroCarousel = ({ banners }: HeroCarouselProps) => {
 						aria-current={selected === i}
 						onClick={() => api?.scrollTo(i)}
 						className={cn(
-							"h-2 rounded-full transition-all",
+							"h-1.5 overflow-hidden rounded-full transition-[width,background-color] duration-300",
 							selected === i
-								? "w-6 bg-primary-foreground"
-								: "w-2 bg-primary-foreground/50 hover:bg-primary-foreground/80"
+								? "w-10 bg-primary-foreground/30 sm:w-14"
+								: "w-2.5 bg-primary-foreground/45 hover:bg-primary-foreground/75"
 						)}
-					/>
+					>
+						{selected === i && (
+							<span
+								key={selected}
+								aria-hidden="true"
+								className="block h-full w-full origin-left rounded-full bg-primary-foreground motion-safe:animate-slide-progress"
+								style={{
+									["--slide-duration" as string]: `${AUTOPLAY_MS}ms`,
+									animationPlayState: paused
+										? "paused"
+										: "running",
+								}}
+							/>
+						)}
+					</button>
 				))}
 			</div>
 		</section>

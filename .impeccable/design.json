@@ -31,8 +31,8 @@
       "save-coral": {
         "role": "tertiary",
         "displayName": "Save Coral",
-        "canonical": "hsl(4 74% 64%)",
-        "tonalRamp": ["hsl(4 74% 15%)", "hsl(4 74% 26%)", "hsl(4 74% 38%)", "hsl(4 74% 50%)", "hsl(4 74% 64%)", "hsl(4 72% 76%)", "hsl(4 70% 87%)", "hsl(4 68% 95%)"]
+        "canonical": "hsl(4 74% 48%)",
+        "tonalRamp": ["hsl(4 74% 15%)", "hsl(4 74% 26%)", "hsl(4 74% 38%)", "hsl(4 74% 48%)", "hsl(4 74% 62%)", "hsl(4 72% 76%)", "hsl(4 70% 87%)", "hsl(4 68% 95%)"]
       },
       "caution-amber": {
         "role": "tertiary",
@@ -78,11 +78,14 @@
       }
     },
     "typographyMeta": {
+      "hero": { "displayName": "Hero", "purpose": "Home-hero banner headlines over the green scrim. The only display type above 2rem; always balanced." },
       "display": { "displayName": "Display", "purpose": "Page titles only — product name, combo title. One per page, Bengali serif." },
       "headline": { "displayName": "Headline", "purpose": "In-page section headers, usually with a 16px leading icon in Leaf Forest." },
       "title": { "displayName": "Title", "purpose": "Product card names, clamped to two lines; tints to Leaf Forest on card hover." },
       "body": { "displayName": "Body", "purpose": "Descriptions, terms, chat, backend long-form HTML. Measure 65-75ch in prose." },
-      "label": { "displayName": "Label", "purpose": "Field labels, badge text, trust captions, countdown unit captions." },
+      "label": { "displayName": "Label", "purpose": "Field labels, trust captions, countdown unit captions." },
+      "micro": { "displayName": "Micro", "purpose": "Savings pills, per-unit chips, perk lines, composition lists — the second line of a dense card." },
+      "badge": { "displayName": "Badge", "purpose": "Smallest step in the system. Corner ribbons and status chips over imagery only." },
       "price": { "displayName": "Price", "purpose": "Every rendered amount. Always tabular, always the heaviest item in its block." }
     },
     "shadows": [

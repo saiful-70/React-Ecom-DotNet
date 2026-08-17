@@ -97,15 +97,15 @@ export function BundleTierCard({
   return (
     <div
       className={cn(
-        "relative rounded-2xl border-2 transition-all",
+        "relative rounded-2xl border-2 transition-all duration-300",
         disabled && "opacity-50",
         selected
-          ? "border-primary bg-primary/[0.07] shadow-warm-sm"
-          : "border-border bg-card hover:border-primary/50"
+          ? "border-primary bg-primary/[0.07] shadow-warm-md ring-2 ring-primary/20"
+          : "border-border bg-card shadow-warm-sm hover:border-primary/50 hover:shadow-warm"
       )}
     >
       {badge && (
-        <span className="absolute -top-2.5 left-4 z-10 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-foreground shadow-sm">
+        <span className="absolute -top-3 left-4 z-10 rounded-full bg-terracotta-gradient px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-primary-foreground shadow-warm-sm">
           {badge}
         </span>
       )}
@@ -143,7 +143,7 @@ export function BundleTierCard({
             </p>
 
             {hasSavings && (
-              <span className="mt-1 inline-block rounded-md bg-bundle-save px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-bundle-save-foreground">
+              <span className="mt-1 inline-block rounded-full bg-bundle-save px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-bundle-save-foreground shadow-warm-sm">
                 {t("bundle.saveShort")} <Price amount={tier.savings} />
               </span>
             )}
@@ -156,7 +156,7 @@ export function BundleTierCard({
                 <Price amount={tier.compare_at_price} />
               </div>
             )}
-            <div className="whitespace-nowrap text-base font-bold leading-tight text-primary sm:text-lg">
+            <div className="whitespace-nowrap text-xl font-bold leading-tight tabular-nums tracking-tight text-primary sm:text-2xl">
               <Price amount={tier.price} />
             </div>
             {unitCount > 1 && (

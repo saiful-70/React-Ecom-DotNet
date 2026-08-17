@@ -57,6 +57,7 @@ export async function ClassicHome({
 						viewAllHref="/products?today_deal=1"
 						perPage={12}
 						bgClass="bg-muted/30"
+						motif
 					/>
 				)}
 				<Features />

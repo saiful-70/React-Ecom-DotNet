@@ -17,8 +17,14 @@ colors:
   markdown-red: "hsl(0 72% 48%)"
   confirm-green: "hsl(142 60% 34%)"
   caution-amber: "hsl(38 88% 50%)"
-  save-coral: "hsl(4 74% 64%)"
+  save-coral: "hsl(4 74% 48%)"
 typography:
+  hero:
+    fontFamily: "Noto Serif Bengali Variable, Hind Siliguri, ui-serif, Georgia, serif"
+    fontSize: "clamp(2.25rem, 6vw, 3.75rem)"
+    fontWeight: 700
+    lineHeight: 1.05
+    letterSpacing: "-0.025em"
   display:
     fontFamily: "Noto Serif Bengali Variable, Hind Siliguri, ui-serif, Georgia, serif"
     fontSize: "clamp(1.5rem, 4vw, 1.875rem)"
@@ -46,6 +52,17 @@ typography:
     fontSize: "0.75rem"
     fontWeight: 600
     lineHeight: 1.2
+  micro:
+    fontFamily: "Hind Siliguri, Inter Variable, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "11px"
+    fontWeight: 600
+    lineHeight: 1.2
+  badge:
+    fontFamily: "Hind Siliguri, Inter Variable, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "10px"
+    fontWeight: 700
+    lineHeight: 1.1
+    letterSpacing: "0.025em"
   price:
     fontFamily: "Hind Siliguri, Inter Variable, ui-sans-serif, system-ui, sans-serif"
     fontSize: "1.25rem"
@@ -183,11 +200,14 @@ A single-hue green world (forest through leaf) over mint neutrals, with red, cor
 **Character:** A Bengali serif does the talking and a Bengali humanist sans does the work. The pairing is bilingual by construction — both faces carry Bengali and Latin, so an English string and a Bengali string in the same heading share one voice instead of falling back to a mismatched system font. Headings are tight (`-0.025em`) and confident; body text is generous in line height and short in measure.
 
 ### Hierarchy
+- **Hero** (700, `clamp(2.25rem, 6vw, 3.75rem)`, 1.05): banner headlines inside the home hero, over the forest-green scrim. The only place the display face runs above 2rem; balanced wrapping is mandatory at this size.
 - **Display** (700, `clamp(1.5rem, 4vw, 1.875rem)`, 1.25): page titles — product name on a details page, combo title on a landing page. One per page.
 - **Headline** (700, 1.125rem, 1.4): section headers inside a page ("What's included", "Select combo"), usually paired with a 16px leading icon in Leaf Forest.
 - **Title** (500, 0.875rem, 1.4): product card names, clamped to two lines, shifting to Leaf Forest on card hover. Steps down to 0.75rem below the `sm` breakpoint.
 - **Body** (400, 0.875rem, 1.625): descriptions, terms, chat, and long-form HTML from the backend. Keep the measure near 65–75ch in prose blocks.
-- **Label** (600, 0.75rem, 1.2): field labels, badge text, trust-row captions, unit captions under countdown digits.
+- **Label** (600, 0.75rem, 1.2): field labels, trust-row captions, unit captions under countdown digits.
+- **Micro** (600, 11px, 1.2): savings pills, per-unit price chips, perk lines, composition lists — the second line of a dense card.
+- **Badge** (700, 10px, uppercase with 0.025em tracking): the smallest type in the system. Corner ribbons and status chips over imagery only; never a full sentence.
 - **Price** (700, 1.25rem, tabular): the money type. Always tabular, always tightened, always the heaviest thing in its own block.
 
 ### Named Rules

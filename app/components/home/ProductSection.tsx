@@ -15,6 +15,12 @@ interface ProductSectionProps {
 	perPage?: number;
 	bgClass?: string;
 	id?: string;
+	/**
+	 * Marks the band as a deal event: adds the diagonal weave behind the grid.
+	 * Use on at most one shelf per page — the motif only means anything while
+	 * the shelves around it stay plain.
+	 */
+	motif?: boolean;
 }
 
 export async function ProductSection({
@@ -25,6 +31,7 @@ export async function ProductSection({
 	perPage = 12,
 	bgClass = "",
 	id,
+	motif = false,
 }: ProductSectionProps) {
 	try {
 		let response;
@@ -50,8 +57,17 @@ export async function ProductSection({
 		}
 
 		return (
-			<section id={id} className={`${SECTION_Y} ${bgClass}`}>
-				<div className="container mx-auto">
+			<section
+				id={id}
+				className={`relative overflow-hidden ${SECTION_Y} ${bgClass}`}
+			>
+				{motif && (
+					<div
+						aria-hidden
+						className="pointer-events-none absolute inset-0 bg-weave-motif opacity-[0.05]"
+					/>
+				)}
+				<div className="relative container mx-auto">
 					<SectionHeader
 						titleKey={titleKey}
 						descriptionKey={descriptionKey}

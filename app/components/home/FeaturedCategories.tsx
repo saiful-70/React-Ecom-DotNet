@@ -47,8 +47,12 @@ export const FeaturedCategories = ({
 				{/* Matches the shelf-label treatment in SectionHeader: title left,
 				    rule running out to the right. No "view all" — the categories
 				    carousel already exposes every category. */}
-				<div className={`flex items-end gap-3 sm:gap-4 ${SECTION_HEADER_MB}`}>
-					<h2 className="font-display text-lg font-semibold leading-tight tracking-tight sm:text-xl md:text-2xl">
+				<div className={`flex items-end gap-2.5 sm:gap-4 ${SECTION_HEADER_MB}`}>
+					<span
+						aria-hidden="true"
+						className="mb-1 h-6 w-1.5 shrink-0 rounded-full bg-saffron-gradient sm:h-7"
+					/>
+					<h2 className="font-display text-xl font-bold leading-tight tracking-tight sm:text-2xl">
 						{t("home.featuredCategories.title")}
 					</h2>
 					<span
@@ -77,18 +81,24 @@ export const FeaturedCategories = ({
 									<Link
 										href={`/products?category_id=${category.category_id}`}
 										aria-label={name}
-										className="group flex flex-col items-center gap-3 rounded-2xl border border-border/60 bg-card p-3 text-center shadow-warm-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-warm-md sm:p-5"
+										className="group flex flex-col items-center gap-2.5 py-1 text-center transition-transform duration-300 hover:-translate-y-1"
 									>
-										<div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted/40">
-											<Image
-												src={category.icon_url}
-												alt={name}
-												fill
-												sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 160px"
-												className="object-cover transition-transform duration-500 group-hover:scale-110"
-											/>
+										{/* The gradient ring is the category's whole frame —
+										    it replaces the card box, which cost width on a
+										    360px phone and made every category read like a
+										    form field rather than a stall sign. */}
+										<div className="w-full rounded-full bg-saffron-gradient p-[3px] shadow-warm-sm transition-shadow duration-300 group-hover:shadow-warm-md">
+											<div className="relative aspect-square w-full overflow-hidden rounded-full bg-muted/40">
+												<Image
+													src={category.icon_url}
+													alt={name}
+													fill
+													sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 160px"
+													className="object-cover transition-transform duration-500 group-hover:scale-110"
+												/>
+											</div>
 										</div>
-										<span className="line-clamp-2 text-xs font-medium leading-tight text-foreground sm:text-sm">
+										<span className="line-clamp-2 text-xs font-semibold leading-tight text-foreground transition-colors group-hover:text-primary sm:text-sm">
 											{name}
 										</span>
 									</Link>

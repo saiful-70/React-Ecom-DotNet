@@ -37,8 +37,17 @@ export function SectionHeader({
 
   return (
     <div className={cn(SECTION_HEADER_MB, className)}>
-      <div className="flex items-end gap-3 sm:gap-4">
-        <h2 className="font-display text-lg font-semibold leading-tight tracking-tight sm:text-xl md:text-2xl">
+      <div className="flex items-end gap-2.5 sm:gap-4">
+        {/* Shelf tab: the gradient stub is the same motif the category rings
+            and trust wells carry, shrunk to a label marker. It gives the
+            title a left edge to sit against so a shelf reads as a shelf
+            before a single word is parsed. */}
+        <span
+          aria-hidden="true"
+          className="mb-1 h-6 w-1.5 shrink-0 rounded-full bg-saffron-gradient sm:h-7"
+        />
+
+        <h2 className="font-display text-xl font-bold leading-tight tracking-tight sm:text-2xl">
           {t(titleKey)}
         </h2>
 
@@ -51,7 +60,7 @@ export function SectionHeader({
         {viewAllHref && (
           <Link
             href={viewAllHref}
-            className="group mb-0.5 ml-auto flex shrink-0 items-center gap-1 whitespace-nowrap text-xs font-medium text-primary transition-colors hover:text-primary/80 sm:ml-0 sm:text-sm"
+            className="group mb-0.5 ml-auto flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-primary/30 px-2.5 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/10 sm:ml-0 sm:px-3 sm:text-sm"
           >
             {t("products.viewAll")}
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -60,7 +69,7 @@ export function SectionHeader({
       </div>
 
       {description && description !== descriptionKey && (
-        <p className="mt-1 max-w-2xl text-xs leading-snug text-muted-foreground sm:text-sm">
+        <p className="mt-1.5 max-w-2xl pl-4 text-xs leading-snug text-muted-foreground sm:text-sm">
           {description}
         </p>
       )}

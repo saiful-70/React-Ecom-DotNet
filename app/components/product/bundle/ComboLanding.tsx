@@ -80,20 +80,22 @@ function OfferCountdown({ endsAt }: { endsAt: string }) {
   ];
 
   return (
-    <div className="rounded-xl border border-warning/40 bg-warning/10 p-3">
-      <div className="flex items-center gap-1.5 text-xs font-semibold text-warning-foreground/80">
-        <Clock className="size-3.5 animate-pulse" />
+    <div className="overflow-hidden rounded-2xl border-2 border-warning/50 bg-warning/10">
+      <div className="flex items-center gap-1.5 bg-warning px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-warning-foreground">
+        <Clock className="size-3.5 motion-safe:animate-pulse" />
         {t("bundle.offerEndsIn")}
       </div>
-      <div className="mt-2 flex items-center gap-1.5">
+      <div className="flex items-center gap-2 p-3">
         {units.map((u, i) => (
-          <div key={u.label} className="flex items-center gap-1.5">
-            {i > 0 && <span className="text-lg font-bold text-warning">:</span>}
+          <div key={u.label} className="flex items-center gap-2">
+            {i > 0 && (
+              <span className="pb-4 text-xl font-bold text-warning">:</span>
+            )}
             <div className="flex flex-col items-center">
-              <span className="grid min-w-9 place-items-center rounded-md bg-secondary px-1.5 py-1 font-display text-base font-bold tabular-nums text-secondary-foreground">
+              <span className="grid min-w-11 place-items-center rounded-lg bg-secondary px-2 py-1.5 font-display text-2xl font-bold tabular-nums text-secondary-foreground shadow-warm-sm">
                 {pad(u.value)}
               </span>
-              <span className="mt-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              <span className="mt-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
                 {u.label}
               </span>
             </div>
@@ -247,7 +249,7 @@ export function ComboLanding({ combo }: ComboLandingProps) {
         {/* Summary */}
         <div className="flex flex-col gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold leading-tight">
+            <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-balance sm:text-4xl">
               {combo.title}
             </h1>
             {combo.description && (
@@ -271,16 +273,16 @@ export function ComboLanding({ combo }: ComboLandingProps) {
 
           {/* Price block */}
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="text-3xl font-bold text-destructive">
+            <span className="text-4xl font-bold tabular-nums tracking-tight text-destructive sm:text-5xl">
               <Price amount={selectedTier.price} />
             </span>
             {selectedTier.compare_at_price > selectedTier.price && (
-              <span className="text-lg text-muted-foreground line-through">
+              <span className="text-lg tabular-nums text-muted-foreground line-through">
                 <Price amount={selectedTier.compare_at_price} />
               </span>
             )}
             {selectedTier.savings > 0 && (
-              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+              <span className="rounded-full bg-bundle-save px-3 py-1 text-xs font-bold uppercase tracking-wide text-bundle-save-foreground">
                 {t("bundle.youSave")} <Price amount={selectedTier.savings} />
               </span>
             )}
@@ -292,14 +294,20 @@ export function ComboLanding({ combo }: ComboLandingProps) {
 
       {/* Trust row (backend-driven; hidden when no active badges) */}
       {trust.length > 0 && (
-        <div className="mt-6 flex flex-wrap justify-around gap-3 rounded-xl border border-border bg-card p-3 shadow-warm-sm">
+        <div className="mt-6 flex flex-wrap justify-around gap-3 rounded-2xl border border-border bg-card p-3 shadow-warm-sm sm:p-4">
           {trust.map(({ Icon, label }, i) => (
             <div
               key={`${label}-${i}`}
-              className="flex min-w-[120px] flex-1 items-center justify-center gap-2 text-center sm:flex-col sm:gap-1"
+              className="flex min-w-[120px] flex-1 items-center justify-center gap-2.5 text-center sm:flex-col sm:gap-2"
             >
-              <Icon className="size-5 shrink-0 text-primary" />
-              <span className="text-xs leading-tight text-muted-foreground">
+              {/* Same gradient well the homepage trust strip uses, so the two
+                  promises read as one system across pages. */}
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-saffron-gradient sm:size-12">
+                <span className="grid size-[calc(100%-4px)] place-items-center rounded-[10px] bg-card">
+                  <Icon className="size-5 text-primary" strokeWidth={1.75} />
+                </span>
+              </span>
+              <span className="text-xs font-semibold leading-tight text-foreground/80">
                 {label}
               </span>
             </div>
@@ -322,7 +330,11 @@ export function ComboLanding({ combo }: ComboLandingProps) {
 
       {/* What's included */}
       <section className="mt-8">
-        <h2 className="mb-3 flex items-center gap-1.5 text-lg font-bold">
+        <h2 className="mb-3 flex items-center gap-2 font-display text-xl font-bold tracking-tight">
+          <span
+            aria-hidden="true"
+            className="h-6 w-1.5 shrink-0 rounded-full bg-saffron-gradient"
+          />
           <Gift className="size-4 text-primary" />
           {t("bundle.whatsIncluded")}
         </h2>
@@ -358,7 +370,11 @@ export function ComboLanding({ combo }: ComboLandingProps) {
 
       {/* Tier selector */}
       <section className="mt-8">
-        <h2 className="mb-3 flex items-center gap-1.5 text-lg font-bold">
+        <h2 className="mb-3 flex items-center gap-2 font-display text-xl font-bold tracking-tight">
+          <span
+            aria-hidden="true"
+            className="h-6 w-1.5 shrink-0 rounded-full bg-saffron-gradient"
+          />
           <Gift className="size-4 text-primary" />
           {t("bundle.selectCombo")}
         </h2>
@@ -387,29 +403,29 @@ export function ComboLanding({ combo }: ComboLandingProps) {
       </section>
 
       {/* Purchase panel — in-flow at every breakpoint (attached, not floating) */}
-      <section className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-warm sm:p-5">
-        <div className="flex items-center justify-between border-b border-border pb-3">
+      <section className="mt-6 rounded-2xl border-2 border-primary/30 bg-card p-4 shadow-warm-md sm:p-5">
+        <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
           <div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {t("bundle.totalPrice")}
             </div>
-            <div className="text-2xl font-bold text-destructive">
+            <div className="text-3xl font-bold tabular-nums tracking-tight text-destructive sm:text-4xl">
               <Price amount={selectedTier.price} />
             </div>
           </div>
           {selectedTier.savings > 0 && (
-            <div className="rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-bold text-primary">
+            <div className="rounded-xl bg-bundle-save px-3 py-2 text-right text-sm font-bold leading-tight text-bundle-save-foreground">
               {t("bundle.youSaveTotal")}{" "}
               <Price amount={selectedTier.savings} />
             </div>
           )}
         </div>
 
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+        <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
           <Button
             onClick={() => handleBuyNow(selectedTier)}
             disabled={soldOut}
-            className="h-12 flex-1 text-sm font-bold sm:text-base"
+            className="h-14 flex-1 bg-terracotta-gradient text-base font-bold shadow-warm transition-[filter,box-shadow] hover:shadow-warm-md hover:brightness-110"
           >
             <ShoppingBag className="mr-1.5 size-5" />
             {t("bundle.buyNow")}
@@ -418,7 +434,7 @@ export function ComboLanding({ combo }: ComboLandingProps) {
             variant="outline"
             onClick={() => handleAddToCart(selectedTier)}
             disabled={soldOut}
-            className="h-12 flex-1 border-primary text-sm font-bold text-primary hover:bg-primary/10 hover:text-primary sm:text-base"
+            className="h-14 flex-1 border-2 border-primary text-base font-bold text-primary hover:bg-primary/10 hover:text-primary"
           >
             <ShoppingCart className="mr-1.5 size-5" />
             {t("bundle.addComboToCart")}

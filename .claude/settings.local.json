@@ -4,6 +4,9 @@
       "Bash(npm run *)"
     ]
   },
+  "enabledMcpjsonServers": [
+    "graft"
+  ],
   "hooks": {
     "PostToolUse": [
       {
@@ -31,5 +34,6 @@
       }
     ]
   },
-  "description": "Impeccable design detector: immediate-tier checks after Edit/Write/MultiEdit on UI files, full-rule deep pass on Stop."
+  "description": "Impeccable design detector: immediate-tier checks after Edit/Write/MultiEdit on UI files, full-rule deep pass on Stop.",
+  "enableAllProjectMcpServers": true
 }

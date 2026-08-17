@@ -20,6 +20,8 @@ interface ComboPromoProps {
  */
 export function ComboOfferCard({ combo }: { combo: BundleSummary }) {
   const { t } = useTranslation();
+  // Real arithmetic on the payload — never a made-up "up to X% off".
+  const savings = combo.compare_at_price - combo.price;
 
   return (
     <Link
@@ -27,15 +29,23 @@ export function ComboOfferCard({ combo }: { combo: BundleSummary }) {
       onClick={() =>
         trackPromotionClick({ promotionId: combo.id, code: combo.slug })
       }
-      className="group flex items-center gap-3 overflow-hidden rounded-xl border border-primary/20 bg-primary/5 p-2.5 transition-colors hover:bg-primary/10"
+      className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-primary/25 bg-card p-3 shadow-warm-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-warm-md"
     >
-      <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
+      {/* Savings ribbon — the loudest thing on the card, because the size of
+          the discount is the only reason to open a combo page. */}
+      {savings > 0 && (
+        <span className="absolute right-0 top-0 rounded-bl-xl bg-bundle-save px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-bundle-save-foreground">
+          {t("bundle.saveShort")} <Price amount={savings} />
+        </span>
+      )}
+
+      <div className="relative size-20 shrink-0 overflow-hidden rounded-xl bg-muted">
         <CartLineImage
           src={combo.banner}
           alt={combo.title}
           fill
-          sizes="64px"
-          className="object-cover"
+          sizes="80px"
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
         />
       </div>
 
@@ -44,22 +54,22 @@ export function ComboOfferCard({ combo }: { combo: BundleSummary }) {
           <Gift className="size-3" />
           {t("bundle.comboOffer")}
         </span>
-        <h3 className="truncate text-sm font-bold leading-tight">
+        <h3 className="truncate text-sm font-bold leading-tight sm:text-base">
           {combo.title}
         </h3>
-        <div className="mt-0.5 flex flex-wrap items-baseline gap-x-1.5">
-          <span className="text-sm font-bold text-destructive">
+        <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
+          <span className="text-lg font-bold tabular-nums text-destructive sm:text-xl">
             <Price amount={combo.price} />
           </span>
-          {combo.compare_at_price > combo.price && (
-            <span className="text-[11px] text-muted-foreground line-through">
+          {savings > 0 && (
+            <span className="text-xs tabular-nums text-muted-foreground line-through">
               <Price amount={combo.compare_at_price} />
             </span>
           )}
         </div>
       </div>
 
-      <ArrowRight className="size-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" />
+      <ArrowRight className="size-4 shrink-0 self-end text-primary transition-transform group-hover:translate-x-0.5" />
     </Link>
   );
 }
@@ -74,8 +84,18 @@ export function ComboPromo({ combos }: ComboPromoProps) {
   if (!combos.length) return null;
 
   return (
-    <section id="combo-offers" className={SECTION_Y}>
-      <div className="container mx-auto">
+    <section
+      id="combo-offers"
+      className={`relative overflow-hidden border-y border-primary/15 bg-primary/[0.06] ${SECTION_Y}`}
+    >
+      {/* The weave marks this band as merchandising, so the combo shelf reads
+          as an event between two plain product shelves rather than a third
+          identical grid. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-weave-motif opacity-[0.06]"
+      />
+      <div className="relative container mx-auto">
         <SectionHeader
           titleKey="bundle.comboOffer"
           descriptionKey="bundle.comboOfferDescription"

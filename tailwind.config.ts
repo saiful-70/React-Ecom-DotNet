@@ -130,12 +130,20 @@ const config: Config = {
           from: { transform: "rotate(0deg)" },
           to: { transform: "rotate(360deg)" },
         },
+        // Hero slide timer: the active indicator fills over one autoplay cycle,
+        // so the rail shows how long is left instead of just which slide is on.
+        "slide-progress": {
+          from: { transform: "scaleX(0)" },
+          to: { transform: "scaleX(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "ai-pulse": "ai-pulse 4s infinite",
         "ai-spin": "ai-spin 1.5s linear infinite",
+        "slide-progress":
+          "slide-progress var(--slide-duration, 5000ms) linear forwards",
       },
     },
     plugins: [tailwindcssAnimate],

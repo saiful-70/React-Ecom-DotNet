@@ -28,7 +28,10 @@
     --success-foreground: 140 30% 98%;
     --warning: 38 88% 50%;             /* amber kept for warnings only */
     --warning-foreground: 30 30% 14%;
-    --bundle-save: 4 74% 64%;          /* soft coral — "SAVE ৳400" pills */
+    /* Coral — "SAVE ৳400" pills. Darkened from 64% to 48% lightness: white
+       11px bold on the lighter coral measured 2.99:1, under the 4.5:1 floor
+       for small text. At 48% it measures 4.98:1 and stays the same hue. */
+    --bundle-save: 4 74% 48%;
     --bundle-save-foreground: 0 0% 100%;
     --radius: 0.875rem;
     --sidebar-background: 140 30% 96%;
@@ -73,7 +76,7 @@
     --success-foreground: 152 25% 8%;
     --warning: 38 85% 56%;
     --warning-foreground: 30 25% 10%;
-    --bundle-save: 4 64% 56%;
+    --bundle-save: 4 64% 50%;          /* 4.85:1 against white (see :root) */
     --bundle-save-foreground: 0 0% 100%;
     --sidebar-background: 152 22% 9%;
     --sidebar-foreground: 140 20% 88%;
@@ -184,6 +187,22 @@
       hsl(var(--primary)) 100%);
   }
 
+  /* Diagonal weave used to mark a merchandising band (deals, trust strip)
+     apart from the plain shelves around it. Tinted from --primary, so it
+     re-skins with the variant theme instead of shipping a fixed colour. */
+  .bg-weave-motif {
+    background-image: linear-gradient(
+      135deg,
+      hsl(var(--primary)) 25%,
+      transparent 25%,
+      transparent 50%,
+      hsl(var(--primary)) 50%,
+      hsl(var(--primary)) 75%,
+      transparent 75%
+    );
+    background-size: 32px 32px;
+  }
+
   /* Decorative motifs */
   .text-balance {
     text-wrap: balance;
@@ -244,7 +263,7 @@
   }
   
   .chat-markdown blockquote {
-    @apply border-l-4 border-primary/30 pl-3 italic my-2;
+    @apply border-l-2 border-primary/40 pl-3 italic my-2;
   }
   
   .chat-markdown h1,

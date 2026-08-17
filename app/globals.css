@@ -298,4 +298,16 @@
 html body[data-scroll-locked] {
   margin-right: 0 !important;
   padding-right: 0 !important;
+  /* Same root cause, second symptom: the injected rule also sets
+     `overflow: hidden !important` on <body>. Because the viewport scroller here
+     is <html> (see the html rule above), that lock buys nothing — but it does
+     turn <body> into a scroll container, so every `position: sticky` element
+     (the site header) suddenly resolves against body's scrollport, whose top is
+     the top of the document. On a scrolled page the header parks off-screen and
+     visibly vanishes for as long as a Select/Dialog/Popover is open.
+     Restore `visible` on BOTH axes — pairing `clip` with `visible` would make
+     the visible axis compute to `auto` and re-create the scroll container.
+     Background scrolling stays blocked by react-remove-scroll's wheel/touch
+     sidecar; only scrollbar-drag / keyboard scroll remain possible. */
+  overflow: visible !important;
 }

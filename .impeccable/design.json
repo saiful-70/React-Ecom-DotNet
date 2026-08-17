@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-17T05:22:02Z",
+  "title": "Design System: DebuggerMind Storefront",
+  "extensions": {
+    "colorMeta": {
+      "leaf-forest": {
+        "role": "primary",
+        "displayName": "Leaf Forest",
+        "canonical": "hsl(142 56% 30%)",
+        "tonalRamp": ["hsl(142 56% 15%)", "hsl(142 56% 26%)", "hsl(142 56% 34%)", "hsl(142 56% 45%)", "hsl(142 50% 57%)", "hsl(142 45% 70%)", "hsl(142 40% 84%)", "hsl(142 35% 95%)"]
+      },
+      "bright-leaf": {
+        "role": "primary",
+        "displayName": "Bright Leaf",
+        "canonical": "hsl(128 50% 42%)",
+        "tonalRamp": ["hsl(128 50% 15%)", "hsl(128 50% 25%)", "hsl(128 50% 35%)", "hsl(128 50% 45%)", "hsl(128 48% 57%)", "hsl(128 45% 70%)", "hsl(128 40% 84%)", "hsl(128 35% 95%)"]
+      },
+      "deep-canopy": {
+        "role": "secondary",
+        "displayName": "Deep Canopy",
+        "canonical": "hsl(152 68% 11%)",
+        "tonalRamp": ["hsl(152 68% 8%)", "hsl(152 68% 15%)", "hsl(152 60% 24%)", "hsl(152 52% 35%)", "hsl(152 45% 48%)", "hsl(152 40% 63%)", "hsl(152 35% 80%)", "hsl(152 30% 95%)"]
+      },
+      "markdown-red": {
+        "role": "tertiary",
+        "displayName": "Markdown Red",
+        "canonical": "hsl(0 72% 48%)",
+        "tonalRamp": ["hsl(0 72% 15%)", "hsl(0 72% 26%)", "hsl(0 72% 38%)", "hsl(0 72% 48%)", "hsl(0 70% 60%)", "hsl(0 68% 72%)", "hsl(0 65% 85%)", "hsl(0 60% 95%)"]
+      },
+      "save-coral": {
+        "role": "tertiary",
+        "displayName": "Save Coral",
+        "canonical": "hsl(4 74% 64%)",
+        "tonalRamp": ["hsl(4 74% 15%)", "hsl(4 74% 26%)", "hsl(4 74% 38%)", "hsl(4 74% 50%)", "hsl(4 74% 64%)", "hsl(4 72% 76%)", "hsl(4 70% 87%)", "hsl(4 68% 95%)"]
+      },
+      "caution-amber": {
+        "role": "tertiary",
+        "displayName": "Caution Amber",
+        "canonical": "hsl(38 88% 50%)",
+        "tonalRamp": ["hsl(38 88% 15%)", "hsl(38 88% 26%)", "hsl(38 88% 38%)", "hsl(38 88% 50%)", "hsl(38 88% 62%)", "hsl(38 88% 74%)", "hsl(38 85% 86%)", "hsl(38 80% 95%)"]
+      },
+      "confirm-green": {
+        "role": "tertiary",
+        "displayName": "Confirm Green",
+        "canonical": "hsl(142 60% 34%)",
+        "tonalRamp": ["hsl(142 60% 15%)", "hsl(142 60% 24%)", "hsl(142 60% 34%)", "hsl(142 60% 45%)", "hsl(142 56% 57%)", "hsl(142 50% 70%)", "hsl(142 45% 84%)", "hsl(142 40% 95%)"]
+      },
+      "mint-cream": {
+        "role": "neutral",
+        "displayName": "Mint Cream",
+        "canonical": "hsl(140 30% 97%)",
+        "tonalRamp": ["hsl(140 24% 15%)", "hsl(140 22% 27%)", "hsl(140 20% 40%)", "hsl(140 20% 55%)", "hsl(140 24% 70%)", "hsl(140 28% 84%)", "hsl(140 28% 93%)", "hsl(140 30% 97%)"]
+      },
+      "green-black": {
+        "role": "neutral",
+        "displayName": "Green Black",
+        "canonical": "hsl(152 30% 10%)",
+        "tonalRamp": ["hsl(152 30% 7%)", "hsl(152 30% 10%)", "hsl(152 26% 20%)", "hsl(152 22% 32%)", "hsl(152 18% 46%)", "hsl(152 16% 62%)", "hsl(152 14% 80%)", "hsl(152 14% 94%)"]
+      },
+      "muted-sage": {
+        "role": "neutral",
+        "displayName": "Muted Sage",
+        "canonical": "hsl(152 12% 38%)",
+        "tonalRamp": ["hsl(152 12% 15%)", "hsl(152 12% 25%)", "hsl(152 12% 38%)", "hsl(152 12% 50%)", "hsl(152 12% 62%)", "hsl(152 12% 74%)", "hsl(152 12% 86%)", "hsl(152 12% 95%)"]
+      },
+      "green-gray-border": {
+        "role": "neutral",
+        "displayName": "Green Gray Border",
+        "canonical": "hsl(142 18% 85%)",
+        "tonalRamp": ["hsl(142 18% 15%)", "hsl(142 18% 27%)", "hsl(142 18% 40%)", "hsl(142 18% 53%)", "hsl(142 18% 66%)", "hsl(142 18% 78%)", "hsl(142 18% 85%)", "hsl(142 18% 95%)"]
+      },
+      "card-white": {
+        "role": "neutral",
+        "displayName": "Card White",
+        "canonical": "hsl(0 0% 100%)",
+        "tonalRamp": ["hsl(0 0% 15%)", "hsl(0 0% 27%)", "hsl(0 0% 40%)", "hsl(0 0% 55%)", "hsl(0 0% 70%)", "hsl(0 0% 84%)", "hsl(0 0% 95%)", "hsl(0 0% 100%)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page titles only — product name, combo title. One per page, Bengali serif." },
+      "headline": { "displayName": "Headline", "purpose": "In-page section headers, usually with a 16px leading icon in Leaf Forest." },
+      "title": { "displayName": "Title", "purpose": "Product card names, clamped to two lines; tints to Leaf Forest on card hover." },
+      "body": { "displayName": "Body", "purpose": "Descriptions, terms, chat, backend long-form HTML. Measure 65-75ch in prose." },
+      "label": { "displayName": "Label", "purpose": "Field labels, badge text, trust captions, countdown unit captions." },
+      "price": { "displayName": "Price", "purpose": "Every rendered amount. Always tabular, always the heaviest item in its block." }
+    },
+    "shadows": [
+      { "name": "rest", "value": "0 1px 2px 0 hsl(152 40% 14% / 0.06), 0 1px 3px 0 hsl(152 40% 14% / 0.08)", "purpose": "Idle state for product cards and trust rows." },
+      { "name": "raised", "value": "0 4px 6px -1px hsl(152 40% 14% / 0.08), 0 2px 4px -2px hsl(152 40% 14% / 0.06)", "purpose": "Purchase panels and surfaces that sit on the field at rest." },
+      { "name": "lifted", "value": "0 10px 25px -5px hsl(152 40% 14% / 0.10), 0 4px 10px -4px hsl(152 40% 14% / 0.08)", "purpose": "Desktop card hover and floating action buttons." },
+      { "name": "overlay", "value": "0 20px 40px -12px hsl(152 40% 14% / 0.18), 0 8px 16px -8px hsl(152 40% 14% / 0.10)", "purpose": "Drawers, sheets, anything covering content." }
+    ],
+    "motion": [
+      { "name": "color-shift", "value": "150ms ease", "purpose": "Button and link colour transitions; colour only, never layout." },
+      { "name": "card-lift", "value": "300ms ease", "purpose": "Card shadow, border tint, and 1px rise on desktop hover." },
+      { "name": "image-zoom", "value": "500ms ease", "purpose": "Product image scale to 1.1 inside its clipped well on card hover." },
+      { "name": "accordion", "value": "200ms ease-out", "purpose": "Accordion and collapsible height transitions." },
+      { "name": "ai-pulse", "value": "4s infinite", "purpose": "Expanding ring on the chat widget launcher." }
+    ],
+    "breakpoints": [
+      { "name": "xs", "value": "475px" },
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1536px" },
+      { "name": "container-max", "value": "1400px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The buy colour. Every action that moves a shopper toward an order.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"21\" r=\"1\"/><circle cx=\"19\" cy=\"21\" r=\"1\"/><path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\"/></svg>কার্টে যোগ করুন</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 8px 16px; border: none; border-radius: 12px; background: hsl(var(--primary, 142 56% 30%)); color: hsl(var(--primary-foreground, 140 30% 98%)); font-family: 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color 150ms ease; } .ds-btn-primary:hover { background: hsl(var(--primary, 142 56% 30%) / 0.9); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px hsl(var(--background, 140 30% 97%)), 0 0 0 4px hsl(var(--ring, 142 56% 30%)); } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "The second half of a buy pair — Add to Cart beside a Primary Buy Now.",
+      "html": "<button class=\"ds-btn-outline\">কার্টে যোগ করুন</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 24px; border: 1px solid hsl(var(--primary, 142 56% 30%)); border-radius: 12px; background: hsl(var(--background, 140 30% 97%)); color: hsl(var(--primary, 142 56% 30%)); font-family: 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: background-color 150ms ease, color 150ms ease; } .ds-btn-outline:hover { background: hsl(var(--primary, 142 56% 30%) / 0.1); } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 2px hsl(var(--background, 140 30% 97%)), 0 0 0 4px hsl(var(--ring, 142 56% 30%)); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Form field. 16px text on mobile is deliberate — it stops iOS zooming on focus.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"পণ্য খুঁজুন\" />",
+      "css": ".ds-input { display: block; width: 100%; height: 40px; padding: 8px 12px; border: 1px solid hsl(var(--input, 142 18% 85%)); border-radius: 12px; background: hsl(var(--background, 140 30% 97%)); color: hsl(var(--foreground, 152 30% 10%)); font-family: 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif; font-size: 16px; transition: box-shadow 150ms ease; } .ds-input::placeholder { color: hsl(var(--muted-foreground, 152 12% 38%)); } .ds-input:focus-visible { outline: none; box-shadow: 0 0 0 2px hsl(var(--background, 140 30% 97%)), 0 0 0 4px hsl(var(--ring, 142 56% 30%)); } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; } @media (min-width: 768px) { .ds-input { font-size: 14px; } }"
+    },
+    {
+      "name": "Select Trigger",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Option picker used for product and per-unit combo variants; 44px tall on purchase surfaces.",
+      "html": "<button class=\"ds-select\"><span>Alabaster</span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" opacity=\"0.5\"><path d=\"m6 9 6 6 6-6\"/></svg></button>",
+      "css": ".ds-select { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 44px; padding: 8px 12px; border: 1px solid hsl(var(--input, 142 18% 85%)); border-radius: 12px; background: hsl(var(--background, 140 30% 97%)); color: hsl(var(--foreground, 152 30% 10%)); font-family: 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; } .ds-select:hover { border-color: hsl(var(--primary, 142 56% 30%) / 0.4); } .ds-select:focus-visible { outline: none; box-shadow: 0 0 0 2px hsl(var(--background, 140 30% 97%)), 0 0 0 4px hsl(var(--ring, 142 56% 30%)); } .ds-select[data-error] { border-color: hsl(var(--destructive, 0 72% 48%)); }"
+    },
+    {
+      "name": "Markdown Badge",
+      "kind": "chip",
+      "refersTo": "badge-markdown",
+      "description": "Discount percentage over product imagery. Red means money off, never decoration.",
+      "html": "<span class=\"ds-badge-markdown\">-23%</span>",
+      "css": ".ds-badge-markdown { display: inline-flex; align-items: center; padding: 2px 10px; border: 1px solid transparent; border-radius: 9999px; background: hsl(var(--destructive, 0 72% 48%)); color: hsl(var(--destructive-foreground, 140 30% 98%)); font-family: 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 600; box-shadow: 0 1px 2px 0 hsl(152 40% 14% / 0.06), 0 1px 3px 0 hsl(152 40% 14% / 0.08); }"
+    },
+    {
+      "name": "Savings Pill",
+      "kind": "chip",
+      "refersTo": "badge-save",
+      "description": "\"You save\" claim on bundle and combo tiers. A separate semantic from the error red.",
+      "html": "<span class=\"ds-badge-save\">সেভ ৭৭.০০tk</span>",
+      "css": ".ds-badge-save { display: inline-flex; align-items: center; padding: 2px 10px; border: 1px solid transparent; border-radius: 9999px; background: hsl(var(--bundle-save, 4 74% 64%)); color: hsl(var(--bundle-save-foreground, 0 0% 100%)); font-family: 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 600; }"
+    },
+    {
+      "name": "Product Card",
+      "kind": "card",
+      "refersTo": "card-product",
+      "description": "The signature object: image well with badge stack, clamped name, star row, price line. Rests low and lifts on hover.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-media\"><span class=\"ds-card-badge\">-23%</span></div><div class=\"ds-card-body\"><h3 class=\"ds-card-title\">পোর্টেবল মিনি ব্লেন্ডার</h3><div class=\"ds-card-price\"><span class=\"ds-card-now\">৳ 1 150</span><span class=\"ds-card-was\">৳ 1 500</span></div></div></article>",
+      "css": ".ds-card { display: flex; flex-direction: column; overflow: hidden; width: 220px; border: 1px solid hsl(var(--border, 142 18% 85%) / 0.6); border-radius: 14px; background: hsl(var(--card, 0 0% 100%)); box-shadow: 0 1px 2px 0 hsl(152 40% 14% / 0.06), 0 1px 3px 0 hsl(152 40% 14% / 0.08); transition: box-shadow 300ms ease, border-color 300ms ease, transform 300ms ease; } .ds-card:hover { border-color: hsl(var(--primary, 142 56% 30%) / 0.3); box-shadow: 0 10px 25px -5px hsl(152 40% 14% / 0.10), 0 4px 10px -4px hsl(152 40% 14% / 0.08); transform: translateY(-4px); } .ds-card-media { position: relative; aspect-ratio: 1; background: hsl(var(--muted, 140 28% 93%) / 0.4); } .ds-card-badge { position: absolute; top: 8px; left: 8px; padding: 2px 10px; border-radius: 9999px; background: hsl(var(--destructive, 0 72% 48%)); color: hsl(var(--destructive-foreground, 140 30% 98%)); font-family: 'Hind Siliguri', ui-sans-serif, sans-serif; font-size: 11px; font-weight: 600; } .ds-card-body { padding: 8px; font-family: 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif; } .ds-card-title { margin: 0; color: hsl(var(--foreground, 152 30% 10%)); font-size: 14px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 150ms ease; } .ds-card:hover .ds-card-title { color: hsl(var(--primary, 142 56% 30%)); } .ds-card-price { display: flex; align-items: baseline; gap: 8px; padding-top: 8px; } .ds-card-now { color: hsl(var(--primary, 142 56% 30%)); font-size: 20px; font-weight: 700; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; } .ds-card-was { color: hsl(var(--muted-foreground, 152 12% 38%)); font-size: 13px; text-decoration: line-through; font-variant-numeric: tabular-nums; } @media (min-width: 768px) { .ds-card-body { padding: 16px; } }"
+    },
+    {
+      "name": "Header Bar",
+      "kind": "nav",
+      "refersTo": "header-bar",
+      "description": "Sticky Deep Canopy chrome: logo, centered search, right-hand icon cluster. 64px tall.",
+      "html": "<header class=\"ds-header\"><span class=\"ds-header-logo\">DebuggerMind</span><input class=\"ds-header-search\" type=\"search\" placeholder=\"পণ্য খুঁজুন\" /><nav class=\"ds-header-actions\"><button class=\"ds-header-icon\" aria-label=\"Cart\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"21\" r=\"1\"/><circle cx=\"19\" cy=\"21\" r=\"1\"/><path d=\"M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12\"/></svg></button><button class=\"ds-header-icon\" aria-label=\"Account\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/></svg></button></nav></header>",
+      "css": ".ds-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; padding: 0 16px; border-bottom: 1px solid hsl(var(--secondary-foreground, 140 30% 97%) / 0.1); background: hsl(var(--secondary, 152 68% 11%)); color: hsl(var(--secondary-foreground, 140 30% 97%)); font-family: 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif; } .ds-header-logo { font-family: 'Noto Serif Bengali Variable', 'Hind Siliguri', ui-serif, Georgia, serif; font-size: 20px; font-weight: 700; letter-spacing: -0.025em; } .ds-header-search { flex: 1; max-width: 360px; height: 40px; padding: 8px 12px; border: 1px solid hsl(var(--secondary-foreground, 140 30% 97%) / 0.15); border-radius: 12px; background: hsl(var(--background, 140 30% 97%)); color: hsl(var(--foreground, 152 30% 10%)); font-size: 14px; } .ds-header-actions { display: flex; align-items: center; gap: 4px; } .ds-header-icon { display: grid; place-items: center; width: 36px; height: 36px; border: none; border-radius: 12px; background: transparent; color: inherit; cursor: pointer; transition: background-color 150ms ease; } .ds-header-icon:hover { background: hsl(var(--accent, 128 50% 42%) / 0.15); } .ds-header-icon:focus-visible { outline: none; box-shadow: 0 0 0 2px hsl(var(--secondary, 152 68% 11%)), 0 0 0 4px hsl(var(--ring, 142 56% 30%)); }"
+    },
+    {
+      "name": "Combo Purchase Panel",
+      "kind": "custom",
+      "refersTo": "card-product",
+      "description": "The conversion surface: total, savings pill, then Buy Now beside Add to Cart. In flow at every breakpoint, never floating.",
+      "html": "<section class=\"ds-panel\"><div class=\"ds-panel-head\"><div><div class=\"ds-panel-label\">মোট দাম</div><div class=\"ds-panel-total\">৳ 1 150</div></div><span class=\"ds-panel-save\">আপনি সেভ করছেন ৳ 350</span></div><div class=\"ds-panel-actions\"><button class=\"ds-panel-buy\">এখনই কিনুন</button><button class=\"ds-panel-cart\">কার্টে যোগ করুন</button></div></section>",
+      "css": ".ds-panel { padding: 20px; border: 1px solid hsl(var(--border, 142 18% 85%)); border-radius: 14px; background: hsl(var(--card, 0 0% 100%)); box-shadow: 0 4px 6px -1px hsl(152 40% 14% / 0.08), 0 2px 4px -2px hsl(152 40% 14% / 0.06); font-family: 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif; } .ds-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid hsl(var(--border, 142 18% 85%)); } .ds-panel-label { color: hsl(var(--muted-foreground, 152 12% 38%)); font-size: 12px; } .ds-panel-total { color: hsl(var(--destructive, 0 72% 48%)); font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; } .ds-panel-save { padding: 6px 12px; border-radius: 10px; background: hsl(var(--primary, 142 56% 30%) / 0.1); color: hsl(var(--primary, 142 56% 30%)); font-size: 13px; font-weight: 700; } .ds-panel-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; } .ds-panel-buy, .ds-panel-cart { height: 48px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background-color 150ms ease; } .ds-panel-buy { border: none; background: hsl(var(--primary, 142 56% 30%)); color: hsl(var(--primary-foreground, 140 30% 98%)); } .ds-panel-buy:hover { background: hsl(var(--primary, 142 56% 30%) / 0.9); } .ds-panel-cart { border: 1px solid hsl(var(--primary, 142 56% 30%)); background: hsl(var(--card, 0 0% 100%)); color: hsl(var(--primary, 142 56% 30%)); } .ds-panel-cart:hover { background: hsl(var(--primary, 142 56% 30%) / 0.1); } .ds-panel-buy:focus-visible, .ds-panel-cart:focus-visible { outline: none; box-shadow: 0 0 0 2px hsl(var(--card, 0 0% 100%)), 0 0 0 4px hsl(var(--ring, 142 56% 30%)); } @media (min-width: 640px) { .ds-panel-actions { flex-direction: row; } .ds-panel-buy, .ds-panel-cart { flex: 1; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Green Bazaar Counter",
+    "overview": "The interface is a well-kept market counter. Clean white product cards are laid out on a pale mint-cream field; the chrome above and below them is a deep forest green so dark it reads almost black, and it stays out of the way. Nothing on the counter competes with the goods: photography, price, and the offer are what the eye lands on, in that order. Warmth comes from the green-tinted shadow ramp and the generously rounded 14px corners, not from decoration.\n\nTwo registers coexist on purpose. The chrome and the reading surfaces are calm and uncluttered — one accent colour, thin borders, quiet type. The merchandising zones are allowed to be loud: markdown badges, coral SAVE pills, gradient featured chips, and live countdowns earn their volume because selling is the job. Product grids stay dense and efficient, especially on small screens, where card padding drops to 8px and the type steps down rather than the grid thinning out. Density is a deliberate retail choice, not an accident of cramming.\n\nThe whole world is a single token layer. Every colour, radius, and shadow resolves through CSS custom properties on :root, so an entire client identity is swapped by overriding variables — green is the default dress, not the identity. Confirmed rejections: the generic shadcn default look (slate-gray, 8px radius, no point of view), the cluttered Bangladeshi marketplace wall of banners and six competing accents, and the cold Western SaaS blue-gray dashboard register.",
+    "keyCharacteristics": [
+      "Deep-canopy chrome, mint-cream field, white product cards",
+      "Bengali serif for every heading, humanist sans for everything else",
+      "14px corner language with pill-shaped status badges",
+      "Green-tinted shadows that rest low and lift on interaction",
+      "Quiet chrome, loud offers — volume is zoned, not global",
+      "Fully token-driven so one shell serves many client identities"
+    ],
+    "rules": [
+      { "name": "The Chrome-Is-Canopy Rule", "body": "Header, top bar, footer, and mobile bottom nav render in Deep Canopy. Primary green never becomes chrome, and chrome never becomes a call to action; when both appear in one row, the button wins the eye.", "section": "colors" },
+      { "name": "The Red-Means-Money Rule", "body": "Red is admitted for exactly two things: a price that dropped and a thing that broke. It is never a brand colour, never a background for a section, and never a hover state.", "section": "colors" },
+      { "name": "The One Accent Rule", "body": "Outside merchandising badges, a screen carries one accent family. Any second hue on a chrome or form surface is a bug in the token usage, not a design choice.", "section": "colors" },
+      { "name": "The Serif-Heads Rule", "body": "Every h1–h5 inherits the display serif and tight tracking from the base layer. Body copy, buttons, labels, and numerals never use it. A serif button is off-system.", "section": "typography" },
+      { "name": "The Tabular Money Rule", "body": "Every rendered amount uses tabular-nums, so a column of prices and a ticking countdown never jitter. Currency symbol and separators come from the locale formatter, never from a hardcoded string.", "section": "typography" },
+      { "name": "The Single Gutter Rule", "body": "The gutter lives on .container and only there. Adding px-* to a container element doubles the padding and has already cost a 390px phone 96px of usable width.", "section": "layout" },
+      { "name": "The No-Body-Scroller Rule", "body": "The viewport scroller is <html>. Nothing may turn <body> into a scroll container — the moment it becomes one, the sticky header sticks to the document top and disappears from a scrolled page.", "section": "layout" },
+      { "name": "The Rest-Low, Lift-On-Touch Rule", "body": "A surface that never changes state never gets more than Rest. If a card has no hover and no press, it has no business at Lifted.", "section": "elevation" },
+      { "name": "The Pill-For-Status Rule", "body": "Fully rounded means \"this is a state, not a control\" — discount, featured, stock, savings. A pill that can be clicked is misusing the shape.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do resolve every colour, radius, and shadow through the CSS custom properties on :root. A hardcoded hex breaks client theming silently, because a variant swaps tokens and never touches components.",
+      "Do keep chrome in Deep Canopy and actions in Leaf Forest, so the buy path is the brightest green on screen.",
+      "Do render money with tabular-nums and a locale formatter; currency and separators come from business settings.",
+      "Do let merchandising be loud inside its own zone — badges, SAVE pills, countdowns — while chrome and forms stay quiet.",
+      "Do step density down for small screens (8px card padding, 28px action buttons, 12px type) rather than dropping a grid column.",
+      "Do put desktop-only affordances behind lg and give phones a permanent equivalent; a hover-only action is unreachable on the primary device.",
+      "Do keep the gutter on .container alone.",
+      "Do show unavailable option values as disabled rather than hiding them."
+    ],
+    "donts": [
+      "Don't use Markdown Red for anything but a price drop or an error, and don't let Save Coral and Markdown Red appear as interchangeable.",
+      "Don't set a serif on buttons, labels, or numerals; the display face is for h1–h5 only.",
+      "Don't add px-* to a .container element.",
+      "Don't make <body> a scroll container — it detaches the sticky header on every scrolled page.",
+      "Don't stack more than two badges over a product image.",
+      "Don't introduce a second accent hue on chrome or form surfaces.",
+      "Don't float the purchase panel over content; it belongs in flow with the thing being bought.",
+      "Don't ship the generic shadcn default look, a banner-wall marketplace, or a blue-gray SaaS dashboard register — all three are confirmed anti-references."
+    ]
+  }
+}

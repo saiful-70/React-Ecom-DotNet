@@ -77,6 +77,7 @@ export function GlobalShippingAddressForm({
 					</Label>
 					<Input
 						id="name"
+						autoComplete="name"
 						placeholder={t("checkout.placeholders.name")}
 						value={formData.name}
 						onChange={(e) => onInputChange("name", e.target.value)}
@@ -149,6 +150,7 @@ export function GlobalShippingAddressForm({
 						</Label>
 						<Input
 							id="city"
+							autoComplete="address-level2"
 							placeholder={t("checkout.placeholders.city")}
 							value={formData.city}
 							onChange={(e) => onInputChange("city", e.target.value)}
@@ -166,6 +168,7 @@ export function GlobalShippingAddressForm({
 						</Label>
 						<Input
 							id="zip"
+							autoComplete="postal-code"
 							placeholder={t("checkout.placeholders.postalCode")}
 							value={formData.zip || ""}
 							onChange={(e) => onInputChange("zip", e.target.value)}
@@ -180,6 +183,7 @@ export function GlobalShippingAddressForm({
 					</Label>
 					<Textarea
 						id="address"
+						autoComplete="street-address"
 						rows={3}
 						className={`min-h-[96px] ${errors.address ? "border-destructive" : ""}`}
 						placeholder={t("checkout.placeholders.address")}

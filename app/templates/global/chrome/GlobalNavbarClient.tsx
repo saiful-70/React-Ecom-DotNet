@@ -8,11 +8,17 @@ import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import type { Category } from "@/components/shared/models/category";
 import { cn } from "@/lib/utils/utils";
 import { trackMenuClick } from "@/lib/analytics/tracking";
+import "../global.css";
+
+/** How many departments get their own index tab before the rail overflows
+ *  into horizontal scroll. All departments remain reachable via the menu. */
+const VISIBLE_TABS = 8;
 
 /**
- * Global chrome nav: a "Categories" mega-menu (top-level list with a child
- * fly-out) plus primary links. On mobile the bar collapses to a horizontally
- * scrollable strip; the mega-menu opens as a full-width panel.
+ * The index-tab department rail: top-level categories set as catalogue thumb
+ * tabs sitting on the rule below the masthead, an "All departments" mega-menu
+ * (keyboard reachable, Escape/outside-click to close), and the primary links.
+ * On mobile the rail scrolls horizontally.
  */
 export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 	const { t } = useTranslation();
@@ -38,9 +44,9 @@ export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 	}, [open]);
 
 	const activeCategory = categories.find((c) => c.id === activeId) ?? null;
+	const tabCategories = categories.slice(0, VISIBLE_TABS);
 
 	const primaryLinks = [
-		{ href: ABSOLUTE_ROUTES.HOME, label: t("global.nav.home") },
 		{ href: ABSOLUTE_ROUTES.PRODUCTS, label: t("global.nav.allProducts") },
 		{
 			href: `${ABSOLUTE_ROUTES.PRODUCTS}?is_featured=1`,
@@ -53,25 +59,27 @@ export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 	];
 
 	return (
-		<div className="bg-primary text-primary-foreground">
+		<div className="border-b border-border bg-background">
 			<div
 				ref={containerRef}
-				className="container relative mx-auto flex items-stretch"
+				className="container relative mx-auto flex items-end gap-2"
 			>
-				{/* Categories mega-menu trigger */}
-				<div className="relative">
+				{/* All-departments mega-menu trigger */}
+				<div className="relative shrink-0 self-stretch">
 					<button
 						type="button"
 						onClick={() => setOpen((v) => !v)}
 						aria-expanded={open}
 						aria-haspopup="true"
-						className="flex h-12 items-center gap-2 rounded-none bg-primary-foreground/10 px-4 text-sm font-semibold md:px-6"
+						className="ring-warm-focus flex h-full items-center gap-2 rounded-none border-x border-border bg-secondary px-3 py-2.5 text-sm font-semibold text-secondary-foreground md:px-4"
 					>
 						<LayoutGrid className="h-4 w-4" />
-						{t("global.nav.categories")}
+						<span className="hidden sm:inline">
+							{t("global.nav.allDepartments", "All departments")}
+						</span>
 						<ChevronDown
 							className={cn(
-								"h-4 w-4 transition-transform",
+								"h-4 w-4 transition-transform duration-300",
 								open && "rotate-180"
 							)}
 						/>
@@ -79,16 +87,14 @@ export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 
 					{open && categories.length > 0 && (
 						<div
-							className="absolute left-0 top-full z-50 flex w-[min(90vw,44rem)] rounded-b-md border border-t-0 bg-popover text-popover-foreground shadow-xl"
+							className="g-settle absolute left-0 top-full z-50 flex w-[min(90vw,44rem)] rounded-b-sm border border-t-0 border-border bg-popover text-popover-foreground shadow-lg"
 							onMouseLeave={() => setActiveId(null)}
 						>
 							<ul className="w-64 shrink-0 py-2">
 								{categories.map((category) => (
 									<li key={category.id}>
 										<Link
-											href={ABSOLUTE_ROUTES.PRODUCTS_BY_CATEGORY(
-												category.id
-											)}
+											href={ABSOLUTE_ROUTES.PRODUCTS_BY_CATEGORY(category.id)}
 											onMouseEnter={() => setActiveId(category.id)}
 											onFocus={() => setActiveId(category.id)}
 											onClick={() => {
@@ -99,9 +105,8 @@ export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 												setOpen(false);
 											}}
 											className={cn(
-												"flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
-												activeId === category.id &&
-													"bg-accent text-accent-foreground"
+												"ring-warm-focus flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-muted",
+												activeId === category.id && "bg-muted"
 											)}
 										>
 											{category.name}
@@ -114,16 +119,14 @@ export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 							</ul>
 
 							{/* Child fly-out */}
-							<div className="flex-1 border-l p-4">
+							<div className="flex-1 border-l border-border p-4">
 								{activeCategory &&
 								activeCategory.child_category?.length > 0 ? (
 									<div className="grid grid-cols-2 gap-x-4 gap-y-1">
 										{activeCategory.child_category.map((child) => (
 											<Link
 												key={child.id}
-												href={ABSOLUTE_ROUTES.PRODUCTS_BY_CATEGORY(
-													child.id
-												)}
+												href={ABSOLUTE_ROUTES.PRODUCTS_BY_CATEGORY(child.id)}
 												onClick={() => {
 													void trackMenuClick({
 														menuId: `category-${child.id}`,
@@ -131,7 +134,7 @@ export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 													});
 													setOpen(false);
 												}}
-												className="rounded px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+												className="ring-warm-focus rounded-sm px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 											>
 												{child.name}
 											</Link>
@@ -147,9 +150,33 @@ export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 					)}
 				</div>
 
+				{/* Department index tabs */}
+				{tabCategories.length > 0 && (
+					<nav
+						className="g-no-scrollbar flex flex-1 items-end gap-1 overflow-x-auto pt-2"
+						aria-label={t("global.nav.categories")}
+					>
+						{tabCategories.map((category) => (
+							<Link
+								key={category.id}
+								href={ABSOLUTE_ROUTES.PRODUCTS_BY_CATEGORY(category.id)}
+								onClick={() =>
+									trackMenuClick({
+										menuId: `category-${category.id}`,
+										menuName: category.name,
+									})
+								}
+								className="g-tab ring-warm-focus whitespace-nowrap px-3 py-2 text-xs font-semibold uppercase tracking-[0.04em] text-foreground"
+							>
+								{category.name}
+							</Link>
+						))}
+					</nav>
+				)}
+
 				{/* Primary links */}
 				<nav
-					className="flex items-stretch overflow-x-auto"
+					className="hidden shrink-0 items-center gap-1 self-stretch lg:flex"
 					aria-label={t("global.nav.primary")}
 				>
 					{primaryLinks.map((link) => (
@@ -159,7 +186,7 @@ export function GlobalNavbarClient({ categories }: { categories: Category[] }) {
 							onClick={() =>
 								trackMenuClick({ menuId: link.href, menuName: link.label })
 							}
-							className="flex items-center whitespace-nowrap px-3 text-sm font-medium text-primary-foreground/90 transition-colors hover:text-primary-foreground md:px-4"
+							className="ring-warm-focus flex items-center whitespace-nowrap rounded-sm px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
 						>
 							{link.label}
 						</Link>

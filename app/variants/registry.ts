@@ -3,6 +3,7 @@ import type { Market, VariantDescriptor } from "./types";
 import bn01 from "./bn-01";
 import bn02 from "./bn-02";
 import intl01 from "./intl-01";
+import intl02 from "./intl-02";
 
 /**
  * The variant registry — the single source of truth for every demo/deployment.
@@ -15,6 +16,7 @@ const VARIANTS: Record<string, VariantDescriptor> = {
   [bn01.id]: bn01,
   [bn02.id]: bn02,
   [intl01.id]: intl01,
+  [intl02.id]: intl02,
 };
 
 /** All registered variant ids. */

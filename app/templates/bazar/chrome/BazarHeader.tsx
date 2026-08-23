@@ -3,14 +3,13 @@
 import { Suspense, useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
 import {
+	Banknote,
 	Heart,
-	Mail,
 	Phone,
 	ShoppingBag,
 	Truck,
 	User,
 } from "lucide-react";
-import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { VariantSwitcher } from "@/components/shared/VariantSwitcher";
@@ -21,11 +20,15 @@ import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { businessSettingsAtom } from "@/store/ui-atoms";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
+import { BazarBrandMark } from "./BazarBrandMark";
+import "../bazar.css";
 
 /**
- * Bazar chrome: utility top bar (contact · welcome · track order · login) and
- * main header (logo · search · wishlist/cart · cart total). Department nav
- * lives in the home sidebar, so this template has no secondary nav bar.
+ * Counter header — the board-black chrome over the laminated chart. Top strip
+ * is the counter board itself: tap-to-call number as a keypad key (the
+ * phone-first identity of the flexiload shop), COD badge, delivery promise,
+ * track-order/account on the right. Main row on chart-white: logo chip,
+ * search, wishlist/cart keys, running cart total in chart numerals.
  */
 export function BazarHeader() {
 	const { t } = useTranslation();
@@ -47,57 +50,56 @@ export function BazarHeader() {
 
 	return (
 		<header className="bg-background">
-			{/* Utility top bar (desktop only) */}
-			<div className="hidden border-b bg-muted/40 text-xs md:block">
-				<div className="container mx-auto flex h-9 items-center justify-between">
-					<div className="flex items-center gap-5 text-muted-foreground">
-						{settings?.contact_email && (
-							<a
-								href={`mailto:${settings.contact_email}`}
-								className="flex items-center gap-1.5 hover:text-foreground"
-							>
-								<Mail className="h-3.5 w-3.5" />
-								{settings.contact_email}
-							</a>
-						)}
+			{/* Counter board strip — visible on every width: the phone number IS
+			    the shop's identity, so tap-to-call never hides. */}
+			<div className="bg-secondary text-secondary-foreground">
+				<div className="container mx-auto flex min-h-11 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-1.5 text-xs">
+					<div className="flex items-center gap-3">
 						{settings?.contact_phone && (
 							<a
 								href={`tel:${settings.contact_phone}`}
-								className="flex items-center gap-1.5 hover:text-foreground"
+								className="bz-key ring-warm-focus inline-flex min-h-8 items-center gap-2 rounded-lg bg-primary px-3 font-display text-sm font-bold text-primary-foreground shadow-warm-sm"
+								aria-label={t("bazar.callNow", "এখনই কল করুন")}
 							>
-								<Phone className="h-3.5 w-3.5" />
-								{settings.contact_phone}
+								<Phone className="h-3.5 w-3.5" aria-hidden="true" />
+								<span className="bz-num">{settings.contact_phone}</span>
 							</a>
 						)}
-					</div>
-					<div className="flex items-center gap-5">
-						<span className="text-muted-foreground">
-							{t("bazar.welcome", {
-								siteName: settings?.site_name ?? "",
-							})}
+						<span className="hidden items-center gap-1.5 font-semibold sm:inline-flex">
+							<Banknote className="h-4 w-4 text-primary" aria-hidden="true" />
+							{t("bazar.codBadge", "ক্যাশ অন ডেলিভারি")}
 						</span>
+						<span className="hidden items-center gap-1.5 text-secondary-foreground/80 lg:inline-flex">
+							<Truck className="h-4 w-4 text-primary" aria-hidden="true" />
+							{t(
+								"bazar.deliveryPromise",
+								"ঢাকায় ২৪–৪৮ ঘণ্টা, ঢাকার বাইরে ২–৩ দিন"
+							)}
+						</span>
+					</div>
+					<div className="flex items-center gap-4">
 						<Link
 							href={ABSOLUTE_ROUTES.ORDERS}
-							className="flex items-center gap-1.5 font-medium hover:text-primary"
+							className="ring-warm-focus hidden items-center gap-1.5 rounded-md font-medium hover:text-primary-foreground hover:underline hover:underline-offset-4 md:inline-flex"
 						>
-							<Truck className="h-4 w-4" />
+							<Truck className="h-4 w-4" aria-hidden="true" />
 							{t("bazar.trackOrder")}
 						</Link>
 						{profile ? (
 							<Link
 								href={ABSOLUTE_ROUTES.PROFILE}
-								className="flex items-center gap-1.5 font-medium hover:text-primary"
+								className="ring-warm-focus inline-flex items-center gap-1.5 rounded-md font-medium hover:underline hover:underline-offset-4"
 							>
-								<User className="h-4 w-4" />
-								{t("bazar.profile")}
+								<User className="h-4 w-4" aria-hidden="true" />
+								<span className="hidden sm:inline">{t("bazar.profile")}</span>
 							</Link>
 						) : (
 							<Link
 								href={ABSOLUTE_ROUTES.LOGIN}
-								className="flex items-center gap-1.5 font-medium hover:text-primary"
+								className="ring-warm-focus inline-flex items-center gap-1.5 rounded-md font-medium hover:underline hover:underline-offset-4"
 							>
-								<User className="h-4 w-4" />
-								{t("bazar.login")}
+								<User className="h-4 w-4" aria-hidden="true" />
+								<span className="hidden sm:inline">{t("bazar.login")}</span>
 							</Link>
 						)}
 						<VariantSwitcher />
@@ -105,26 +107,19 @@ export function BazarHeader() {
 				</div>
 			</div>
 
-			{/* Main header */}
-			<div className="border-b shadow-sm">
-				<div className="container mx-auto flex h-16 items-center gap-4 md:h-20">
+			{/* Main row — chart-white, closed below by the board rule. */}
+			<div className="border-b-[3px] border-secondary bg-background">
+				<div className="container mx-auto flex h-16 items-center gap-3 md:h-20 md:gap-4">
 					<Link
 						href="/"
-						className="flex shrink-0 items-center rounded-md bg-secondary px-4 py-2"
+						className="bz-key ring-warm-focus flex shrink-0 items-center rounded-lg bg-secondary px-3 py-2 shadow-warm-sm md:px-4"
 					>
-						{settings?.header_logo ? (
-							<Image
-								src={settings.header_logo}
-								alt={settings.site_name || "Logo"}
-								width={140}
-								height={40}
-								className="h-8 w-auto object-contain"
-							/>
-						) : (
-							<span className="text-lg font-bold text-secondary-foreground">
-								{settings?.site_name ?? ""}
-							</span>
-						)}
+						<BazarBrandMark
+							src={settings?.header_logo}
+							name={settings?.site_name ?? ""}
+							className="h-7 w-auto object-contain md:h-8"
+							textClassName="text-lg text-secondary-foreground"
+						/>
 					</Link>
 					<Suspense fallback={<div className="w-64" />}>
 						<div className="hidden flex-1 md:block">
@@ -132,34 +127,36 @@ export function BazarHeader() {
 						</div>
 					</Suspense>
 					<div className="ml-auto flex items-center gap-2 md:gap-3">
-						<Suspense fallback={<div className="w-9 h-9" />}>
+						<Suspense fallback={<div className="h-9 w-9" />}>
 							<span className="md:hidden">
 								<HeaderSearch placement="mobile" />
 							</span>
 						</Suspense>
 						<Link
 							href={ABSOLUTE_ROUTES.WISHLIST}
-							className="relative rounded-full border bg-card p-2.5 hover:border-primary"
+							className="bz-key ring-warm-focus relative flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-card shadow-warm-sm hover:border-primary"
 							aria-label={t("bazar.wishlist")}
 						>
-							<Heart className="h-5 w-5" />
-							<span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-								{wishlistCount}
-							</span>
+							<Heart className="h-5 w-5" aria-hidden="true" />
+							{wishlistCount > 0 && (
+								<span className="bz-num absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-accent-foreground">
+									{wishlistCount}
+								</span>
+							)}
 						</Link>
 						<Link
 							href={ABSOLUTE_ROUTES.CART}
-							className="relative rounded-full border bg-card p-2.5 hover:border-primary"
+							className="bz-key ring-warm-focus relative flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-card shadow-warm-sm hover:border-primary"
 							aria-label={t("bazar.cart")}
 						>
-							<ShoppingBag className="h-5 w-5" />
+							<ShoppingBag className="h-5 w-5" aria-hidden="true" />
 							{cartCount > 0 && (
-								<span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+								<span className="bz-num absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-accent-foreground">
 									{cartCount}
 								</span>
 							)}
 						</Link>
-						<span className="hidden font-semibold tabular-nums md:inline">
+						<span className="bz-num hidden font-display text-lg font-bold text-foreground md:inline">
 							<Price amount={cartTotal} />
 						</span>
 					</div>

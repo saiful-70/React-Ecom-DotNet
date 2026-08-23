@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import { ChevronRight, Heart, Share2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
-import { Button } from "@/components/shared/ui/button";
 import { toast } from "@/components/shared/ui/sonner";
 import Price from "@/components/shared/Price";
 import { useCart } from "@/contexts/CartContext";
@@ -15,13 +14,13 @@ import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
+import { useFeature } from "@/components/shared/providers/variant-provider";
 import {
 	trackUnifiedAddToCart,
 	trackUnifiedViewProduct,
 } from "@/lib/analytics";
 import { trackShare } from "@/lib/analytics/tracking";
 import {
-	ProductImageGallery,
 	QuantitySelector,
 	ProductDetailsTabs,
 } from "@/components/product/product-details";
@@ -29,16 +28,23 @@ import { ProductVariantSelector } from "@/components/product/ProductVariantSelec
 import { ComboOfferCard } from "@/components/home/ComboPromo";
 import type { Product, ProductVariant } from "@/(app-routes)/products/model";
 import type { ProductDetailsLayoutProps } from "@/templates/types";
+import { cn } from "@/lib/utils/utils";
+import { itemNo } from "../_data/catalogue";
 import { GlobalSectionTitle } from "../home/GlobalSectionTitle";
 import { GlobalDeliveryInfo } from "./GlobalDeliveryInfo";
+import { GlobalImageGallery } from "./GlobalImageGallery";
+import { GlobalAvailabilityLine } from "./GlobalAvailabilityLine";
 import { GlobalRatingStars } from "./GlobalRatingStars";
 import { GlobalProductsGrid } from "./GlobalProductsGrid";
-import { cn } from "@/lib/utils/utils";
+import { GlobalStickyBuyBar } from "./GlobalStickyBuyBar";
+import "../global.css";
 
 /**
- * Global PDP: breadcrumb, gallery, purchase column (title, rating, order/
- * wishlist counts, price + save, variant selector, quantity, live total,
- * Buy Now / Add to Cart / wishlist, delivery, share), tabs, related products.
+ * The catalogue plate, full page. Item number and rating printed beside the
+ * price; variant choices as buttons; the availability course and the
+ * delivery-cost table printed BEFORE the buy actions; guest-first (no
+ * sign-in copy in the buy path). A sticky mobile buy bar mirrors the same
+ * state once the buy box scrolls away.
  */
 export function GlobalProductDetails({
 	product,
@@ -53,10 +59,23 @@ export function GlobalProductDetails({
 	const [quantity, setQuantity] = useState(1);
 	const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
 	const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
-		product.variants && product.variants.length > 0
-			? product.variants[0]
-			: null
+		product.variants && product.variants.length > 0 ? product.variants[0] : null
 	);
+	const reviewsEnabled = useFeature("reviews");
+
+	// Sticky-bar visibility: watch the buy box leave the viewport.
+	const buyBoxRef = useRef<HTMLDivElement>(null);
+	const [buyBoxVisible, setBuyBoxVisible] = useState(true);
+	useEffect(() => {
+		const node = buyBoxRef.current;
+		if (!node || typeof IntersectionObserver === "undefined") return;
+		const observer = new IntersectionObserver(
+			(entries) => setBuyBoxVisible(entries[0]?.isIntersecting ?? true),
+			{ rootMargin: "-64px 0px 0px 0px" }
+		);
+		observer.observe(node);
+		return () => observer.disconnect();
+	}, []);
 
 	const isWishlisted = wishlistIds.includes(product.id);
 	const price = selectedVariant
@@ -67,6 +86,10 @@ export function GlobalProductDetails({
 		: parseFloat(product.price.toString());
 	const stock = selectedVariant ? selectedVariant.stock : product.stock;
 	const saveAmount = originalPrice > price ? originalPrice - price : 0;
+	const savePercent =
+		saveAmount > 0 && originalPrice > 0
+			? Math.round((saveAmount / originalPrice) * 100)
+			: 0;
 
 	useEffect(() => {
 		trackUnifiedViewProduct(
@@ -163,9 +186,7 @@ export function GlobalProductDetails({
 						: t("productCard.wishlistAdded")
 				);
 			} else {
-				toast.error(
-					response.message || t("productCard.wishlistUpdateFailed")
-				);
+				toast.error(response.message || t("productCard.wishlistUpdateFailed"));
 			}
 		} catch {
 			toast.error(t("productCard.wishlistUpdateFailed"));
@@ -179,8 +200,8 @@ export function GlobalProductDetails({
 		try {
 			if (navigator.share) {
 				await navigator.share({ title: product.name, url });
-				// Only after the sheet resolves — a dismissal throws and must
-				// not count as a share.
+				// Only after the sheet resolves — a dismissal throws and must not
+				// count as a share.
 				void trackShare("web-share", url);
 			} else {
 				await navigator.clipboard.writeText(url);
@@ -196,27 +217,37 @@ export function GlobalProductDetails({
 		? product.colors_image?.find((ci) => ci.id === selectedColorId)?.photo
 		: undefined;
 
+	const squareIconButton = (pressed?: boolean) =>
+		cn(
+			"ring-warm-focus flex h-12 w-12 items-center justify-center rounded-sm border transition-colors disabled:opacity-50",
+			pressed
+				? "border-foreground bg-foreground text-background"
+				: "border-border text-foreground hover:border-foreground"
+		);
+
 	return (
-		<main className="container mx-auto py-6">
+		/* Constant bottom padding reserves room for the sticky bar — no CLS. */
+		<main className="container mx-auto pb-28 pt-6 md:pb-6">
 			<nav
 				className="mb-5 flex items-center gap-1.5 text-sm text-muted-foreground"
 				aria-label="Breadcrumb"
 			>
-				<Link href="/" className="hover:text-primary">
+				<Link
+					href="/"
+					className="ring-warm-focus rounded-sm hover:text-foreground hover:underline"
+				>
 					{t("global.nav.home")}
 				</Link>
-				<ChevronRight className="h-4 w-4" />
+				<ChevronRight className="h-4 w-4" aria-hidden="true" />
 				{product.category?.name && (
 					<>
 						<Link
-							href={ABSOLUTE_ROUTES.PRODUCTS_BY_CATEGORY(
-								product.category.id
-							)}
-							className="hover:text-primary"
+							href={ABSOLUTE_ROUTES.PRODUCTS_BY_CATEGORY(product.category.id)}
+							className="ring-warm-focus rounded-sm hover:text-foreground hover:underline"
 						>
 							{product.category.name}
 						</Link>
-						<ChevronRight className="h-4 w-4" />
+						<ChevronRight className="h-4 w-4" aria-hidden="true" />
 					</>
 				)}
 				<span className="line-clamp-1 font-medium text-foreground">
@@ -224,8 +255,9 @@ export function GlobalProductDetails({
 				</span>
 			</nav>
 
-			<div className="grid gap-8 rounded-lg border bg-card p-4 md:p-6 lg:grid-cols-2">
-				<ProductImageGallery
+			<div className="grid gap-8 border-y border-border py-6 md:py-8 lg:grid-cols-2 lg:gap-12">
+				<GlobalImageGallery
+					productId={product.id}
 					productName={product.name}
 					thumbnailImage={product.thumbnail_image}
 					galleryImages={product.gallery_images}
@@ -233,39 +265,49 @@ export function GlobalProductDetails({
 				/>
 
 				<div className="space-y-5">
-					<h1 className="text-2xl font-bold md:text-3xl">{product.name}</h1>
-
-					<div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-						<GlobalRatingStars
-							rating={product.average_rating}
-							count={product.total_reviews}
-						/>
+					{/* The plate header line */}
+					<div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs uppercase tracking-[0.08em] text-muted-foreground">
+						<span className="tabular-nums">
+							{t("global.catalogue.no", "No.")} {itemNo(product.id)}
+						</span>
 						{product.sku && (
-							<span>
-								<span className="font-medium text-foreground">
-									{t("global.sku")}:
-								</span>{" "}
-								{product.sku}
+							<span className="tabular-nums">
+								{t("global.sku")}: {product.sku}
 							</span>
 						)}
 					</div>
 
-					<div className="flex flex-wrap items-center gap-3">
-						<span className="text-3xl font-bold text-primary tabular-nums">
-							<Price amount={price} />
-						</span>
-						{saveAmount > 0 && (
-							<>
-								<span className="text-muted-foreground line-through tabular-nums">
-									<Price amount={originalPrice} />
-								</span>
-								<span className="rounded bg-warning px-2.5 py-1 text-sm font-semibold text-warning-foreground">
-									{t("global.save")} <Price amount={saveAmount} />
-								</span>
-							</>
+					<h1 className="font-display text-3xl font-black leading-tight tracking-tight text-balance md:text-4xl">
+						{product.name}
+					</h1>
+
+					{/* Price with the rating summary printed beside it */}
+					<div className="space-y-1.5 border-b border-border pb-4">
+						<div className="flex flex-wrap items-baseline gap-3">
+							<span className="text-3xl font-black tabular-nums">
+								<Price amount={price} />
+							</span>
+							{saveAmount > 0 && (
+								<>
+									<span className="text-muted-foreground line-through tabular-nums">
+										<Price amount={originalPrice} />
+									</span>
+									<span className="text-sm font-black text-accent tabular-nums">
+										−{savePercent}% · {t("global.save")}{" "}
+										<Price amount={saveAmount} />
+									</span>
+								</>
+							)}
+						</div>
+						{reviewsEnabled && (
+							<GlobalRatingStars
+								rating={product.average_rating}
+								count={product.total_reviews}
+							/>
 						)}
 					</div>
 
+					{/* Variant choices — buttons, never dropdowns */}
 					{product.variants && product.variants.length > 0 && (
 						<ProductVariantSelector
 							product={product}
@@ -288,80 +330,69 @@ export function GlobalProductDetails({
 						</div>
 					)}
 
-					<>
-							<div className="flex flex-wrap items-center gap-4">
-								<QuantitySelector
-									quantity={quantity}
-									onQuantityChange={setQuantity}
-									stock={availableStock}
-								/>
-								<span
-									className={cn(
-										"text-sm font-medium",
-										availableStock > 0
-											? "text-success"
-											: "text-destructive"
-									)}
-								>
-									{availableStock > 0
-										? `${availableStock} ${t("global.inStock")}`
-										: t("global.stockOut")}
-								</span>
-							</div>
+					{/* Printed availability course */}
+					<GlobalAvailabilityLine
+						stock={availableStock}
+						className="text-sm [&>span:first-child]:text-sm"
+					/>
 
-							<div className="flex items-center gap-2 border-t pt-4 text-lg">
-								<span className="font-medium text-muted-foreground">
-									{t("global.totalPrice")}:
-								</span>
-								<span className="text-2xl font-bold text-primary tabular-nums">
+					{/* Delivery costs printed BEFORE the buy actions */}
+					<GlobalDeliveryInfo />
+
+					<div ref={buyBoxRef} className="space-y-4">
+						<div className="flex flex-wrap items-center gap-4">
+							<QuantitySelector
+								quantity={quantity}
+								onQuantityChange={setQuantity}
+								stock={availableStock}
+							/>
+							<p className="text-sm text-muted-foreground">
+								{t("global.totalPrice")}:{" "}
+								<span className="text-lg font-black text-foreground tabular-nums">
 									<Price amount={totalPrice} />
 								</span>
-							</div>
+							</p>
+						</div>
 
-							<div className="flex flex-wrap items-center gap-3">
-								<Button
-									size="lg"
-									className="bg-warning px-8 font-semibold text-warning-foreground hover:bg-warning/90"
-									onClick={handleBuyNow}
-									disabled={availableStock <= 0}
-								>
-									{t("global.buyNow")}
-								</Button>
-								<Button
-									size="lg"
-									className="px-8 font-semibold"
-									onClick={handleAddToCart}
-									disabled={availableStock <= 0}
-								>
-									{t("global.addToCart")}
-								</Button>
-								<Button
-									size="icon"
-									variant={isWishlisted ? "default" : "outline"}
-									onClick={handleToggleWishlist}
-									disabled={isWishlistLoading}
-									aria-label={t("global.wishlist")}
-									aria-pressed={isWishlisted}
-								>
-									<Heart
-										className={cn(
-											"h-5 w-5",
-											isWishlisted && "fill-current"
-										)}
-									/>
-								</Button>
-								<Button
-									size="icon"
-									variant="outline"
-									onClick={handleShare}
-									aria-label={t("global.share")}
-								>
-									<Share2 className="h-5 w-5" />
-								</Button>
-							</div>
-					</>
-
-					<GlobalDeliveryInfo />
+						<div className="flex flex-wrap items-center gap-3">
+							<button
+								type="button"
+								onClick={handleBuyNow}
+								disabled={availableStock <= 0}
+								className="ring-warm-focus rounded-sm bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
+							>
+								{t("global.buyNow")}
+							</button>
+							<button
+								type="button"
+								onClick={handleAddToCart}
+								disabled={availableStock <= 0}
+								className="ring-warm-focus rounded-sm border border-primary px-8 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:border-border disabled:text-muted-foreground disabled:hover:bg-transparent"
+							>
+								{t("global.addToCart")}
+							</button>
+							<button
+								type="button"
+								onClick={handleToggleWishlist}
+								disabled={isWishlistLoading}
+								aria-label={t("global.wishlist")}
+								aria-pressed={isWishlisted}
+								className={squareIconButton(isWishlisted)}
+							>
+								<Heart
+									className={cn("h-5 w-5", isWishlisted && "fill-current")}
+								/>
+							</button>
+							<button
+								type="button"
+								onClick={handleShare}
+								aria-label={t("global.share")}
+								className={squareIconButton()}
+							>
+								<Share2 className="h-5 w-5" />
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -377,6 +408,15 @@ export function GlobalProductDetails({
 					/>
 				</section>
 			)}
+
+			<GlobalStickyBuyBar
+				visible={!buyBoxVisible}
+				productName={product.name}
+				variantText={selectedVariant?.combination_text ?? null}
+				price={price}
+				inStock={availableStock > 0}
+				onAddToCart={handleAddToCart}
+			/>
 		</main>
 	);
 }

@@ -2,37 +2,41 @@
 
 import { useState, useTransition } from "react";
 import { useAtomValue } from "jotai";
-import {
-	BadgeCheck,
-	HelpCircle,
-	Info,
-	Mail,
-	MessageCircle,
-	Newspaper,
-	RotateCcw,
-	ShieldCheck,
-	Truck,
-} from "lucide-react";
-import Image from "next/image";
+import { Headset, Mail, PackageCheck, Truck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { Button } from "@/components/shared/ui/button";
 import { Input } from "@/components/shared/ui/input";
 import { toast } from "@/components/shared/ui/sonner";
 import { subscribeNewsletter } from "@/lib/actions/newsletter";
+import Price from "@/components/shared/Price";
+import { INTL_SHIPPING } from "@/lib/constants/delivery";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
+import {
+	DEFAULT_CURRENCY,
+	getCurrencySymbol,
+} from "@/lib/utils/business-settings";
+import { useVariant } from "@/components/shared/providers/variant-provider";
 import { businessSettingsAtom } from "@/store/ui-atoms";
+import { currencyLine } from "../_data/catalogue";
+import { BrandMark } from "./BrandMark";
+import "../global.css";
 
 /**
- * Global chrome footer: service-guarantee strip, About/Contact/FAQ/Blog cards,
- * brand + quick links + newsletter, copyright. Reserves bottom padding for the
- * mobile bottom nav.
+ * The catalogue colophon. Service promises set as one ruled line (not icon
+ * cards), then the index columns (orders · account · newsletter), and the
+ * colophon block itself: site name in Archivo 900, contact line, currency
+ * note, copyright. Reserves bottom padding for the mobile bottom nav.
  */
 export function GlobalFooter() {
 	const { t } = useTranslation();
 	const settings = useAtomValue(businessSettingsAtom);
+	const variant = useVariant();
 	const [email, setEmail] = useState("");
 	const [isPending, startTransition] = useTransition();
+
+	const currency =
+		settings?.currency || variant.branding.currency || DEFAULT_CURRENCY;
 
 	const onSubscribe = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -46,30 +50,51 @@ export function GlobalFooter() {
 				toast.success(t("footer.newsletter.subscribeSuccess"));
 				setEmail("");
 			} else {
-				toast.error(
-					response.message || t("footer.newsletter.subscribeError")
-				);
+				toast.error(response.message || t("footer.newsletter.subscribeError"));
 			}
 		});
 	};
 
-	const services = [
-		{ icon: Truck, label: t("global.services.delivery") },
-		{ icon: ShieldCheck, label: t("global.services.payment") },
-		{ icon: RotateCcw, label: t("global.services.returns") },
-		{ icon: BadgeCheck, label: t("global.services.authentic") },
-	];
-
-	const helpCards = [
-		{ icon: Info, title: t("global.help.about"), href: ABSOLUTE_ROUTES.PRODUCTS },
+	// The printed terms line. Every entry is backed by a real source — the
+	// checkout's INTL_SHIPPING constants or a business-settings field. Lines
+	// with no backing collapse; nothing here is an unverifiable claim.
+	const facts: { icon: typeof Truck; content: React.ReactNode }[] = [
 		{
-			icon: MessageCircle,
-			title: t("global.help.contact"),
-			href: ABSOLUTE_ROUTES.PRODUCTS,
+			icon: Truck,
+			content: (
+				<>
+					{t("global.delivery.standard", "Standard international delivery")}{" "}
+					<span className="font-black tabular-nums">
+						<Price amount={INTL_SHIPPING.flat} />
+					</span>
+				</>
+			),
 		},
-		{ icon: HelpCircle, title: t("global.help.faq"), href: ABSOLUTE_ROUTES.PRODUCTS },
-		{ icon: Newspaper, title: t("global.help.blog"), href: ABSOLUTE_ROUTES.PRODUCTS },
+		{
+			icon: PackageCheck,
+			content: (
+				<>
+					{t("global.delivery.freeOver", "Free delivery on orders over")}{" "}
+					<span className="font-black tabular-nums">
+						<Price amount={INTL_SHIPPING.freeOver} />
+					</span>
+				</>
+			),
+		},
 	];
+	if (settings?.support_time?.trim()) {
+		facts.push({
+			icon: Headset,
+			content: (
+				<>
+					{t("global.facts.support", "Support")}{" "}
+					<span className="font-black tabular-nums">
+						{settings.support_time}
+					</span>
+				</>
+			),
+		});
+	}
 
 	const quickLinks = [
 		{ href: "/", label: t("global.nav.home") },
@@ -85,168 +110,125 @@ export function GlobalFooter() {
 		{ href: ABSOLUTE_ROUTES.ORDERS, label: t("global.trackOrder") },
 	];
 
+	const accountLinks = [
+		{ href: ABSOLUTE_ROUTES.PROFILE, label: t("global.profile") },
+		{ href: ABSOLUTE_ROUTES.WISHLIST, label: t("global.wishlist") },
+		{ href: ABSOLUTE_ROUTES.CART, label: t("global.cart") },
+		{ href: ABSOLUTE_ROUTES.ORDERS, label: t("global.trackOrder") },
+	];
+
+	const linkClass =
+		"ring-warm-focus rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground hover:underline";
+
 	return (
-		<footer className="pb-20 md:pb-0">
-			{/* Service-guarantee strip */}
-			<div className="border-y bg-muted/40">
-				<div className="container mx-auto grid grid-cols-2 gap-6 py-8 md:grid-cols-4">
-					{services.map(({ icon: Icon, label }) => (
-						<div
-							key={label}
-							className="flex flex-col items-center gap-3 text-center"
+		<footer className="border-t border-border bg-background pb-20 md:pb-0">
+			{/* The printed terms — one ruled line of settings-backed facts */}
+			{facts.length > 0 && (
+				<div className="border-b border-border">
+					<div className="container mx-auto flex flex-col gap-y-3 py-5 md:flex-row md:items-center">
+						{facts.map(({ icon: Icon, content }, i) => (
+							<div
+								key={i}
+								className="flex items-center gap-2.5 text-sm font-medium md:flex-1 md:justify-center md:border-l md:border-border md:px-4 md:first:border-l-0"
+							>
+								<Icon className="h-4 w-4 shrink-0 text-primary" />
+								<span>{content}</span>
+							</div>
+						))}
+					</div>
+				</div>
+			)}
+
+			{/* Index columns */}
+			<div className="container mx-auto grid gap-10 py-12 md:grid-cols-3">
+				<div>
+					<h3 className="mb-4 text-[11px] font-black uppercase tracking-[0.14em]">
+						{t("global.quickLinks")}
+					</h3>
+					<ul className="space-y-2.5">
+						{quickLinks.map((link) => (
+							<li key={link.label}>
+								<Link href={link.href} className={linkClass}>
+									{link.label}
+								</Link>
+							</li>
+						))}
+					</ul>
+				</div>
+
+				<div>
+					<h3 className="mb-4 text-[11px] font-black uppercase tracking-[0.14em]">
+						{t("global.myAccount")}
+					</h3>
+					<ul className="space-y-2.5">
+						{accountLinks.map((link) => (
+							<li key={link.label}>
+								<Link href={link.href} className={linkClass}>
+									{link.label}
+								</Link>
+							</li>
+						))}
+					</ul>
+				</div>
+
+				<div>
+					<h3 className="mb-4 text-[11px] font-black uppercase tracking-[0.14em]">
+						{t("global.newsletter")}
+					</h3>
+					<p className="mb-3 text-sm text-muted-foreground">
+						{t("global.newsletterHint")}
+					</p>
+					<form onSubmit={onSubscribe} className="flex gap-2">
+						<Input
+							type="email"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							placeholder={t("global.enterEmail")}
+							aria-label={t("global.enterEmail")}
+							className="rounded-sm"
+						/>
+						<Button
+							type="submit"
+							disabled={isPending}
+							className="shrink-0 rounded-sm px-5"
 						>
-							<span className="flex h-14 w-14 items-center justify-center rounded-full bg-background shadow-sm">
-								<Icon className="h-6 w-6 text-primary" />
-							</span>
-							<span className="text-sm font-medium">{label}</span>
-						</div>
-					))}
+							{isPending
+								? t("global.subscribing", "Subscribing…")
+								: t("global.subscribe")}
+						</Button>
+					</form>
 				</div>
 			</div>
 
-			{/* Help cards */}
-			<div className="container mx-auto grid grid-cols-2 gap-4 py-8 md:grid-cols-4">
-				{helpCards.map(({ icon: Icon, title, href }) => (
-					<Link
-						key={title}
-						href={href}
-						className="flex flex-col items-center gap-2 rounded-md border bg-card px-4 py-6 text-center shadow-sm transition-shadow hover:shadow-md"
-					>
-						<Icon className="h-7 w-7 text-primary" />
-						<span className="font-semibold">{title}</span>
-					</Link>
-				))}
-			</div>
-
-			{/* Main footer */}
-			<div className="bg-secondary text-secondary-foreground">
-				<div className="container mx-auto grid gap-10 py-12 md:grid-cols-4">
-					<div className="space-y-4 md:col-span-1">
-						{settings?.footer_logo || settings?.header_logo ? (
-							<Image
-								src={settings.footer_logo || settings.header_logo}
-								alt={settings.site_name || "Logo"}
-								width={150}
-								height={44}
-								className="h-10 w-auto object-contain"
-							/>
-						) : (
-							<span className="text-xl font-extrabold text-primary">
-								{settings?.site_name ?? ""}
-							</span>
-						)}
+			{/* Colophon */}
+			<div className="border-t border-border">
+				<div className="container mx-auto flex flex-col items-start gap-3 py-6 md:flex-row md:items-baseline md:justify-between">
+					<div className="space-y-1.5">
+						<BrandMark
+							src={settings?.footer_logo || settings?.header_logo}
+							name={settings?.site_name ?? ""}
+							imgClassName="h-8 w-auto object-contain"
+							textClassName="text-lg"
+						/>
 						{settings?.contact_email && (
 							<a
 								href={`mailto:${settings.contact_email}`}
-								className="flex items-center gap-2 text-sm opacity-80 hover:opacity-100"
+								className="ring-warm-focus flex items-center gap-2 rounded-sm text-sm text-muted-foreground hover:text-foreground"
 							>
 								<Mail className="h-4 w-4" />
 								{settings.contact_email}
 							</a>
 						)}
-						{/* App badges are illustrative — no published app in this demo. */}
-						<div className="pt-2">
-							<p className="mb-2 text-xs font-semibold uppercase tracking-wide opacity-70">
-								{t("global.downloadApp")}
-							</p>
-							<div className="flex gap-2">
-								<span className="rounded-md border px-3 py-2 text-xs font-medium opacity-80">
-									App Store
-								</span>
-								<span className="rounded-md border px-3 py-2 text-xs font-medium opacity-80">
-									Google Play
-								</span>
-							</div>
-						</div>
 					</div>
-
-					<div>
-						<h3 className="mb-4 font-semibold">
-							{t("global.quickLinks")}
-						</h3>
-						<ul className="space-y-2.5">
-							{quickLinks.map((link) => (
-								<li key={link.label}>
-									<Link
-										href={link.href}
-										className="text-sm opacity-80 hover:text-primary hover:opacity-100"
-									>
-										{link.label}
-									</Link>
-								</li>
-							))}
-						</ul>
-					</div>
-
-					<div>
-						<h3 className="mb-4 font-semibold">{t("global.myAccount")}</h3>
-						<ul className="space-y-2.5">
-							<li>
-								<Link
-									href={ABSOLUTE_ROUTES.PROFILE}
-									className="text-sm opacity-80 hover:text-primary hover:opacity-100"
-								>
-									{t("global.profile")}
-								</Link>
-							</li>
-							<li>
-								<Link
-									href={ABSOLUTE_ROUTES.WISHLIST}
-									className="text-sm opacity-80 hover:text-primary hover:opacity-100"
-								>
-									{t("global.wishlist")}
-								</Link>
-							</li>
-							<li>
-								<Link
-									href={ABSOLUTE_ROUTES.CART}
-									className="text-sm opacity-80 hover:text-primary hover:opacity-100"
-								>
-									{t("global.cart")}
-								</Link>
-							</li>
-							<li>
-								<Link
-									href={ABSOLUTE_ROUTES.ORDERS}
-									className="text-sm opacity-80 hover:text-primary hover:opacity-100"
-								>
-									{t("global.trackOrder")}
-								</Link>
-							</li>
-						</ul>
-					</div>
-
-					<div>
-						<h3 className="mb-4 font-semibold">
-							{t("global.newsletter")}
-						</h3>
-						<p className="mb-3 text-sm opacity-80">
-							{t("global.newsletterHint")}
+					<div className="space-y-1 text-xs text-muted-foreground md:text-right">
+						<p className="uppercase tracking-[0.08em]">
+							{t("global.colophon.pricesIn", "All prices in {{currency}}", {
+								currency: currencyLine(currency, getCurrencySymbol(currency)),
+							})}
 						</p>
-						<form onSubmit={onSubscribe} className="flex gap-2">
-							<Input
-								type="email"
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								placeholder={t("global.enterEmail")}
-								className="bg-background text-foreground"
-							/>
-							<Button
-								type="submit"
-								disabled={isPending}
-								className="shrink-0 px-5"
-							>
-								{t("global.subscribe")}
-							</Button>
-						</form>
+						{settings?.copyright_text && <p>{settings.copyright_text}</p>}
 					</div>
 				</div>
-
-				{settings?.copyright_text && (
-					<div className="border-t border-border/40 py-4 text-center text-xs opacity-70">
-						{settings.copyright_text}
-					</div>
-				)}
 			</div>
 		</footer>
 	);

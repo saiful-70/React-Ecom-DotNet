@@ -7,9 +7,8 @@ import type { Product } from "@/(app-routes)/products/model";
 import { GlobalProductCard } from "./GlobalProductCard";
 
 /**
- * Horizontal, snap-scrolling product row with prev/next controls. Used by the
- * flash-deal band and per-category showcases. Each card keeps a fixed width so
- * the row scrolls cleanly on every breakpoint.
+ * Horizontal, snap-scrolling row of plates with square page-turn controls.
+ * Used by the deals insert and per-department showcases.
  */
 export function GlobalProductScroller({ products }: { products: Product[] }) {
 	const { t } = useTranslation();
@@ -18,7 +17,10 @@ export function GlobalProductScroller({ products }: { products: Product[] }) {
 	const scrollBy = (direction: 1 | -1) => {
 		const el = trackRef.current;
 		if (!el) return;
-		el.scrollBy({ left: direction * (el.clientWidth * 0.8), behavior: "smooth" });
+		el.scrollBy({
+			left: direction * (el.clientWidth * 0.8),
+			behavior: "smooth",
+		});
 	};
 
 	if (products.length === 0) return null;
@@ -27,7 +29,7 @@ export function GlobalProductScroller({ products }: { products: Product[] }) {
 		<div className="relative">
 			<div
 				ref={trackRef}
-				className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [scrollbar-width:none] md:gap-4 [&::-webkit-scrollbar]:hidden"
+				className="g-no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 md:gap-4"
 			>
 				{products.map((product) => (
 					<div
@@ -45,7 +47,7 @@ export function GlobalProductScroller({ products }: { products: Product[] }) {
 						type="button"
 						onClick={() => scrollBy(-1)}
 						aria-label={t("global.previous")}
-						className="absolute -left-3 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border bg-background text-foreground shadow-md transition-colors hover:bg-primary hover:text-primary-foreground md:flex"
+						className="ring-warm-focus absolute -left-3 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-sm border border-border bg-background text-foreground transition-colors hover:border-foreground hover:bg-foreground hover:text-background md:flex"
 					>
 						<ChevronLeft className="h-5 w-5" />
 					</button>
@@ -53,7 +55,7 @@ export function GlobalProductScroller({ products }: { products: Product[] }) {
 						type="button"
 						onClick={() => scrollBy(1)}
 						aria-label={t("global.next")}
-						className="absolute -right-3 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border bg-background text-foreground shadow-md transition-colors hover:bg-primary hover:text-primary-foreground md:flex"
+						className="ring-warm-focus absolute -right-3 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-sm border border-border bg-background text-foreground transition-colors hover:border-foreground hover:bg-foreground hover:text-background md:flex"
 					>
 						<ChevronRight className="h-5 w-5" />
 					</button>

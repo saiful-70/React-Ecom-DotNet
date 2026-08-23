@@ -9,11 +9,14 @@ import { GlobalProductListing } from "./product/GlobalProductListing";
 import { GlobalProductDetails } from "./product/GlobalProductDetails";
 
 /**
- * The "global" paradigm — a 6Valley-style international marketplace: utility
- * top bar (contact · currency · language), category mega-menu, department-rail
- * hero, flash-deal countdown, category showcases, brand strip, best-selling /
- * top-rated split, service-guarantee footer, mobile bottom nav, WhatsApp FAB.
- * Used by the intl-01 variant.
+ * The "global" paradigm — THE MAIL-ORDER INDEX. An international marketplace
+ * set as a great mail-order catalogue: masthead with dominant search,
+ * index-tab department rail, one composed hero tableau on a horizon datum
+ * (never a carousel), a sale-red deals insert with an honest validity line,
+ * numbered plates with printed availability, filter chips + facet buttons,
+ * guest-first PDP with a sticky mobile buy bar, colophon footer, mobile
+ * bottom nav, WhatsApp action. Used by the intl-01 variant.
+ * See DESIGN.md in this folder for the committed visual world.
  */
 export const globalTemplate: Template = {
 	id: "global",

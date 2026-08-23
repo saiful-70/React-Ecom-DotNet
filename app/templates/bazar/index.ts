@@ -8,9 +8,10 @@ import { BazarProductListing } from "./product/BazarProductListing";
 import { BazarProductDetails } from "./product/BazarProductDetails";
 
 /**
- * The "bazar" paradigm — adapted from the theme-1 reference: contact top bar,
- * department sidebar home, ribbon product cards with Buy Now, breadcrumb
- * listing, mobile bottom nav with a raised Home button, floating call FAB.
+ * The "bazar" paradigm — The Flexiload Counter: board-black chrome with
+ * tap-to-call, a tariff-board hero of chart-row offers, SIM-coloured
+ * department chips (one hue per department, end-to-end), a keypad bottom
+ * nav in the thumb zone, and a floating call key. Phone-first, COD-first.
  */
 export const bazarTemplate: Template = {
 	id: "bazar",

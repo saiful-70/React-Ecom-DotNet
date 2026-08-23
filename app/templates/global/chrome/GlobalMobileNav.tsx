@@ -9,10 +9,12 @@ import { useCart } from "@/contexts/CartContext";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { trackMenuClick } from "@/lib/analytics/tracking";
+import "../global.css";
 
 /**
- * Fixed bottom navigation (mobile only): Home · Categories · Cart · Wishlist ·
- * Account. The footer reserves bottom padding so content is never hidden.
+ * Fixed bottom index (mobile only): Home · Departments · Cart · Wishlist ·
+ * Account, separated by hairline rules like a printed tab strip. The footer
+ * reserves bottom padding so content is never hidden.
  */
 export function GlobalMobileNav() {
 	const { t } = useTranslation();
@@ -25,7 +27,7 @@ export function GlobalMobileNav() {
 	}, []);
 
 	const itemClass =
-		"flex flex-col items-center justify-center gap-0.5 text-[11px] font-medium";
+		"ring-warm-focus flex h-full flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground";
 
 	// Bottom-nav items are pure navigation chrome the backend can't attribute,
 	// so each one reports a MenuClick with a language-independent id.
@@ -34,10 +36,10 @@ export function GlobalMobileNav() {
 
 	return (
 		<nav
-			className="fixed inset-x-0 bottom-0 z-50 border-t bg-background md:hidden"
+			className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background md:hidden"
 			aria-label={t("global.mobileNav")}
 		>
-			<div className="grid h-16 grid-cols-5 items-center">
+			<div className="grid h-16 grid-cols-5 items-stretch divide-x divide-border">
 				<Link
 					href="/"
 					onClick={onMenuClick("mobile-home", "Home")}
@@ -62,7 +64,7 @@ export function GlobalMobileNav() {
 					<span className="relative">
 						<ShoppingCart className="h-5 w-5" />
 						{isHydrated && itemCount > 0 && (
-							<span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+							<span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-sm bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums">
 								{itemCount}
 							</span>
 						)}

@@ -11,11 +11,12 @@ const bn01: VariantDescriptor = {
   id: "bn-01",
   market: "bn",
   template: "classic",
-  name: "Bengali — Leaf & Forest",
+  name: "Bengali — Mudir Dokan Khata",
   description:
-    "The original Bengali storefront: green forest palette, Bengali-first UI, full feature set.",
+    "The original Bengali storefront on the classic template: khata-ledger UI, stamp-red ordering, Bengali-first, full feature set.",
   theme: {
-    // Intentionally empty: globals.css defaults ARE the bn-01 (green) theme.
+    // Intentionally empty: the globals.css :root block IS the classic
+    // template's "Mudir Dokan Khata" world, which is bn-01's dress.
     root: {},
     dark: {},
   },

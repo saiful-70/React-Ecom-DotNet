@@ -21,7 +21,8 @@ import {
 	RadioGroup,
 	RadioGroupItem,
 } from "@/components/shared/ui/radio-group";
-import { Truck, Wallet } from "lucide-react";
+import { PhoneCall, Truck, Wallet } from "lucide-react";
+import Price from "@/components/shared/Price";
 import { useEffect } from "react";
 import type { FormData, FormErrors } from "@/(app-routes)/checkout/model";
 import { useCities } from "@/hooks/use-cities";
@@ -65,25 +66,8 @@ export function ShippingAddressForm({
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-4">
-				<div>
-					<Label htmlFor="name" className="flex items-center mb-1">
-						{t("checkout.name")}
-						<span className="text-destructive">*</span>
-					</Label>
-					<Input
-						id="name"
-						placeholder={t("checkout.placeholders.name")}
-						value={formData.name}
-						onChange={(e) => onInputChange("name", e.target.value)}
-						className={errors.name ? "border-destructive" : ""}
-					/>
-					{errors.name && (
-						<p className="text-destructive text-xs mt-1">
-							{t(errors.name)}
-						</p>
-					)}
-				</div>
-
+				{/* Phone leads: it is the identity key for BD orders (no account,
+				    no email) and the number the confirmation call goes to. */}
 				<div>
 					<Label htmlFor="phone" className="flex items-center mb-1">
 						{t("checkout.phone")}
@@ -92,6 +76,7 @@ export function ShippingAddressForm({
 					<Input
 						id="phone"
 						inputMode="numeric"
+						autoComplete="tel"
 						maxLength={11}
 						placeholder={t("checkout.placeholders.phoneBD")}
 						value={formData.phone}
@@ -101,6 +86,26 @@ export function ShippingAddressForm({
 					{errors.phone && (
 						<p className="text-destructive text-xs mt-1">
 							{t(errors.phone)}
+						</p>
+					)}
+				</div>
+
+				<div>
+					<Label htmlFor="name" className="flex items-center mb-1">
+						{t("checkout.name")}
+						<span className="text-destructive">*</span>
+					</Label>
+					<Input
+						id="name"
+						autoComplete="name"
+						placeholder={t("checkout.placeholders.name")}
+						value={formData.name}
+						onChange={(e) => onInputChange("name", e.target.value)}
+						className={errors.name ? "border-destructive" : ""}
+					/>
+					{errors.name && (
+						<p className="text-destructive text-xs mt-1">
+							{t(errors.name)}
 						</p>
 					)}
 				</div>
@@ -128,9 +133,12 @@ export function ShippingAddressForm({
 							{cities.map((city) => (
 								<SelectItem key={city.id} value={city.name}>
 									{city.name}
-									{city.shipping_cost != null
-										? ` - ${city.shipping_cost}`
-										: ""}
+									{city.shipping_cost != null ? (
+										<>
+											{" — "}
+											<Price amount={city.shipping_cost} />
+										</>
+									) : null}
 								</SelectItem>
 							))}
 						</SelectContent>
@@ -178,6 +186,12 @@ export function ShippingAddressForm({
 							{t("checkout.cashOnDelivery")}
 						</Label>
 					</RadioGroup>
+					{/* Call-to-confirm is itself a trust signal for BD shoppers:
+					    it says a human verifies before dispatch. */}
+					<p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+						<PhoneCall className="h-3.5 w-3.5 shrink-0" aria-hidden />
+						{t("checkout.callToConfirm")}
+					</p>
 				</div>
 			</CardContent>
 		</Card>

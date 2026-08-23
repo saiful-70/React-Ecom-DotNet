@@ -199,7 +199,7 @@ export function ComboLanding({ combo }: ComboLandingProps) {
       <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
         {/* Gallery */}
         <div>
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border bg-muted shadow-warm-sm">
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-muted shadow-warm-sm">
             <CartLineImage
               src={gallery[activeImage] ?? combo.banner}
               alt={combo.title}
@@ -425,7 +425,7 @@ export function ComboLanding({ combo }: ComboLandingProps) {
           <Button
             onClick={() => handleBuyNow(selectedTier)}
             disabled={soldOut}
-            className="h-14 flex-1 bg-terracotta-gradient text-base font-bold shadow-warm transition-[filter,box-shadow] hover:shadow-warm-md hover:brightness-110"
+            className="h-16 flex-1 rounded-xl bg-terracotta-gradient text-base font-bold shadow-warm transition-[filter,box-shadow] hover:shadow-warm-md hover:brightness-110"
           >
             <ShoppingBag className="mr-1.5 size-5" />
             {t("bundle.buyNow")}
@@ -434,7 +434,7 @@ export function ComboLanding({ combo }: ComboLandingProps) {
             variant="outline"
             onClick={() => handleAddToCart(selectedTier)}
             disabled={soldOut}
-            className="h-14 flex-1 border-2 border-primary text-base font-bold text-primary hover:bg-primary/10 hover:text-primary"
+            className="h-16 flex-1 rounded-xl border-2 border-primary text-base font-bold text-primary hover:bg-primary/10 hover:text-primary"
           >
             <ShoppingCart className="mr-1.5 size-5" />
             {t("bundle.addComboToCart")}

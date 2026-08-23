@@ -2,8 +2,9 @@ import { getAllCategories } from "@/components/shared/actions/categories";
 import { GlobalNavbarClient } from "./GlobalNavbarClient";
 
 /**
- * Global chrome navigation bar (Server Component). Fetches categories via the
- * shared short-lived cached action and hands the top-level tree to the client mega-menu.
+ * Department rail (Server Component). Fetches categories via the shared
+ * short-lived cached action and hands the top-level tree to the client
+ * index-tab rail. Collapses entirely when there are no categories.
  */
 export async function GlobalNavbar() {
 	const response = await getAllCategories();

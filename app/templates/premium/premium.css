@@ -1,0 +1,215 @@
+/**
+ * premium template — "The Batch Label" world treatments.
+ *
+ * Everything here resolves to the four world tokens set on
+ * html[data-template="premium"] in globals.css (viridian --background,
+ * label stock --card/--foreground, foil gold --primary/--border,
+ * vermilion --accent). No literal colours.
+ */
+
+/* ---------------------------------------------------------------- */
+/* Foil hairline rules                                               */
+/* ---------------------------------------------------------------- */
+
+/* A single foil rule that brightens at its centre, like light on foil. */
+.premium-hairline {
+	height: 1px;
+	border: 0;
+	background: linear-gradient(
+		to right,
+		hsl(var(--border) / 0.15),
+		hsl(var(--border)),
+		hsl(var(--border) / 0.15)
+	);
+}
+
+/* Heading flanked by foil rules: <div class="premium-rule-flank"><h2/></div> */
+.premium-rule-flank {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+}
+.premium-rule-flank::before,
+.premium-rule-flank::after {
+	content: "";
+	flex: 1;
+	height: 1px;
+	background: linear-gradient(
+		to right,
+		hsl(var(--border) / 0.1),
+		hsl(var(--border) / 0.7),
+		hsl(var(--border) / 0.1)
+	);
+}
+
+/* The shared ProductToolbar renders its own page <h1> ("All Products");
+   the premium listing sets its own didone title, so the duplicate heading
+   is suppressed here (presentation-only, scoped to this template). */
+.premium-toolbar h1 {
+	display: none;
+}
+
+/* ---------------------------------------------------------------- */
+/* Box-board corners (2px L-brackets on specimen frames)             */
+/* ---------------------------------------------------------------- */
+
+/* The foil frame is a visible system — the classic double-rule label frame:
+   a 2px foil border outside, a 1px inner rule offset 6px inside it (drawn
+   with a negative-offset outline so it sits OVER the photograph), and 2px
+   box-board corner ticks bracketing the inner rule. Rule leaders run off the
+   callout markers in the same foil. Reads as a framed label at a glance on
+   hero, PDP gallery, and cards alike. */
+.premium-corners {
+	position: relative;
+	border: 2px solid hsl(var(--border) / 0.85);
+	outline: 1px solid hsl(var(--border) / 0.6);
+	outline-offset: -6px;
+}
+.premium-corners::before,
+.premium-corners::after {
+	content: "";
+	position: absolute;
+	width: 1.5rem;
+	height: 1.5rem;
+	pointer-events: none;
+	z-index: 2;
+}
+.premium-corners::before {
+	/* 4px into the padding box = exactly on the inner rule (2px border + 4px). */
+	top: 4px;
+	left: 4px;
+	border-top: 2px solid hsl(var(--border));
+	border-left: 2px solid hsl(var(--border));
+}
+.premium-corners::after {
+	bottom: 4px;
+	right: 4px;
+	border-bottom: 2px solid hsl(var(--border));
+	border-right: 2px solid hsl(var(--border));
+}
+
+/* ---------------------------------------------------------------- */
+/* Pressed key row (variant selection)                               */
+/* ---------------------------------------------------------------- */
+
+.premium-key {
+	border: 1px solid hsl(var(--input));
+	background: hsl(var(--card));
+	color: hsl(var(--card-foreground));
+	box-shadow:
+		0 2px 0 0 hsl(var(--shadow-warm) / 0.35),
+		0 3px 6px -2px hsl(var(--shadow-warm) / 0.3);
+	transition:
+		box-shadow 120ms ease-out,
+		transform 120ms ease-out,
+		border-color 120ms ease-out;
+}
+.premium-key:hover {
+	border-color: hsl(var(--primary));
+}
+/* Selected keys sit visibly deeper: inset shadow + 1px travel. */
+.premium-key[aria-pressed="true"],
+.premium-key[data-selected="true"] {
+	transform: translateY(1px);
+	border-color: hsl(var(--primary));
+	box-shadow:
+		inset 0 2px 3px 0 hsl(var(--shadow-warm) / 0.45),
+		inset 0 0 0 1px hsl(var(--primary) / 0.35);
+}
+.premium-key:disabled {
+	opacity: 0.45;
+	box-shadow: none;
+	transform: none;
+	cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------- */
+/* Exploded callout markers (instruction-plate hotspots)             */
+/* ---------------------------------------------------------------- */
+
+.premium-callout-marker {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.625rem;
+	height: 1.625rem;
+	border-radius: 9999px;
+	border: 1px solid hsl(var(--border));
+	background: hsl(var(--background) / 0.88);
+	color: hsl(var(--foreground));
+	font-size: 0.75rem;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.02em;
+	z-index: 3;
+	pointer-events: none;
+}
+.premium-callout-marker::after {
+	/* Foil rule leader trailing off the marker toward its subject. */
+	content: "";
+	position: absolute;
+	left: 100%;
+	top: 50%;
+	width: 2rem;
+	height: 1px;
+	background: hsl(var(--border) / 0.9);
+}
+.premium-callout-marker[data-leader="left"]::after {
+	left: auto;
+	right: 100%;
+}
+
+/* ---------------------------------------------------------------- */
+/* Authored motion: label-panel rise (PDP load)                      */
+/* ---------------------------------------------------------------- */
+
+@keyframes premium-panel-rise {
+	from {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+.premium-panel-rise {
+	animation: premium-panel-rise 640ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ---------------------------------------------------------------- */
+/* Authored motion: the seal press (add-to-cart)                     */
+/* ---------------------------------------------------------------- */
+
+.premium-seal-press {
+	position: relative;
+	transition: transform 110ms ease-out;
+}
+.premium-seal-press:active:not(:disabled) {
+	transform: scale(0.98);
+}
+@keyframes premium-seal-flash {
+	0% {
+		box-shadow: 0 0 0 0 hsl(var(--accent) / 0.65);
+	}
+	45% {
+		box-shadow: 0 0 0 6px hsl(var(--accent) / 0.35);
+	}
+	100% {
+		box-shadow: 0 0 0 12px hsl(var(--accent) / 0);
+	}
+}
+.premium-seal-press[data-sealed="true"] {
+	animation: premium-seal-flash 560ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.premium-panel-rise,
+	.premium-seal-press[data-sealed="true"] {
+		animation: none;
+	}
+	.premium-key,
+	.premium-seal-press {
+		transition: none;
+	}
+}

@@ -1,13 +1,7 @@
 "use client";
 
 import { useAtomValue } from "jotai";
-import {
-	Home,
-	LayoutGrid,
-	Phone,
-	ShoppingCart,
-	User,
-} from "lucide-react";
+import { Home, LayoutGrid, Phone, ShoppingCart, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
@@ -16,10 +10,13 @@ import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { businessSettingsAtom } from "@/store/ui-atoms";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { trackMenuClick } from "@/lib/analytics/tracking";
+import "../bazar.css";
 
 /**
- * Fixed bottom navigation (mobile only): CATEGORY · CALL · HOME (raised) ·
- * CART · LOGIN/PROFILE. The footer reserves bottom padding for it.
+ * The keypad — fixed bottom navigation (mobile only), a board-black strip of
+ * five keys in the thumb zone: CATEGORY · CALL · HOME (azure key) · CART ·
+ * ACCOUNT. Every key depresses like a top-up keypad; the footer reserves
+ * bottom padding for it.
  */
 export function BazarMobileNav() {
 	const { t } = useTranslation();
@@ -34,15 +31,15 @@ export function BazarMobileNav() {
 		setIsHydrated(true);
 	}, []);
 
-	const itemClass =
-		"flex flex-col items-center justify-center gap-0.5 text-[11px] font-medium uppercase";
+	const keyClass =
+		"bz-key ring-warm-focus flex h-full flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-semibold leading-none text-secondary-foreground/90";
 
 	return (
 		<nav
-			className="fixed inset-x-0 bottom-0 z-50 border-t bg-background md:hidden"
+			className="fixed inset-x-0 bottom-0 z-50 border-t-[3px] border-primary bg-secondary md:hidden"
 			aria-label={t("bazar.mobileNav")}
 		>
-			<div className="grid h-16 grid-cols-5 items-center">
+			<div className="grid h-16 grid-cols-5 items-stretch gap-1 px-2 py-1.5">
 				<Link
 					href={ABSOLUTE_ROUTES.PRODUCTS}
 					onClick={() =>
@@ -51,23 +48,20 @@ export function BazarMobileNav() {
 							menuName: "Category",
 						})
 					}
-					className={itemClass}
+					className={keyClass}
 				>
-					<LayoutGrid className="h-5 w-5" />
+					<LayoutGrid className="h-5 w-5" aria-hidden="true" />
 					{t("bazar.category")}
 				</Link>
 				{settings?.contact_phone ? (
 					<a
 						href={`tel:${settings.contact_phone}`}
 						onClick={() =>
-							trackMenuClick({
-								menuId: "mobile-call",
-								menuName: "Call",
-							})
+							trackMenuClick({ menuId: "mobile-call", menuName: "Call" })
 						}
-						className={itemClass}
+						className={keyClass}
 					>
-						<Phone className="h-5 w-5" />
+						<Phone className="h-5 w-5" aria-hidden="true" />
 						{t("bazar.call")}
 					</a>
 				) : (
@@ -78,11 +72,9 @@ export function BazarMobileNav() {
 					onClick={() =>
 						trackMenuClick({ menuId: "mobile-home", menuName: "Home" })
 					}
-					className="flex flex-col items-center justify-end gap-0.5 text-[11px] font-medium uppercase"
+					className="bz-key ring-warm-focus flex h-full flex-col items-center justify-center gap-1 rounded-lg bg-primary text-[11px] font-bold leading-none text-primary-foreground shadow-warm-sm"
 				>
-					<span className="-mt-8 flex h-14 w-14 items-center justify-center rounded-full border-4 border-background bg-primary text-primary-foreground shadow-lg">
-						<Home className="h-6 w-6" />
-					</span>
+					<Home className="h-5 w-5" aria-hidden="true" />
 					{t("bazar.home")}
 				</Link>
 				<Link
@@ -90,12 +82,12 @@ export function BazarMobileNav() {
 					onClick={() =>
 						trackMenuClick({ menuId: "mobile-cart", menuName: "Cart" })
 					}
-					className={itemClass}
+					className={keyClass}
 				>
 					<span className="relative">
-						<ShoppingCart className="h-5 w-5" />
+						<ShoppingCart className="h-5 w-5" aria-hidden="true" />
 						{isHydrated && itemCount > 0 && (
-							<span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+							<span className="bz-num absolute -right-2.5 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
 								{itemCount}
 							</span>
 						)}
@@ -103,20 +95,16 @@ export function BazarMobileNav() {
 					{t("bazar.cart")}
 				</Link>
 				<Link
-					href={
-						profile
-							? ABSOLUTE_ROUTES.PROFILE
-							: ABSOLUTE_ROUTES.LOGIN
-					}
+					href={profile ? ABSOLUTE_ROUTES.PROFILE : ABSOLUTE_ROUTES.LOGIN}
 					onClick={() =>
 						trackMenuClick({
 							menuId: profile ? "mobile-profile" : "mobile-login",
 							menuName: profile ? "Profile" : "Login",
 						})
 					}
-					className={itemClass}
+					className={keyClass}
 				>
-					<User className="h-5 w-5" />
+					<User className="h-5 w-5" aria-hidden="true" />
 					{profile ? t("bazar.profile") : t("bazar.login")}
 				</Link>
 			</div>

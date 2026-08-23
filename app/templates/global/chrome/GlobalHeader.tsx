@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
 import { Heart, ShoppingCart, User } from "lucide-react";
-import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import HeaderSearch from "@/components/layout/HeaderSearch";
@@ -14,11 +13,14 @@ import { businessSettingsAtom } from "@/store/ui-atoms";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
 import { GlobalTopBar } from "./GlobalTopBar";
+import { BrandMark } from "./BrandMark";
+import "../global.css";
 
 /**
- * Global chrome header: utility top bar + main header (logo · full-width search
- * · wishlist / account / cart with counts and running total). The category
- * mega-menu lives in the separate Navigation slot (GlobalNavbar).
+ * The masthead: utility rule, then site name set in Archivo 900 like a
+ * catalogue title, a dominant search field, and the account/wishlist/cart
+ * column with printed tabular counts. Account prompts stay quiet — the icon
+ * links to login only when signed out, with no sign-in copy pushed at guests.
  */
 export function GlobalHeader() {
 	const { t } = useTranslation();
@@ -27,7 +29,7 @@ export function GlobalHeader() {
 	const profile = useAtomValue(miniProfileAtom);
 	const settings = useAtomValue(businessSettingsAtom);
 	// Cart/wishlist are localStorage-backed (empty on the server); gate the
-	// badges on hydration so the first client render matches the server.
+	// counts on hydration so the first client render matches the server.
 	const [isHydrated, setIsHydrated] = useState(false);
 
 	useEffect(() => {
@@ -38,40 +40,46 @@ export function GlobalHeader() {
 	const cartCount = isHydrated ? itemCount : 0;
 	const wishlistCount = isHydrated ? wishlistIds.length : 0;
 
+	const iconLinkClass =
+		"ring-warm-focus relative flex h-10 w-10 items-center justify-center rounded-sm border border-border bg-background text-foreground transition-colors hover:border-foreground";
+
+	const countBadge = (count: number, label: string) =>
+		count > 0 ? (
+			<span
+				aria-label={`${label}: ${count}`}
+				className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-sm bg-primary px-1 text-[10px] font-bold text-primary-foreground tabular-nums"
+			>
+				{count}
+			</span>
+		) : null;
+
 	return (
 		<header className="bg-background">
 			<GlobalTopBar />
 
-			<div className="border-b shadow-sm">
-				<div className="container mx-auto flex h-16 items-center gap-3 md:h-20 md:gap-6">
+			<div className="border-b border-border">
+				<div className="container mx-auto flex h-16 items-center gap-3 md:h-20 md:gap-8">
 					<Link
 						href="/"
-						className="flex shrink-0 items-center"
+						className="ring-warm-focus flex shrink-0 items-center rounded-sm"
 						aria-label={settings?.site_name || "Home"}
 					>
-						{settings?.header_logo ? (
-							<Image
-								src={settings.header_logo}
-								alt={settings.site_name || "Logo"}
-								width={150}
-								height={44}
-								className="h-9 w-auto object-contain md:h-11"
-								priority
-							/>
-						) : (
-							<span className="text-xl font-extrabold tracking-tight text-primary md:text-2xl">
-								{settings?.site_name ?? ""}
-							</span>
-						)}
+						<BrandMark
+							src={settings?.header_logo}
+							name={settings?.site_name ?? ""}
+							imgClassName="h-9 w-auto object-contain md:h-11"
+							textClassName="text-xl md:text-2xl"
+							priority
+						/>
 					</Link>
 
 					<Suspense fallback={<div className="hidden flex-1 md:block" />}>
-						<div className="hidden flex-1 md:block">
+						<div className="g-masthead-search hidden min-w-0 flex-1 md:block">
 							<HeaderSearch placement="desktop" />
 						</div>
 					</Suspense>
 
-					<div className="ml-auto flex items-center gap-1.5 md:gap-4">
+					<div className="ml-auto flex items-center gap-1.5 md:gap-3">
 						<Suspense fallback={<div className="h-9 w-9" />}>
 							<span className="md:hidden">
 								<HeaderSearch placement="mobile" />
@@ -80,20 +88,16 @@ export function GlobalHeader() {
 
 						<Link
 							href={ABSOLUTE_ROUTES.WISHLIST}
-							className="relative hidden rounded-full border bg-card p-2.5 text-foreground transition-colors hover:border-primary hover:text-primary sm:inline-flex"
+							className={`${iconLinkClass} hidden sm:flex`}
 							aria-label={t("global.wishlist")}
 						>
 							<Heart className="h-5 w-5" />
-							{wishlistCount > 0 && (
-								<span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-									{wishlistCount}
-								</span>
-							)}
+							{countBadge(wishlistCount, t("global.wishlist"))}
 						</Link>
 
 						<Link
 							href={profile ? ABSOLUTE_ROUTES.PROFILE : ABSOLUTE_ROUTES.LOGIN}
-							className="rounded-full border bg-card p-2.5 text-foreground transition-colors hover:border-primary hover:text-primary"
+							className={iconLinkClass}
 							aria-label={profile ? t("global.profile") : t("global.login")}
 						>
 							<User className="h-5 w-5" />
@@ -101,22 +105,18 @@ export function GlobalHeader() {
 
 						<Link
 							href={ABSOLUTE_ROUTES.CART}
-							className="flex items-center gap-2"
+							className="ring-warm-focus flex items-center gap-2 rounded-sm"
 							aria-label={t("global.cart")}
 						>
-							<span className="relative rounded-full border bg-card p-2.5 text-foreground transition-colors hover:border-primary hover:text-primary">
+							<span className={iconLinkClass}>
 								<ShoppingCart className="h-5 w-5" />
-								{cartCount > 0 && (
-									<span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-										{cartCount}
-									</span>
-								)}
+								{countBadge(cartCount, t("global.cart"))}
 							</span>
 							<span className="hidden text-sm leading-tight lg:block">
-								<span className="block text-muted-foreground">
+								<span className="block text-xs text-muted-foreground">
 									{t("global.myCart")}
 								</span>
-								<span className="font-semibold tabular-nums">
+								<span className="font-black tabular-nums">
 									<Price amount={cartTotal} />
 								</span>
 							</span>

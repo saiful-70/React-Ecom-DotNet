@@ -3,7 +3,10 @@
 import type { Product } from "@/(app-routes)/products/model";
 import { BazarProductCard } from "./BazarProductCard";
 
-/** Client grid of bazar cards (usable directly from Server Components). */
+/**
+ * Client grid of chart tiles (usable directly from Server Components).
+ * 2-up on mobile — the chart is dense by nature.
+ */
 export function BazarProductsGrid({ products }: { products: Product[] }) {
 	return (
 		<div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5">

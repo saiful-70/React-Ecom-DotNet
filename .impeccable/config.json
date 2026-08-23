@@ -1,3 +1,14 @@
 {
-  "buildPath": "code"
+  "buildPath": "code",
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font-size",
+        "value": "1rem",
+        "createdAt": "2026-08-23T11:03:33.696Z"
+      }
+    ]
+  }
 }

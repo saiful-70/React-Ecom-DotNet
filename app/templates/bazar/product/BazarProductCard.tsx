@@ -3,34 +3,32 @@
 import { useState } from "react";
 import { useAtom } from "jotai";
 import { Heart } from "lucide-react";
-import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
-import { Button } from "@/components/shared/ui/button";
 import { toast } from "@/components/shared/ui/sonner";
 import Price from "@/components/shared/Price";
-import { useCart } from "@/contexts/CartContext";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
-import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
 import type { Product } from "@/(app-routes)/products/model";
 import { cn } from "@/lib/utils/utils";
-
-const FALLBACK_IMAGE =
-	"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop&q=80";
+import { useQuickAdd } from "./use-quick-add";
+import { BazarImage } from "../BazarImage";
+import "../bazar.css";
 
 /**
- * Bazar product card: stock ribbon, wishlist heart, image, name, price with
- * strike-through + save badge, and always-visible Add to Cart / Buy Now.
+ * Product tile in the chart-row grammar: laminated chip corners, stock state
+ * PRINTED as a chart tag (never hidden), heavy tabular current price over a
+ * struck original, offer-red save tag, and two ≥48px order keys that depress
+ * like a keypad.
  */
 export function BazarProductCard({ product }: { product: Product }) {
 	const { t } = useTranslation();
 	const router = useRouter();
-	const { addToCart } = useCart();
+	const { handleAddToCart, handleBuyNow } = useQuickAdd(product);
 	const [userProfile] = useAtom(miniProfileAtom);
 	const [wishlistIds, setWishlistIds] = useAtom(wishlistAtom);
 	const [isWishlistLoading, setIsWishlistLoading] = useState(false);
@@ -39,74 +37,19 @@ export function BazarProductCard({ product }: { product: Product }) {
 	const isHydrated = useHydrated();
 
 	const isWishlisted = isHydrated && wishlistIds.includes(product.id);
-	const imageSource =
-		product.thumbnail_image && product.thumbnail_image.trim() !== ""
-			? product.thumbnail_image
-			: FALLBACK_IMAGE;
 
 	const isOutOfStock = product.stock <= 0;
 	const hasDiscount =
 		product.price > product.discounted_price &&
 		product.discount_type !== "none";
-	const saveAmount = hasDiscount
-		? product.price - product.discounted_price
-		: 0;
-
-	// Same variant-aware add-to-cart behaviour as ProductCardItem.
-	const doAddToCart = (): { id: number; variant_id?: number } | null => {
-		const variant =
-			product.variants && product.variants.length > 0
-				? product.variants[0]
-				: null;
-		const price = variant
-			? parseFloat(variant.discount_price.toString())
-			: parseFloat(product.discounted_price.toString());
-		const stock = variant ? variant.stock : product.stock;
-
-		if (stock <= 0) {
-			toast.error(t("products.outOfStock"));
-			return null;
-		}
-		addToCart({
-			id: product.id,
-			name: variant
-				? `${product.name} - ${variant.combination_text}`
-				: product.name,
-			price,
-			image: imageSource,
-			variant_id: variant?.id,
-			stock,
-			tax: product.tax ? parseFloat(product.tax) : 0,
-			tax_type: product.tax_type || "exclude",
-		});
-		return { id: product.id, variant_id: variant?.id };
-	};
-
-	const handleAddToCart = (e: React.MouseEvent) => {
-		e.preventDefault();
-		if (doAddToCart()) {
-			toast.success(t("bazar.addToCart"), {
-				description: `${product.name} ${t("productCard.addedToCart")}`,
-			});
-		}
-	};
-
-	const handleBuyNow = (e: React.MouseEvent) => {
-		e.preventDefault();
-		const line = doAddToCart();
-		if (line) {
-			router.push(buyNowCheckoutHref(line.id, line.variant_id, 1));
-		}
-	};
+	const saveAmount = hasDiscount ? product.price - product.discounted_price : 0;
 
 	const handleToggleWishlist = async (e: React.MouseEvent) => {
 		e.preventDefault();
 		if (!userProfile) {
 			toast.error(t("productCard.loginRequired"));
 			router.push(
-				`/login?redirect=${encodeURIComponent(
-					window.location.pathname
-				)}`
+				`/login?redirect=${encodeURIComponent(window.location.pathname)}`
 			);
 			return;
 		}
@@ -137,20 +80,8 @@ export function BazarProductCard({ product }: { product: Product }) {
 	};
 
 	return (
-		<div className="group relative flex h-full flex-col overflow-hidden rounded-md border bg-card shadow-sm transition-shadow hover:shadow-md">
-			{/* Stock ribbon */}
-			<span
-				className={cn(
-					"absolute -left-9 top-4 z-10 -rotate-45 px-10 py-1 text-[10px] font-bold uppercase tracking-wider shadow",
-					isOutOfStock
-						? "bg-destructive text-destructive-foreground"
-						: "bg-primary text-primary-foreground"
-				)}
-			>
-				{isOutOfStock ? t("bazar.stockOut") : t("bazar.stockIn")}
-			</span>
-
-			{/* Wishlist heart */}
+		<div className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-card shadow-warm-sm transition-shadow duration-200 hover:shadow-warm">
+			{/* Wishlist key */}
 			<button
 				type="button"
 				onClick={handleToggleWishlist}
@@ -158,71 +89,93 @@ export function BazarProductCard({ product }: { product: Product }) {
 				aria-label={t("bazar.wishlist")}
 				aria-pressed={isWishlisted}
 				className={cn(
-					"absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full border bg-background/90 transition-colors",
+					"bz-key ring-warm-focus absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-background/95 shadow-warm-sm disabled:opacity-60",
 					isWishlisted
-						? "text-primary"
-						: "text-muted-foreground hover:text-primary"
+						? "text-accent"
+						: "text-muted-foreground hover:text-accent"
 				)}
 			>
 				<Heart
 					className={cn("h-4 w-4", isWishlisted && "fill-current")}
+					aria-hidden="true"
 				/>
 			</button>
 
 			<Link
 				href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(product.id)}
-				className="block bg-white"
+				className="ring-warm-focus block bg-background"
+				tabIndex={-1}
+				aria-hidden="true"
 			>
-				<Image
-					src={imageSource}
+				<BazarImage
+					src={product.thumbnail_image}
 					alt={product.name}
 					width={400}
 					height={400}
-					className="h-40 w-full object-cover sm:h-56"
+					className={cn(
+						"h-40 w-full object-cover sm:h-52",
+						isOutOfStock && "opacity-60 grayscale-[40%]"
+					)}
+					plateClassName="h-40 w-full text-4xl sm:h-52"
 					sizes="(max-width: 1024px) 50vw, 20vw"
 				/>
 			</Link>
 
-			<div className="flex flex-1 flex-col gap-2 p-3">
-				<Link href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(product.id)}>
-					<h3 className="line-clamp-2 text-sm font-semibold leading-snug hover:text-primary">
+			<div className="flex flex-1 flex-col gap-2 border-t border-dashed border-border p-3">
+				{/* Stock state — always printed, chart-tag style. */}
+				<p
+					className={cn(
+						"text-xs font-bold",
+						isOutOfStock ? "text-destructive" : "text-success"
+					)}
+				>
+					{isOutOfStock
+						? t("bazar.stockSoldOut", "স্টক শেষ")
+						: t("bazar.stockIn")}
+				</p>
+
+				<Link
+					href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(product.id)}
+					className="ring-warm-focus rounded-md"
+				>
+					<h3 className="line-clamp-2 text-sm font-bold leading-snug hover:text-primary">
 						{product.name}
 					</h3>
 				</Link>
-				<div className="mt-auto flex flex-wrap items-center gap-2">
-					<span className="text-lg font-bold text-primary tabular-nums">
+
+				<div className="mt-auto flex flex-wrap items-baseline gap-x-2 gap-y-1">
+					<span className="bz-num font-display text-xl font-bold text-primary">
 						<Price amount={product.discounted_price} />
 					</span>
 					{hasDiscount && (
 						<>
-							<span className="text-xs text-muted-foreground line-through tabular-nums">
+							<span className="bz-num text-xs text-muted-foreground line-through">
 								<Price amount={product.price} />
 							</span>
-							<span className="rounded bg-accent px-1.5 py-0.5 text-[10px] font-semibold text-accent-foreground">
-								{t("bazar.save")}{" "}
-								<Price amount={saveAmount} />
+							<span className="bz-num rounded-md bg-accent px-1.5 py-0.5 text-[11px] font-bold text-accent-foreground">
+								{t("bazar.save")} <Price amount={saveAmount} />
 							</span>
 						</>
 					)}
 				</div>
+
 				<div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-					<Button
-						variant="secondary"
-						size="sm"
-						className="h-auto min-h-9 whitespace-normal px-2 py-1.5 text-[10px] font-bold uppercase leading-tight sm:text-[11px]"
+					<button
+						type="button"
 						onClick={handleAddToCart}
 						disabled={isOutOfStock}
+						className="bz-key ring-warm-focus min-h-12 whitespace-normal rounded-lg bg-secondary px-2 py-1.5 text-xs font-bold leading-tight text-secondary-foreground shadow-warm-sm disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
 					>
 						{t("bazar.addToCart")}
-					</Button>
-					<Button
-						size="sm"
-						className="h-auto min-h-9 whitespace-normal px-2 py-1.5 text-[10px] font-bold uppercase leading-tight sm:text-[11px]"
+					</button>
+					<button
+						type="button"
 						onClick={handleBuyNow}
 						disabled={isOutOfStock}
+						className="bz-key ring-warm-focus min-h-12 whitespace-normal rounded-lg bg-primary px-2 py-1.5 text-xs font-bold leading-tight text-primary-foreground shadow-warm-sm disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
 					>
 						{t("bazar.buyNow")}
-					</Button>
+					</button>
 				</div>
 			</div>
 		</div>

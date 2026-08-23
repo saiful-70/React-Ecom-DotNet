@@ -1,312 +1,220 @@
 ---
 name: DebuggerMind Storefront
-description: A forest-green Bengali retail counter, themed per client by token swap.
+description: One storefront chassis, four template-scoped visual worlds, themed per client by token override.
 colors:
-  leaf-forest: "hsl(142 56% 30%)"
-  leaf-forest-foreground: "hsl(140 30% 98%)"
-  deep-canopy: "hsl(152 68% 11%)"
-  deep-canopy-foreground: "hsl(140 30% 97%)"
-  bright-leaf: "hsl(128 50% 42%)"
-  bright-leaf-foreground: "hsl(140 30% 98%)"
-  mint-cream: "hsl(140 30% 97%)"
-  green-black: "hsl(152 30% 10%)"
-  card-white: "hsl(0 0% 100%)"
-  mint-band: "hsl(140 28% 93%)"
-  muted-sage: "hsl(152 12% 38%)"
-  green-gray-border: "hsl(142 18% 85%)"
-  markdown-red: "hsl(0 72% 48%)"
-  confirm-green: "hsl(142 60% 34%)"
-  caution-amber: "hsl(38 88% 50%)"
-  save-coral: "hsl(4 74% 48%)"
+  classic-khata-paper: "hsl(40 52% 90%)"
+  classic-pen-ink: "hsl(27 26% 11%)"
+  classic-stamp-red: "hsl(358 63% 43%)"
+  classic-kraft-board: "hsl(33 47% 30%)"
+  classic-ballpoint-blue: "hsl(215 45% 38%)"
+  classic-rule-line: "hsl(37 32% 72%)"
+  bazar-chart-white: "hsl(210 20% 98%)"
+  bazar-marker-ink: "hsl(220 20% 9%)"
+  bazar-tariff-azure: "hsl(203 91% 40%)"
+  bazar-counter-board: "hsl(220 20% 12%)"
+  bazar-offer-red: "hsl(2 76% 50%)"
+  bazar-chart-rule: "hsl(210 14% 85%)"
+  global-catalogue-page: "hsl(0 0% 100%)"
+  global-print-ink: "hsl(0 0% 7%)"
+  global-catalogue-blue: "hsl(217 70% 37%)"
+  global-ink-navy: "hsl(217 45% 15%)"
+  global-sale-red: "hsl(3 75% 46%)"
+  global-hairline-rule: "hsl(0 0% 86%)"
+  premium-viridian-lacquer: "hsl(160 62% 13%)"
+  premium-label-stock: "hsl(42 45% 94%)"
+  premium-foil-gold: "hsl(45 55% 52%)"
+  premium-deep-lacquer: "hsl(162 55% 9%)"
+  premium-vermilion-seal: "hsl(8 81% 50%)"
+  premium-foil-hairline: "hsl(46 30% 38%)"
 typography:
-  hero:
-    fontFamily: "Noto Serif Bengali Variable, Hind Siliguri, ui-serif, Georgia, serif"
-    fontSize: "clamp(2.25rem, 6vw, 3.75rem)"
+  classic-display:
+    fontFamily: "Tiro Bangla, Hind Siliguri, ui-serif, Georgia, serif"
     fontWeight: 700
-    lineHeight: 1.05
-    letterSpacing: "-0.025em"
-  display:
-    fontFamily: "Noto Serif Bengali Variable, Hind Siliguri, ui-serif, Georgia, serif"
-    fontSize: "clamp(1.5rem, 4vw, 1.875rem)"
+  bazar-display:
+    fontFamily: "Anek Bangla Variable, Hind Siliguri, ui-serif, serif"
     fontWeight: 700
-    lineHeight: 1.25
+  global-display:
+    fontFamily: "Archivo Variable, ui-serif, serif"
+    fontWeight: 900
     letterSpacing: "-0.025em"
-  headline:
-    fontFamily: "Noto Serif Bengali Variable, Hind Siliguri, ui-serif, Georgia, serif"
-    fontSize: "1.125rem"
+  premium-display:
+    fontFamily: "Bodoni Moda Variable, ui-serif, serif"
     fontWeight: 700
-    lineHeight: 1.4
-    letterSpacing: "-0.025em"
-  title:
+  body-bengali:
     fontFamily: "Hind Siliguri, Inter Variable, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 500
-    lineHeight: 1.4
-  body:
-    fontFamily: "Hind Siliguri, Inter Variable, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.875rem"
     fontWeight: 400
-    lineHeight: 1.625
-  label:
-    fontFamily: "Hind Siliguri, Inter Variable, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.75rem"
-    fontWeight: 600
-    lineHeight: 1.2
-  micro:
-    fontFamily: "Hind Siliguri, Inter Variable, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "11px"
-    fontWeight: 600
-    lineHeight: 1.2
-  badge:
-    fontFamily: "Hind Siliguri, Inter Variable, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "10px"
-    fontWeight: 700
-    lineHeight: 1.1
-    letterSpacing: "0.025em"
-  price:
-    fontFamily: "Hind Siliguri, Inter Variable, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1.25rem"
-    fontWeight: 700
-    lineHeight: 1.2
-    letterSpacing: "-0.025em"
-    fontFeature: "tabular-nums"
+  body-global:
+    fontFamily: "Archivo Variable, Inter Variable, ui-sans-serif, sans-serif"
+    fontWeight: 400
+  body-premium:
+    fontFamily: "Jost Variable, Inter Variable, ui-sans-serif, sans-serif"
+    fontWeight: 400
 rounded:
-  sm: "10px"
-  md: "12px"
-  lg: "14px"
+  classic: "0.375rem"
+  bazar: "0.5rem"
+  global: "0.125rem"
+  premium: "0.125rem"
   pill: "9999px"
 spacing:
   gutter-mobile: "16px"
   gutter-tablet: "24px"
   gutter-desktop: "32px"
-  card-pad-mobile: "8px"
-  card-pad-desktop: "16px"
-  section-gap: "32px"
-components:
-  button-primary:
-    backgroundColor: "{colors.leaf-forest}"
-    textColor: "{colors.leaf-forest-foreground}"
-    rounded: "{rounded.md}"
-    padding: "8px 16px"
-    height: "40px"
-    typography: "{typography.title}"
-  button-primary-hover:
-    backgroundColor: "hsl(142 56% 30% / 0.9)"
-  button-buy:
-    backgroundColor: "{colors.leaf-forest}"
-    textColor: "{colors.leaf-forest-foreground}"
-    rounded: "{rounded.md}"
-    padding: "0 32px"
-    height: "48px"
-  button-outline:
-    backgroundColor: "{colors.mint-cream}"
-    textColor: "{colors.leaf-forest}"
-    rounded: "{rounded.md}"
-    padding: "8px 16px"
-    height: "40px"
-  button-secondary:
-    backgroundColor: "{colors.deep-canopy}"
-    textColor: "{colors.deep-canopy-foreground}"
-    rounded: "{rounded.md}"
-    padding: "8px 16px"
-    height: "40px"
-  input-default:
-    backgroundColor: "{colors.mint-cream}"
-    textColor: "{colors.green-black}"
-    rounded: "{rounded.md}"
-    padding: "8px 12px"
-    height: "40px"
-  card-product:
-    backgroundColor: "{colors.card-white}"
-    textColor: "{colors.green-black}"
-    rounded: "{rounded.lg}"
-    padding: "8px"
-  badge-markdown:
-    backgroundColor: "{colors.markdown-red}"
-    textColor: "{colors.leaf-forest-foreground}"
-    rounded: "{rounded.pill}"
-    padding: "2px 10px"
-    typography: "{typography.label}"
-  badge-save:
-    backgroundColor: "{colors.save-coral}"
-    textColor: "{colors.card-white}"
-    rounded: "{rounded.pill}"
-    padding: "2px 10px"
-    typography: "{typography.label}"
-  header-bar:
-    backgroundColor: "{colors.deep-canopy}"
-    textColor: "{colors.deep-canopy-foreground}"
-    height: "64px"
 ---
 
 # Design System: DebuggerMind Storefront
 
 ## Overview
 
-**Creative North Star: "The Green Bazaar Counter"**
+**Creative North Star: "One Chassis, Four Counters"**
 
-The interface is a well-kept market counter. Clean white product cards are laid out on a pale mint-cream field; the chrome above and below them is a deep forest green so dark it reads almost black, and it stays out of the way. Nothing on the counter competes with the goods: photography, price, and the offer are what the eye lands on, in that order. Warmth comes from the green-tinted shadow ramp and the generously rounded 14px corners, not from decoration.
+There is no single house style here; there is a single house *contract*. The storefront is one chassis — shared routes, shared data actions, shared semantic token slots — dressed by four complete visual worlds, one per template. `app/layout.tsx` stamps the active template id on `<html data-template="…">`, and `app/globals.css` resolves every semantic token for that world by attribute selector. A component never knows which world it lives in: it asks for `bg-primary` or `border-border` and the world answers. Swap the attribute and the same product card is a khata ledger entry, a laminated tariff row, a catalogue plate, or a batch label.
 
-Two registers coexist on purpose. The chrome and the reading surfaces are calm and uncluttered — one accent colour, thin borders, quiet type. The merchandising zones are allowed to be loud: markdown badges, coral SAVE pills, gradient featured chips, and live countdowns earn their volume because selling is the job. Product grids stay dense and efficient, especially on small screens, where card padding drops to 8px and the type steps down rather than the grid thinning out. Density is a deliberate retail choice, not an accident of cramming.
+Each world is a real Bangladeshi or catalogue retail object, not a palette swap: the grocer's ruled ledger (classic), the flexiload top-up counter (bazar), the great mail-order catalogue (global), and the apothecary batch label (premium). The worlds diverge hard — parchment vs. lacquer, 6px vs. 2px corners, didone vs. grotesque — but they obey the same invariants: money is always tabular, the page gutter lives in exactly one place, status is a pill and a pill is never a control, colors resolve only through tokens, broken data degrades in-world, and no surface fabricates a claim the backend cannot back. The direction contract for each world is embedded verbatim as a `<script type="text/x-impeccable-contract">` block in its HomeLayout.
 
-The whole world is a single token layer. Every colour, radius, and shadow resolves through CSS custom properties on `:root`, so an entire client identity is swapped by overriding variables — green is the default dress, not the identity. Confirmed rejections: the generic shadcn default look (slate-gray, 8px radius, no point of view), the cluttered Bangladeshi marketplace wall of banners and six competing accents, and the cold Western SaaS blue-gray dashboard register.
+Above the worlds sits a third layer: per-client variant overrides (`app/variants/theme.ts`) injected as a server-rendered `<style>` using triple-`:root` selectors, so a client can retint any world without touching code. Confirmed rejections, shared by all four worlds: the generic shadcn default look, the banner-wall Bangladeshi marketplace, the Amazon-clone carousel arrangement, and the Temu urgency stack.
 
 **Key Characteristics:**
-- Deep-canopy chrome, mint-cream field, white product cards
-- Bengali serif for every heading, humanist sans for everything else
-- 14px corner language with pill-shaped status badges
-- Green-tinted shadows that rest low and lift on interaction
-- Quiet chrome, loud offers — volume is zoned, not global
-- Fully token-driven so one shell serves many client identities
+- Four self-contained visual worlds selected by `data-template`, all speaking one semantic token vocabulary
+- A three-rung cascade ladder: `:root` default → template block → `:root:root:root` client override
+- Per-world display and body faces routed through two font variables (`--font-display`, `--font-bengali`)
+- World-tinted shadows (`--shadow-warm`) instead of neutral black, everywhere
+- Zoned BD conversion spine (COD, tap-to-call, Dhaka fees) in the Bengali worlds; flat-rate, estimated-date, guest-first spine in the international worlds
+- Honest data: empty sections collapse, broken images become typographic plates, urgency only when the backend flag backs it
+
+### The Four Worlds
+
+Each world owns a full DESIGN.md next to its code; the notes below are the index card, not the depth.
+
+**classic — "The Mudir Dokan Khata"** (`app/templates/classic/DESIGN.md`, variant bn-01). The grocer's ruled ledger: unbleached khata paper field, pen-ink text, rubber-stamp red (`{colors.classic-stamp-red}`) reserved for prices and order actions, ballpoint blue as the entry accent, kraft-board chrome. Tiro Bangla display over Hind Siliguri body; gummed-tag 6px corners. Signature devices: the 2px blue ledger rule-spine, double-rule band boundaries, gummed status tags with punched string-holes, the stamp-settle add-to-cart motion, and the self-drawing sold-out strike. **The Stamp-Red-Orders Rule.** Stamp red belongs to the order zone alone — never chrome.
+
+**bazar — "The Flexiload Counter"** (`app/templates/bazar/DESIGN.md`, variant bn-02). The mobile top-up shop: laminated chart-white field, board-black chrome, tariff azure as primary, offer red as accent. Anek Bangla display over Hind Siliguri body; 8px laminated-chip corners. Signature devices: the SIM-colour department cycle (each department owns one hue end-to-end via a scoped `--dept` variable), 3px section-band chart breaks, and the keypad grammar — every actionable surface is a `.bz-key` that physically depresses 1px on press, up to the five-key mobile bottom nav and the sliding call FAB. **The One-Hue-Per-Department Rule.** A department's colour is assigned once by category index and never remixed downstream.
+
+**global — "The Mail-Order Index"** (`app/templates/global/DESIGN.md`, variant intl-01). The great catalogue: white page, print ink, catalogue blue for actions, ink-navy chrome, 1px hairline rules structuring everything, 2px print corners with ink registration marks. Archivo carries both display (900, uppercase, tight) and body; every product bears a derived item number (`No. 004-217`). Signature devices: the composed hero tableau (never a carousel), the horizon-datum rule grammar, the printed availability course with an estimated arrival date, and a single slide-and-settle motion. **The Sale-Insert Rule.** Catalogue red appears only inside the deals insert band and on discount figures — nowhere else, not even wishlist states.
+
+**premium — "The Batch Label"** (`app/templates/premium/DESIGN.md`, variant intl-02). Apothecary packaging: the page *is* viridian lacquer, the buy panel is a floating label-stock card, foil gold carries the purchase action, vermilion is the wax-seal accent. Bodoni Moda didone at real scale contrast over small tracked Jost caps; 2px box-board corners framed by foil hairlines and L-corner marks. Signature devices: the LOT provenance line inside every label, exploded numbered spec callouts pinned over photography, physically pressed variant keys (inset shadow + travel, never tint-only), and the vermilion seal-press on add-to-cart. **The Four-Colour Rule.** No fifth hue exists anywhere in this world; even warnings resolve to gold and vermilion.
 
 ## Colors
 
-A single-hue green world (forest through leaf) over mint neutrals, with red, coral, and amber admitted only as commerce signals.
+Color is a fixed vocabulary of semantic slots filled differently by each world; a slot means the same *job* everywhere.
 
 ### Primary
-- **Leaf Forest** (`{colors.leaf-forest}`): the buy colour. Primary buttons, active price, link hover, focus rings, selected states, and the wishlist-on state. It carries every action that moves a shopper toward an order.
-- **Bright Leaf** (`{colors.bright-leaf}`): the lighter pop, used where Leaf Forest would be too heavy — top-bar iconography, featured-badge gradients, tertiary nav hovers, and gradient stops.
+- **`--primary` / `--ring`** — the buy slot: the colour of order actions, active prices, and focus rings. Stamp red in classic, tariff azure in bazar, catalogue blue in global, foil gold in premium. Whatever the world, the brightest instance of this slot on screen is the purchase path.
 
 ### Secondary
-- **Deep Canopy** (`{colors.deep-canopy}`): chrome only. The sticky header, the utility top bar, the footer, secondary/icon buttons, and the fade behind the desktop add-to-cart overlay. Near-black at 11% lightness, so it frames the page without becoming a colour event.
+- **`--secondary`** — the chrome slot: masthead, footer, bottom nav, counter edges. Kraft board, counter board-black, ink navy, deep lacquer. Chrome frames the goods and never becomes a call to action.
 
 ### Tertiary
-- **Markdown Red** (`{colors.markdown-red}`): discount percentages, the combo total price, and error text. It means "money" or "wrong", never decoration.
-- **Save Coral** (`{colors.save-coral}`): a separate semantic from Markdown Red, reserved for "you save" pills on bundle and combo tiers so a savings claim is never confused with an error. Falls back to Markdown Red when a variant theme leaves it unset.
-- **Caution Amber** (`{colors.caution-amber}`): warnings and the offer countdown frame. Nothing else.
-- **Confirm Green** (`{colors.confirm-green}`): success toasts and confirmations, deliberately distinct from Leaf Forest so a confirmation is not mistaken for a button.
+- **`--accent`** — the second signal: ballpoint-blue entries (classic), the offer-red chip (bazar), the sale-insert red (global), the vermilion seal (premium). Each world's own DESIGN.md restricts where its accent may appear; the restriction travels with the world, not with this file.
+- **`--destructive`, `--success`, `--warning`, `--bundle-save`** — feedback slots, each with a paired `-foreground`. `--bundle-save` exists so a savings claim is never confused with an error; in every world it currently shares the accent/red family, by design.
 
 ### Neutral
-- **Mint Cream** (`{colors.mint-cream}`): the page field. Every card sits on it; it is never used as a card surface itself.
-- **Card White** (`{colors.card-white}`): product cards, popovers, dialogs, and the purchase panel. Pure white is what separates goods from counter.
-- **Mint Band** (`{colors.mint-band}`): muted bands, image placeholders behind loading photography, and gradient tails.
-- **Green Black** (`{colors.green-black}`): all primary text.
-- **Muted Sage** (`{colors.muted-sage}`): secondary text, struck-through original prices, review counts, helper copy.
-- **Green Gray Border** (`{colors.green-gray-border}`): every border and input stroke. Borders are hairlines, often at 60% opacity on cards.
+- **`--background` / `--foreground`** — the field and its ink: khata paper, chart white, catalogue page, viridian lacquer. Premium is the deliberate inversion — its field is dark and saturated, its cards are light.
+- **`--card`, `--popover`** (+ foregrounds) — raised paper: fresh page, pure white, catalogue white, label stock.
+- **`--muted` / `--muted-foreground`** — bands, wells, and secondary text.
+- **`--border` / `--input`** — the rule line: printed rule, chart rule, hairline, foil hairline. Borders are 1px structure in every world; a colored border thicker than 1px is off-system.
+- **`--sidebar-*`** — a parallel eight-slot set for sidebar surfaces, filled per world alongside the main set.
+- **`--shadow-warm`** — the shadow tint base (see Elevation & Depth).
+
+Every slot has a `.dark` mirror per world (`html[data-template="…"].dark`), tuned by hand — dark mode is the shop after closing, not an inversion filter.
 
 ### Named Rules
-**The Chrome-Is-Canopy Rule.** Header, top bar, footer, and mobile bottom nav render in Deep Canopy. Primary green never becomes chrome, and chrome never becomes a call to action; when both appear in one row, the button wins the eye.
+**The Token-Only Rule.** Components consume semantic Tailwind classes wired to these variables and nothing else. A hardcoded hex anywhere downstream silently breaks both the world switch and client theming. The one sanctioned raw-HSL surface is bazar's template-owned `--dept-1..6` cycle, defined once in `bazar.css`.
 
-**The Red-Means-Money Rule.** Red is admitted for exactly two things: a price that dropped and a thing that broke. It is never a brand colour, never a background for a section, and never a hover state.
+**The Ladder Rule.** Three cascade rungs, weakest to strongest: `:root` (the classic world and default), `html[data-template="…"]` (0,1,1) with dark blocks at (0,2,1), then per-client variant overrides emitted by `buildVariantThemeCss` as `:root:root:root` (0,3,0) and `:root:root:root.dark` (0,4,0) in a server `<style id="variant-theme">` — present on first paint, winning regardless of stylesheet order. New tokens enter at rung 1, get world values at rung 2, and stay overridable at rung 3; skipping a rung breaks a template or a client.
 
-**The One Accent Rule.** Outside merchandising badges, a screen carries one accent family. Any second hue on a chrome or form surface is a bug in the token usage, not a design choice.
+**The Same-Slot-Same-Job Rule.** A world may change what `--primary` looks like, never what it means. If a design wants a new *meaning* (as savings once did), it earns a new slot in all four worlds, not a repurposed one.
 
 ## Typography
 
-**Display Font:** Noto Serif Bengali Variable (falling back to Hind Siliguri, then Georgia)
-**Body Font:** Hind Siliguri (falling back to Inter Variable, then system sans)
-**Numerals:** Hind Siliguri with `tabular-nums` wherever money appears
+**Display Font:** per world, via `--font-display` — Tiro Bangla (classic), Anek Bangla Variable (bazar), Archivo Variable (global), Bodoni Moda Variable (premium)
+**Body Font:** per world, via `--font-bengali` — Hind Siliguri (classic, bazar), Archivo Variable (global), Jost Variable (premium)
+**Fallback chain:** `font-display` falls to `--font-bengali` then serif; `font-sans` falls from `--font-bengali` to Inter Variable then system sans (see `tailwind.config.ts`)
 
-**Character:** A Bengali serif does the talking and a Bengali humanist sans does the work. The pairing is bilingual by construction — both faces carry Bengali and Latin, so an English string and a Bengali string in the same heading share one voice instead of falling back to a mismatched system font. Headings are tight (`-0.025em`) and confident; body text is generous in line height and short in measure.
+**Character:** The type system is two variables and a discipline. All faces are self-hosted through Fontsource in `app/layout.tsx` (no build-time Google Fonts fetch); a world redeclares the two variables in its `globals.css` block and every heading, price, and body line follows. The Bengali worlds pair a Bengali display face with Hind Siliguri so Bengali and Latin strings share one voice; the international worlds go single-family grotesque (global) or didone-over-sans (premium).
 
 ### Hierarchy
-- **Hero** (700, `clamp(2.25rem, 6vw, 3.75rem)`, 1.05): banner headlines inside the home hero, over the forest-green scrim. The only place the display face runs above 2rem; balanced wrapping is mandatory at this size.
-- **Display** (700, `clamp(1.5rem, 4vw, 1.875rem)`, 1.25): page titles — product name on a details page, combo title on a landing page. One per page.
-- **Headline** (700, 1.125rem, 1.4): section headers inside a page ("What's included", "Select combo"), usually paired with a 16px leading icon in Leaf Forest.
-- **Title** (500, 0.875rem, 1.4): product card names, clamped to two lines, shifting to Leaf Forest on card hover. Steps down to 0.75rem below the `sm` breakpoint.
-- **Body** (400, 0.875rem, 1.625): descriptions, terms, chat, and long-form HTML from the backend. Keep the measure near 65–75ch in prose blocks.
-- **Label** (600, 0.75rem, 1.2): field labels, trust-row captions, unit captions under countdown digits.
-- **Micro** (600, 11px, 1.2): savings pills, per-unit price chips, perk lines, composition lists — the second line of a dense card.
-- **Badge** (700, 10px, uppercase with 0.025em tracking): the smallest type in the system. Corner ribbons and status chips over imagery only; never a full sentence.
-- **Price** (700, 1.25rem, tabular): the money type. Always tabular, always tightened, always the heaviest thing in its own block.
+- **Headings** (`h1`–`h5`): globally set to `font-display` with tight tracking in the base layer — the one type decision made for all worlds at once. Sizes are per-world (each template DESIGN.md carries its ramp).
+- **Body**: `font-sans` (0.875rem at 1.6+ line height as the working default), 16px minimum on mobile inputs so iOS never zooms on focus.
+- **Money**: the heaviest thing in its own block, always tabular (see rule below), current price in the world's price colour with the original struck through in muted.
 
 ### Named Rules
-**The Serif-Heads Rule.** Every `h1`–`h5` inherits the display serif and tight tracking from the base layer. Body copy, buttons, labels, and numerals never use it. A serif button is off-system.
+**The Tabular Money Rule.** Every rendered amount uses `tabular-nums` so price columns and counters never jitter. Currency symbol, separators, and formatting come from business settings and the locale formatter — never a hardcoded string. All four worlds pass this today.
 
-**The Tabular Money Rule.** Every rendered amount uses `tabular-nums`, so a column of prices and a ticking countdown never jitter. Currency symbol and separators come from the locale formatter, never from a hardcoded string.
+**The Display-Heads Rule.** `h1`–`h5` inherit the world's display face from the base layer; body copy, buttons, and form labels never borrow it. A didone button or a Tiro Bangla input label is off-system in any world.
 
 ## Layout
 
-A centered `container` capped at 1400px carries every page, with a single responsive gutter: 16px, rising to 24px at 768px and 32px at 1024px. Breakpoints run `xs` 475px, `sm` 640px, `md` 768px, `lg` 1024px, `xl` 1280px, `2xl` 1536px — the extra `xs` step exists because a meaningful share of traffic sits below 400px wide.
+One centered `.container` capped at 1400px carries every page. The responsive gutter is 16px, rising to 24px at 768px and 32px at 1024px — and it is defined only in `app/globals.css` (`@layer utilities`), deliberately not in `tailwind.config.ts`, because the pinned `container.screens` would silently drop per-breakpoint padding. Breakpoints run `xs` 475px, `sm` 640px, `md` 768px, `lg` 1024px, `xl` 1280px, `2xl` 1536px; the extra `xs` step exists because a meaningful share of shoppers sit below 400px wide.
 
-Product grids are the spatial signature: two columns on phones, three at `sm`, four from `lg`, with a 12px gap that never opens up on desktop. Sections stack with 32px of air, and content pages narrow to a 5-column-equivalent max (`max-w-5xl`) so reading measure stays sane while grids stay wide. Purchase panels sit in flow at every breakpoint rather than floating, so the price and the buttons scroll as one block with the thing being bought.
-
-Density is mobile-first in the literal sense: card padding starts at 8px and grows to 16px on desktop, action buttons shrink to 28px tall on phones, and desktop-only affordances (hover quick-actions, the add-to-cart overlay) simply do not render below `lg` instead of being reproduced as taps.
+Product grids are two columns on phones in every world and never thinner; density steps down through padding and type size, not by dropping a column. Composition above the grid is entirely per-world (ledger bands, tariff board, catalogue tableau, label hero) and lives in each template's own DESIGN.md. Homepage section ids `featured-products`, `today-deals`, and `top-selling` are a cross-world contract — the smooth-scroll navigation depends on them in all four templates.
 
 ### Named Rules
-**The Single Gutter Rule.** The gutter lives on `.container` and only there. Adding `px-*` to a container element doubles the padding and has already cost a 390px phone 96px of usable width.
+**The Single Gutter Rule.** The page gutter lives on `.container` and only there. Adding `px-*` to a container element doubles the padding; this once cost a 390px phone a third of its usable width.
 
-**The No-Body-Scroller Rule.** The viewport scroller is `<html>`. Nothing may turn `<body>` into a scroll container — the moment it becomes one, the sticky header sticks to the document top and disappears from a scrolled page.
+**The No-Body-Scroller Rule.** The viewport scroller is `<html>` (`overflow-x: clip` on both html and body — clip, not hidden, so no scroll container is created). Nothing may turn `<body>` into a scroll container: the moment it becomes one, every sticky header resolves against body's scrollport and vanishes on scrolled pages. The unlayered `html body[data-scroll-locked]` override at the bottom of `globals.css` exists to defend this against Radix's scroll-lock injection — do not move it into a layer or "simplify" it.
 
 ## Elevation & Depth
 
-Depth is a response to touch, not a permanent property. Surfaces rest low — product cards sit on a barely-there `shadow-warm-sm` — and lift to `shadow-warm-md` with a 1px upward translate on desktop hover, over a 300ms transition. Every shadow is tinted with the same green base (`--shadow-warm`) rather than neutral black, so shadows read as warm depth on a mint field instead of gray dirt. Variant themes retint that base to match their own palette.
+Depth is world-tinted and earned by state, never a permanent decoration. All four worlds share one shadow ramp (`shadow-warm-sm` / `shadow-warm` / `shadow-warm-md` / `shadow-warm-lg`) whose tint follows the world's `--shadow-warm` base — brown ink on khata paper, board-black on chart white, print-ink on the catalogue page, near-black lacquer under the labels — so shadows read as the world's own material rather than gray dirt. Premium's floating label panel (`shadow-warm-lg`) is the deepest resting elevation in the system and is a deliberate exception: the label genuinely sits on the lacquer.
 
 ### Shadow Vocabulary
-- **Rest** (`0 1px 2px hsl(var(--shadow-warm)/0.06), 0 1px 3px hsl(var(--shadow-warm)/0.08)`): the default card and trust-row state.
-- **Raised** (`0 4px 6px -1px …/0.08, 0 2px 4px -2px …/0.06`): purchase panels and elements that must read as sitting on top of the field at rest.
-- **Lifted** (`0 10px 25px -5px …/0.10, 0 4px 10px -4px …/0.08`): hover state for cards, and floating action buttons.
-- **Overlay** (`0 20px 40px -12px …/0.18, 0 8px 16px -8px …/0.10`): drawers, sheets, and anything that covers content.
+- **Rest** (`shadow-warm-sm`: `0 1px 2px …/0.06, 0 1px 3px …/0.08`): default card state.
+- **Raised** (`shadow-warm`: `0 4px 6px -1px …/0.08, 0 2px 4px -2px …/0.06`): panels that sit on the field at rest.
+- **Lifted** (`shadow-warm-md`: `0 10px 25px -5px …/0.10, 0 4px 10px -4px …/0.08`): hover lift, floating actions.
+- **Overlay** (`shadow-warm-lg`: `0 20px 40px -12px …/0.18, 0 8px 16px -8px …/0.10`): drawers, sheets, the premium label panel.
 
 ### Named Rules
-**The Rest-Low, Lift-On-Touch Rule.** A surface that never changes state never gets more than Rest. If a card has no hover and no press, it has no business at Lifted.
+**The Tinted-Shadow Rule.** No neutral-black `shadow-*` utilities; every shadow routes through `--shadow-warm` so it retints with the world and with client overrides. Where a world wants physical depth (bazar's keys, premium's pressed variant keys), it uses real inset shadows and 1px travel — never a halo or a tint change alone.
 
 ## Shapes
 
-One radius ramp derived from a single `--radius` of 14px: cards and panels at 14px, buttons, inputs, and selects at 12px, small chips at 10px, and status badges fully pilled. Images inside cards are clipped to the parent's radius; hero galleries and thumbnails round to 16px and 8px respectively as deliberate exceptions.
-
-Borders are hairlines in Green Gray Border, frequently at 60% opacity so a grid of cards reads as a soft field rather than a table. Interactive surfaces gain a Leaf Forest border at 30% opacity on hover instead of a colour fill. Circular geometry is reserved for two things: status badges and the savings roundel on a combo hero, where a 64px circle in Markdown Red sits over the corner of the image.
+Corner radius is a world signature, driven by one `--radius` per world: 6px gummed-tag corners in classic, 8px laminated-chip corners in bazar, and 2px print/box-board corners in both international worlds. Tailwind's `rounded-lg/md/sm` derive from the variable, so shared components change shape with the world automatically. Framing devices are per-world (double rules, 3px band breaks, registration marks, foil L-corners) and documented in each template's DESIGN.md; what is shared is the discipline that structure comes from 1px rules, not from fills or thick colored borders.
 
 ### Named Rules
-**The Pill-For-Status Rule.** Fully rounded means "this is a state, not a control" — discount, featured, stock, savings. A pill that can be clicked is misusing the shape.
+**The Pill-For-Status Rule.** Fully-rounded means "this is a state, not a control": stock tags, discount chips, filter counts. No world ships pill buttons, and a pill that can be clicked is misusing the shape — this survived all four redesigns intact.
 
 ## Components
 
-### Buttons
-- **Shape:** gently rounded (12px), 40px tall by default, 36px small, 44px large, 48px for buy actions.
-- **Primary:** solid Leaf Forest on white text, 16px horizontal padding, icon and label separated by an 8px gap; icons are locked to 16px.
-- **Hover / Focus:** background drops to 90% opacity on hover; focus shows a 2px ring in Leaf Forest with a 2px background-coloured offset. Transitions run on colour only.
-- **Secondary:** Deep Canopy fill, used for icon-shaped actions over imagery (wishlist, quick view) at 32px circles.
-- **Outline:** hairline border on the page field, filling with Bright Leaf on hover — the "Add to cart" half of a buy pair, where Primary takes "Buy now".
-- **Ghost / Link:** chrome-only. Header icon actions and inline text links; link style underlines with a 4px offset on hover.
-- **Disabled:** 50% opacity, pointer events off. Sold-out and unresolved-variant states both land here.
+Shared component shells live under `app/components/` and are world-agnostic: `ProductsGrid` / `ProductsInfiniteList` accept a per-template `CardComponent`, the shared variant selector renders buttons (never dropdowns), and `Price` owns money formatting. Their look is entirely token-driven; their behavior carries the invariants below. Per-world component treatments (ledger cards, tariff rows, catalogue plates, label panels) are specified in the template DESIGN.mds.
 
-### Chips
-- **Style:** pilled, 600 weight, 12px text, transparent border, solid semantic fill (Markdown Red, Save Coral, Caution Amber, or the saffron gradient for featured).
-- **State:** stacked top-left over product imagery, never more than two at once; the discount chip always sits below the featured chip.
+### Focus & interaction states
+- Every interactive element uses `ring-warm-focus`: a 2px `--ring` ring offset against `--background`, visible in every world and under every client override.
+- Every world ships the full state set — hover, disabled (muted + not-allowed), loading, empty, sold-out — and unavailable variant options render disabled rather than hidden.
+- Motion is one authored moment per surface (stamp-settle, key depress, slide-and-settle, seal press), transform-only so content is visible by default, and gated on `prefers-reduced-motion`.
 
-### Cards / Containers
-- **Corner Style:** 14px.
-- **Background:** Card White on the Mint Cream field; image wells use Mint Band at 40% while loading.
-- **Shadow Strategy:** Rest at idle, Lifted on desktop hover with a 1px rise (see Elevation).
-- **Border:** hairline Green Gray Border at 60%, shifting to Leaf Forest at 30% on hover.
-- **Internal Padding:** 8px on phones, 12px at `sm`, 16px from `md`.
+### Image fallback plates
+- **Behavior:** a missing image URL or a load failure never shows the browser's broken-image glyph. It degrades to a flat plate in the world's field colour carrying the item's initial (or name) set in the display face — bazar's `BazarImage` and premium's wordmark plate are the reference implementations.
 
-### Inputs / Fields
-- **Style:** 40px tall (48px for in-flow selects on purchase surfaces), hairline border, page-field background, 12px radius, 16px text on mobile stepping to 14px at `md` — the 16px floor is deliberate, it stops iOS zooming on focus.
-- **Focus:** 2px Leaf Forest ring with a 2px offset; the border itself does not change colour.
-- **Error:** border switches to Markdown Red and a 12px label with a 14px alert icon appears directly beneath.
-- **Disabled:** 50% opacity with a not-allowed cursor. Unavailable select options render disabled rather than being removed, so a shopper sees the full size run.
+### Brand-mark degrade
+- **Behavior:** when a client has no logo asset, the header and footer render a `site_name` wordmark in the world's display face instead of an empty box or a placeholder image.
 
-### Navigation
-- **Style:** a Deep Canopy sticky bar at 64px holding logo, centered search, and a right-hand icon cluster; beneath it a category menu bar with hover-opened mega panels up to 600px wide.
-- **States:** nav triggers tint to 10% Leaf Forest on hover with the label taking the full accent; mega-panel entries round to 10px and use the accent background on focus.
-- **Mobile:** the category bar collapses into a full-height panel behind a hamburger, and templates that ship a bottom nav lift the back-to-top button clear of it.
+### Conversion spine (two dialects, one skeleton)
+- **BD worlds (classic, bazar):** cash on delivery badged in chrome and on the PDP; tap-to-call as a first-class action (header, bottom nav, floating key); zoned delivery fees (inside/outside Dhaka, from the cities API) printed *before* every order button; the phone-confirmation trust line beside every order action; order CTAs at least 48px tall and repeated at the bottom of the PDP scroll.
+- **International worlds (global, premium):** flat `INTL_SHIPPING` rate and free-over threshold printed before the buy actions; an estimated arrival date computed from `SHIPPING_WINDOW_DAYS` and always labelled "Estimated"; guest-first buy path with no account pressure; a sticky mobile buy bar driven by IntersectionObserver with reserved bottom padding (no CLS).
+- **Both:** price anchoring is universal — heavy tabular current price in the buy colour, struck original in muted, savings in the `--bundle-save` slot.
 
-### Product Card
-The system's signature object. A square image well with badge stack top-left, desktop-only hover actions top-right, and a gradient add-to-cart overlay rising from the bottom in Deep Canopy at 80%. Below the image: a two-line clamped name, an optional star row shown only when reviews exist, then the price line — discounted amount in heavy Leaf Forest, original struck through in Muted Sage beside it. Below `lg` the hover affordances are replaced by a permanent three-button row (add to cart, wishlist, view) pinned to the card bottom so every card in a grid ends at the same baseline.
-
-### Combo Purchase Panel
-The conversion surface: a 14px panel at Raised elevation with the total price in Markdown Red on the left, a savings pill on the right, a hairline divider, then a two-button row — Buy Now (Primary, 48px) beside Add to Cart (Outline, 48px) — stacking vertically below `sm`. A 12px secure-checkout line with a shield icon closes it. The panel is in flow at every breakpoint; it never floats.
+### Honest data
+- Urgency only when the backend backs it: deal bands restate the `today_deal` flag, "only X left" prints only from a real stock field, and no world ships a fabricated countdown or invented stock.
+- Sections collapse when their data source is empty rather than rendering skeleton filler; footer claims (support hours, shipping terms) print only settings-backed facts and omit the line otherwise.
+- Stock is always printed where the shopper reads, from the API, never inferred.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** resolve every colour, radius, and shadow through the CSS custom properties on `:root`. A hardcoded hex breaks client theming silently, because a variant swaps tokens and never touches components.
-- **Do** keep chrome in Deep Canopy and actions in Leaf Forest, so the buy path is the brightest green on screen.
-- **Do** render money with `tabular-nums` and a locale formatter; currency and separators come from business settings.
-- **Do** let merchandising be loud inside its own zone — badges, SAVE pills, countdowns — while chrome and forms stay quiet.
-- **Do** step density down for small screens (8px card padding, 28px action buttons, 12px type) rather than dropping a grid column.
-- **Do** put desktop-only affordances behind `lg` and give phones a permanent equivalent; a hover-only action is unreachable on the primary device.
-- **Do** keep the gutter on `.container` alone.
-- **Do** show unavailable option values as disabled rather than hiding them.
+- **Do** resolve every colour, radius, and shadow through the semantic tokens; add new tokens at all three ladder rungs (`:root`, each `html[data-template]` block, overridable by variants).
+- **Do** keep the buy slot (`--primary`) the brightest instance of its colour on screen and chrome in `--secondary` — in every world, the purchase path wins the eye.
+- **Do** render money with `tabular-nums` and the business-settings formatter; BDT for Bangladesh deployments, never a hardcoded symbol or separator.
+- **Do** print delivery cost — zoned fees or flat rate — before the order button, and label computed dates "Estimated".
+- **Do** degrade in-world: initial-plates for broken images, wordmarks for missing logos, collapsed sections for empty data.
+- **Do** keep the gutter on `.container` alone and the viewport scroller on `<html>`.
+- **Do** keep order CTAs at 48px+ and reachable without hover; the primary device is a low-end Android phone.
+- **Do** gate authored motion on `prefers-reduced-motion` and keep it transform-only.
 
 ### Don't:
-- **Don't** use Markdown Red for anything but a price drop or an error, and don't let Save Coral and Markdown Red appear as interchangeable.
-- **Don't** set a serif on buttons, labels, or numerals; the display face is for `h1`–`h5` only.
-- **Don't** add `px-*` to a `.container` element.
-- **Don't** make `<body>` a scroll container — it detaches the sticky header on every scrolled page.
-- **Don't** stack more than two badges over a product image.
-- **Don't** introduce a second accent hue on chrome or form surfaces.
-- **Don't** float the purchase panel over content; it belongs in flow with the thing being bought.
-- **Don't** ship the generic shadcn default look, a banner-wall marketplace, or a blue-gray SaaS dashboard register — all three are confirmed anti-references.
+- **Don't** hardcode a hex, a neutral-black shadow, or a fixed radius in a shared component — it breaks the world switch and client theming silently.
+- **Don't** import template runtime code from `app/variants/*` or middleware; variants reference templates by id only, and the token layer must stay edge-safe.
+- **Don't** repurpose a semantic slot for a new meaning, and don't let one world's accent restriction leak into another (each world's DESIGN.md owns its own accent law).
+- **Don't** ship pill-shaped buttons, kickers/eyebrows above headings, icon-card scaffolds, gradient text, emoji-as-icons, rotated ribbons, or colored side borders thicker than 1px — the shared refuse-list all four worlds were reviewed against.
+- **Don't** fabricate urgency, stock, reviews, or trust claims; if the backend has no field for it, the line does not exist.
+- **Don't** add `px-*` to a `.container` element or turn `<body>` into a scroll container.
+- **Don't** ship the shadcn default look, the banner-wall marketplace, the Amazon-clone carousel, or the Temu urgency stack — the four confirmed anti-references.

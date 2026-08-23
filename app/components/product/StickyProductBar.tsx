@@ -102,7 +102,7 @@ export function StickyProductBar({
           onClick={onAddToCart}
           disabled={disabled}
           aria-label={t("bundle.addToCart")}
-          className="size-11 shrink-0"
+          className="size-12 shrink-0 rounded-xl"
         >
           <ShoppingBag className="size-5" />
         </Button>
@@ -111,7 +111,7 @@ export function StickyProductBar({
           type="button"
           onClick={onOrderNow}
           disabled={disabled}
-          className="h-11 shrink-0 px-4 text-sm font-bold sm:px-6"
+          className="h-12 shrink-0 rounded-xl px-4 text-sm font-bold sm:px-6"
         >
           {t("bundle.orderNow")}
           <ArrowRight className="ml-1.5 size-4" />

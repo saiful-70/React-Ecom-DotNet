@@ -143,7 +143,7 @@ export function ProductBundleSelector({
             variant="outline"
             onClick={() => handleAddToCart(selectedTier)}
             disabled={blocked}
-            className="h-12 flex-1 text-sm font-bold sm:text-base"
+            className="h-14 flex-1 rounded-xl text-sm font-bold sm:text-base"
           >
             <ShoppingBag className="mr-1.5 size-4 sm:size-5" />
             {t("bundle.addToCart")}
@@ -152,7 +152,7 @@ export function ProductBundleSelector({
             type="button"
             onClick={() => handleOrderNow(selectedTier)}
             disabled={blocked}
-            className="h-12 flex-[1.35] text-sm font-bold sm:text-base"
+            className="h-14 flex-[1.35] rounded-xl text-sm font-bold sm:text-base"
           >
             {t("bundle.orderNow")}
             <ArrowRight className="ml-1.5 size-4 sm:size-5" />

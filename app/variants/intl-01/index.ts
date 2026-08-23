@@ -1,91 +1,26 @@
 import type { VariantDescriptor } from "../types";
 
 /**
- * intl-01 — the international storefront (the palette that lives on `main`).
+ * intl-01 — the international marketplace storefront, on the `global`
+ * template.
  *
- * 6Valley-style marketplace: royal-blue primary + orange (`warning`) CTA accent
- * over neutral shadcn grays. These are CSS-variable overrides layered on top of
- * the globals.css defaults; only tokens that differ from the default (green)
- * theme are listed. Rendered through the `global` template paradigm.
+ * The global template's globals.css block IS this variant's palette ("The
+ * Mail-Order Index" world: catalogue page white, print ink, catalogue blue
+ * actions, sale-pages red). No theme overrides needed; future marketplace
+ * clients supply their own `theme.root`/`theme.dark` overrides to re-dress
+ * the paradigm. (The former 6Valley royal-blue/orange overrides were retired
+ * with the 2026 template redesign.)
  */
 const intl01: VariantDescriptor = {
   id: "intl-01",
   market: "intl",
   template: "global",
-  name: "International — Marketplace",
+  name: "International — Mail-Order Index",
   description:
-    "The international storefront: royal-blue + orange marketplace UI, English-first, full multi-section homepage.",
+    "The international marketplace: catalogue-index UI, numbered product plates, honest availability lines, English-first.",
   theme: {
-    root: {
-      background: "0 0% 100%",
-      foreground: "224 71.4% 4.1%",
-      card: "0 0% 100%",
-      "card-foreground": "224 71.4% 4.1%",
-      popover: "0 0% 100%",
-      "popover-foreground": "224 71.4% 4.1%",
-      primary: "222 78% 45%",
-      "primary-foreground": "210 20% 98%",
-      secondary: "220 14.3% 95.9%",
-      "secondary-foreground": "220.9 39.3% 11%",
-      muted: "220 14.3% 95.9%",
-      "muted-foreground": "220 8.9% 46.1%",
-      accent: "220 14.3% 95.9%",
-      "accent-foreground": "220.9 39.3% 11%",
-      destructive: "0 84.2% 60.2%",
-      "destructive-foreground": "210 20% 98%",
-      border: "220 13% 91%",
-      input: "220 13% 91%",
-      ring: "222 78% 45%",
-      success: "142.1 76.2% 36.3%",
-      "success-foreground": "355.7 100% 97.3%",
-      warning: "24.6 95% 53.1%",
-      "warning-foreground": "0 0% 100%",
-      radius: "0.75rem",
-      "sidebar-background": "0 0% 98%",
-      "sidebar-foreground": "240 5.3% 26.1%",
-      "sidebar-primary": "240 5.9% 10%",
-      "sidebar-primary-foreground": "0 0% 98%",
-      "sidebar-accent": "240 4.8% 95.9%",
-      "sidebar-accent-foreground": "240 5.9% 10%",
-      "sidebar-border": "220 13% 91%",
-      "sidebar-ring": "217.2 91.2% 59.8%",
-      // Neutralize the green-tinted shadow base for the violet theme.
-      "shadow-warm": "224 40% 14%",
-    },
-    dark: {
-      background: "224 71.4% 4.1%",
-      foreground: "210 20% 98%",
-      card: "224 71.4% 4.1%",
-      "card-foreground": "210 20% 98%",
-      popover: "224 71.4% 4.1%",
-      "popover-foreground": "210 20% 98%",
-      primary: "217.2 91.2% 59.8%",
-      "primary-foreground": "222 47% 11%",
-      secondary: "215 27.9% 16.9%",
-      "secondary-foreground": "210 20% 98%",
-      muted: "215 27.9% 16.9%",
-      "muted-foreground": "217.9 10.6% 64.9%",
-      accent: "215 27.9% 16.9%",
-      "accent-foreground": "210 20% 98%",
-      destructive: "0 62.8% 30.6%",
-      "destructive-foreground": "210 20% 98%",
-      border: "215 27.9% 16.9%",
-      input: "215 27.9% 16.9%",
-      ring: "217.2 91.2% 59.8%",
-      success: "142.1 70.6% 45.3%",
-      "success-foreground": "144.9 80.4% 10%",
-      warning: "24.6 95% 53.1%",
-      "warning-foreground": "0 0% 100%",
-      "sidebar-background": "240 5.9% 10%",
-      "sidebar-foreground": "240 4.8% 95.9%",
-      "sidebar-primary": "224.3 76.3% 48%",
-      "sidebar-primary-foreground": "0 0% 100%",
-      "sidebar-accent": "240 3.7% 15.9%",
-      "sidebar-accent-foreground": "240 4.8% 95.9%",
-      "sidebar-border": "240 3.7% 15.9%",
-      "sidebar-ring": "217.2 91.2% 59.8%",
-      "shadow-warm": "224 60% 5%",
-    },
+    root: {},
+    dark: {},
   },
   branding: {
     site_name: "DebuggerMind Global",

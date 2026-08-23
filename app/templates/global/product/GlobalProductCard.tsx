@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useAtom } from "jotai";
 import { Eye, Heart, ShoppingCart } from "lucide-react";
-import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
@@ -17,15 +16,20 @@ import { useHydrated } from "@/hooks/use-hydrated";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
 import type { Product } from "@/(app-routes)/products/model";
 import { cn } from "@/lib/utils/utils";
+import { itemNo } from "../_data/catalogue";
+import { CatalogueImage } from "./CatalogueImage";
+import { GlobalAvailabilityLine } from "./GlobalAvailabilityLine";
 import { GlobalRatingStars } from "./GlobalRatingStars";
+import "../global.css";
 
 const FALLBACK_IMAGE =
 	"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&q=80";
 
 /**
- * Global product card: white surface, thin border, hover lift; discount badge,
- * hover wishlist + quick-view, name, price (discounted + strike), rating, and
- * an Add-to-Cart button that reveals on hover (always visible on touch).
+ * The catalogue plate: item number header, product image, name, rating,
+ * ink price with the discount figure in sale-red, and the printed
+ * availability course. Hairline border, 2px print corner, slide-and-settle
+ * lift on hover. Cart/wishlist behavior is unchanged from the previous card.
  */
 export function GlobalProductCard({ product }: { product: Product }) {
 	const { t } = useTranslation();
@@ -35,7 +39,7 @@ export function GlobalProductCard({ product }: { product: Product }) {
 	const [wishlistIds, setWishlistIds] = useAtom(wishlistAtom);
 	const [isWishlistLoading, setIsWishlistLoading] = useState(false);
 	// Wishlist state is localStorage-backed (empty on the server). Gate on
-	// hydration so the first client render matches SSR and avoids a mismatch.
+	// hydration so the first client render matches SSR.
 	const isHydrated = useHydrated();
 
 	const isWishlisted = isHydrated && wishlistIds.includes(product.id);
@@ -129,16 +133,21 @@ export function GlobalProductCard({ product }: { product: Product }) {
 	};
 
 	return (
-		<div className="group relative flex h-full flex-col overflow-hidden rounded-md border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-			{/* Discount badge */}
-			{discountPercent > 0 && (
-				<span className="absolute left-2 top-2 z-10 rounded bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
-					-{discountPercent}%
+		<article className="g-lift group relative flex h-full flex-col rounded-sm border border-border bg-card transition-colors hover:border-foreground/50">
+			{/* Plate header: item number + discount figure */}
+			<div className="flex items-baseline justify-between gap-2 border-b border-border px-3 py-1.5">
+				<span className="text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground tabular-nums">
+					{t("global.catalogue.no", "No.")} {itemNo(product.id)}
 				</span>
-			)}
+				{discountPercent > 0 && (
+					<span className="text-[11px] font-black text-accent tabular-nums">
+						−{discountPercent}%
+					</span>
+				)}
+			</div>
 
 			{/* Hover actions */}
-			<div className="absolute right-2 top-2 z-10 flex flex-col gap-1.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+			<div className="absolute right-2 top-9 z-10 flex flex-col gap-1.5 opacity-0 transition-opacity duration-300 focus-within:opacity-100 group-hover:opacity-100">
 				<button
 					type="button"
 					onClick={handleToggleWishlist}
@@ -146,10 +155,10 @@ export function GlobalProductCard({ product }: { product: Product }) {
 					aria-label={t("global.wishlist")}
 					aria-pressed={isWishlisted}
 					className={cn(
-						"flex h-8 w-8 items-center justify-center rounded-full border bg-background/95 shadow-sm transition-colors",
+						"ring-warm-focus flex h-8 w-8 items-center justify-center rounded-sm border border-border bg-background/95 transition-colors disabled:opacity-50",
 						isWishlisted
-							? "text-primary"
-							: "text-muted-foreground hover:text-primary"
+							? "text-foreground"
+							: "text-muted-foreground hover:border-foreground/50 hover:text-foreground"
 					)}
 				>
 					<Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
@@ -157,7 +166,7 @@ export function GlobalProductCard({ product }: { product: Product }) {
 				<Link
 					href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(product.id)}
 					aria-label={t("global.quickView")}
-					className="flex h-8 w-8 items-center justify-center rounded-full border bg-background/95 text-muted-foreground shadow-sm transition-colors hover:text-primary"
+					className="ring-warm-focus flex h-8 w-8 items-center justify-center rounded-sm border border-border bg-background/95 text-muted-foreground transition-colors hover:border-foreground/50 hover:text-foreground"
 				>
 					<Eye className="h-4 w-4" />
 				</Link>
@@ -165,21 +174,30 @@ export function GlobalProductCard({ product }: { product: Product }) {
 
 			<Link
 				href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(product.id)}
-				className="block bg-white p-3"
+				className="ring-warm-focus block bg-background p-3"
+				tabIndex={-1}
+				aria-hidden="true"
 			>
-				<Image
-					src={imageSource}
+				<CatalogueImage
+					src={product.thumbnail_image}
 					alt={product.name}
+					itemId={product.id}
 					width={400}
 					height={400}
-					className="mx-auto h-32 w-full object-contain transition-transform duration-300 group-hover:scale-105 sm:h-44"
+					className={cn(
+						"mx-auto h-32 w-full object-contain sm:h-44",
+						isOutOfStock && "opacity-50 grayscale"
+					)}
 					sizes="(max-width: 1024px) 50vw, 20vw"
 				/>
 			</Link>
 
-			<div className="flex flex-1 flex-col gap-1.5 p-3 pt-2">
-				<Link href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(product.id)}>
-					<h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug hover:text-primary">
+			<div className="flex flex-1 flex-col gap-1.5 border-t border-border px-3 pb-3 pt-2">
+				<Link
+					href={ABSOLUTE_ROUTES.PRODUCT_DETAILS(product.id)}
+					className="ring-warm-focus rounded-sm"
+				>
+					<h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug hover:underline">
 						{product.name}
 					</h3>
 				</Link>
@@ -189,8 +207,8 @@ export function GlobalProductCard({ product }: { product: Product }) {
 					count={product.total_reviews}
 				/>
 
-				<div className="mt-auto flex flex-wrap items-baseline gap-2">
-					<span className="text-base font-bold text-primary tabular-nums">
+				<div className="mt-auto flex flex-wrap items-baseline gap-x-2">
+					<span className="text-base font-black tracking-tight tabular-nums">
 						<Price amount={product.discounted_price} />
 					</span>
 					{hasDiscount && (
@@ -200,21 +218,23 @@ export function GlobalProductCard({ product }: { product: Product }) {
 					)}
 				</div>
 
+				<GlobalAvailabilityLine stock={product.stock} />
+
 				<button
 					type="button"
 					onClick={handleAddToCart}
 					disabled={isOutOfStock}
 					className={cn(
-						"mt-1 flex items-center justify-center gap-1.5 rounded-md py-2 text-xs font-semibold transition-colors",
+						"ring-warm-focus mt-1.5 flex items-center justify-center gap-1.5 rounded-sm border py-2 text-xs font-semibold transition-colors",
 						isOutOfStock
-							? "cursor-not-allowed bg-muted text-muted-foreground"
-							: "bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground"
+							? "cursor-not-allowed border-border bg-muted text-muted-foreground"
+							: "border-primary text-primary hover:bg-primary hover:text-primary-foreground"
 					)}
 				>
 					<ShoppingCart className="h-3.5 w-3.5" />
 					{isOutOfStock ? t("global.stockOut") : t("global.addToCart")}
 				</button>
 			</div>
-		</div>
+		</article>
 	);
 }

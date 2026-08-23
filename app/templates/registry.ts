@@ -3,6 +3,7 @@ import type { Template } from "./types";
 import { classicTemplate } from "./classic";
 import { bazarTemplate } from "./bazar";
 import { globalTemplate } from "./global";
+import { premiumTemplate } from "./premium";
 
 /**
  * Template registry. Add a paradigm by adding a folder under app/templates/
@@ -15,6 +16,7 @@ const TEMPLATES: Record<TemplateId, Template> = {
 	classic: classicTemplate,
 	bazar: bazarTemplate,
 	global: globalTemplate,
+	premium: premiumTemplate,
 };
 
 export function getTemplate(id: TemplateId): Template {

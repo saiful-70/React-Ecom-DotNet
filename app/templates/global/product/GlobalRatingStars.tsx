@@ -4,9 +4,9 @@ import { Star } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
 
 /**
- * Compact star rating. Renders five stars with the filled portion clipped to
- * the average, plus an optional review count. Hidden entirely when there are
- * no reviews (keeps cards clean, like the reference).
+ * Catalogue star rating: five ink stars with the filled portion clipped to
+ * the average, plus the printed average ("4.3") and count. Hidden entirely
+ * when there are no reviews — the catalogue never invents figures.
  */
 export function GlobalRatingStars({
 	rating,
@@ -22,17 +22,15 @@ export function GlobalRatingStars({
 	const clamped = Math.max(0, Math.min(5, rating));
 
 	return (
-		<div className={cn("flex items-center gap-1", className)}>
-			<div className="relative flex">
-				{/* Empty track */}
-				<div className="flex text-muted-foreground/40">
+		<div className={cn("flex items-center gap-1.5", className)}>
+			<div className="relative flex" aria-hidden="true">
+				<div className="flex text-border">
 					{Array.from({ length: 5 }).map((_, i) => (
-						<Star key={i} className="h-3.5 w-3.5" />
+						<Star key={i} className="h-3.5 w-3.5 fill-current" />
 					))}
 				</div>
-				{/* Filled overlay clipped to the rating */}
 				<div
-					className="absolute inset-0 flex overflow-hidden text-warning"
+					className="absolute inset-0 flex overflow-hidden text-foreground"
 					style={{ width: `${(clamped / 5) * 100}%` }}
 				>
 					{Array.from({ length: 5 }).map((_, i) => (
@@ -41,7 +39,7 @@ export function GlobalRatingStars({
 				</div>
 			</div>
 			<span className="text-xs text-muted-foreground tabular-nums">
-				({count})
+				{clamped.toFixed(1)} ({count})
 			</span>
 		</div>
 	);

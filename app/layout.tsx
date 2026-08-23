@@ -12,7 +12,14 @@ import "@fontsource/hind-siliguri/400.css";
 import "@fontsource/hind-siliguri/500.css";
 import "@fontsource/hind-siliguri/600.css";
 import "@fontsource/hind-siliguri/700.css";
-import "@fontsource-variable/noto-serif-bengali"; // --font-display (variable)
+import "@fontsource-variable/noto-serif-bengali"; // legacy display (variable)
+// Per-template world faces (globals.css template blocks point --font-display /
+// --font-bengali at these; the browser downloads only the families a page uses).
+import "@fontsource/tiro-bangla"; // classic display — khata ledger bookhand
+import "@fontsource-variable/anek-bangla"; // bazar display — tariff-chart grotesque
+import "@fontsource-variable/archivo"; // global display+body — catalogue grotesque
+import "@fontsource-variable/bodoni-moda"; // premium display — packaging didone
+import "@fontsource-variable/jost"; // premium body — label sans
 import "./globals.css";
 import GlobalProvider from "./components/shared/providers/global-provider";
 import BackToTopButton from "./components/shared/BackToTopButton";
@@ -143,7 +150,7 @@ export default async function RootLayout({
 	// If maintenance mode is enabled, render only the maintenance page without layout
 	if (maintenanceEnabled) {
 		return (
-			<html lang={lang} suppressHydrationWarning>
+			<html lang={lang} data-template={variant.template} suppressHydrationWarning>
 				<head>
 					{variantThemeCss && (
 						<style
@@ -166,7 +173,7 @@ export default async function RootLayout({
 
 	// Normal layout with header, footer, and other components
 	return (
-		<html lang={lang} suppressHydrationWarning>
+		<html lang={lang} data-template={variant.template} suppressHydrationWarning>
 			<head>
 				{/* Variant theme: CSS-variable overrides layered over globals.css.
 				    Server-injected in <head> so the theme is correct on first paint. */}

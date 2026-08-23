@@ -2,91 +2,361 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================================
+   TOKEN ARCHITECTURE (template-scoped worlds)
+
+   Each template (layout paradigm) owns a complete visual WORLD expressed as
+   the semantic token set below. The active template id is stamped on <html>
+   as `data-template` by app/layout.tsx, so a world is selected by attribute,
+   never by hardcoded colors in components.
+
+   Cascade layers, weakest to strongest:
+     1. `:root`                       — the classic world (default template)
+     2. `html[data-template="…"]`     — bazar / global / premium world tokens
+     3. `:root:root:root` (variants)  — per-client overrides injected by
+        app/variants/theme.ts in a server <style>; always win.
+
+   Dark mode mirrors the same ladder with `.dark` selectors.
+   Components consume ONLY these semantic tokens (via tailwind.config.ts);
+   a hardcoded hex anywhere downstream silently breaks client theming.
+   ========================================================================== */
+
 @layer base {
+  /* ------------------------------------------------------------------
+     CLASSIC — "The Mudir Dokan Khata"
+     The neighbourhood grocery's ruled ledger: unbleached khata paper,
+     ink text, a red rubber-stamp for the order action, blue ballpoint
+     as the entry accent, kraft-board chrome. Flat printed fields, never
+     photographic paper textures.
+     ------------------------------------------------------------------ */
   :root {
-    /* Green brand palette — forest green + leaf green + mint/cream neutrals */
-    --background: 140 30% 97%;         /* pale mint-cream */
-    --foreground: 152 30% 10%;         /* deep green-black */
-    --card: 0 0% 100%;                 /* clean white cards */
-    --card-foreground: 152 30% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 152 30% 10%;
-    --primary: 142 56% 30%;            /* rich leaf-forest green */
-    --primary-foreground: 140 30% 98%;
-    --secondary: 152 68% 11%;          /* deep forest green (chrome) */
-    --secondary-foreground: 140 30% 97%;
-    --muted: 140 28% 93%;              /* light mint band */
-    --muted-foreground: 152 12% 38%;
-    --accent: 128 50% 42%;             /* bright leaf green */
-    --accent-foreground: 140 30% 98%;
-    --destructive: 0 72% 48%;          /* red — badges & errors only */
-    --destructive-foreground: 140 30% 98%;
-    --border: 142 18% 85%;             /* soft green-gray */
-    --input: 142 18% 85%;
-    --ring: 142 56% 30%;
-    --success: 142 60% 34%;
-    --success-foreground: 140 30% 98%;
-    --warning: 38 88% 50%;             /* amber kept for warnings only */
-    --warning-foreground: 30 30% 14%;
-    /* Coral — "SAVE ৳400" pills. Darkened from 64% to 48% lightness: white
-       11px bold on the lighter coral measured 2.99:1, under the 4.5:1 floor
-       for small text. At 48% it measures 4.98:1 and stays the same hue. */
-    --bundle-save: 4 74% 48%;
-    --bundle-save-foreground: 0 0% 100%;
-    --radius: 0.875rem;
-    --sidebar-background: 140 30% 96%;
-    --sidebar-foreground: 152 20% 22%;
-    --sidebar-primary: 142 56% 30%;
-    --sidebar-primary-foreground: 140 30% 98%;
-    --sidebar-accent: 140 28% 91%;
-    --sidebar-accent-foreground: 152 25% 14%;
-    --sidebar-border: 142 18% 84%;
-    --sidebar-ring: 142 56% 30%;
-    /* Green-tinted shadow base (used by .shadow-warm-* utilities) */
-    --shadow-warm: 152 40% 14%;
-    /* Self-hosted font families (Fontsource, imported in app/layout.tsx).
-       Tailwind's fontFamily stacks (see tailwind.config.ts) reference these;
-       fallbacks live there, so each var holds only the primary family name. */
+    --background: 40 52% 90%;          /* unbleached khata paper */
+    --foreground: 27 26% 11%;          /* pen ink */
+    --card: 43 56% 96%;                /* fresh page */
+    --card-foreground: 27 26% 11%;
+    --popover: 43 56% 96%;
+    --popover-foreground: 27 26% 11%;
+    --primary: 358 63% 43%;            /* rubber-stamp red — the order colour */
+    --primary-foreground: 43 56% 97%;
+    --secondary: 33 47% 30%;           /* kraft board chrome */
+    --secondary-foreground: 43 56% 96%;
+    --muted: 40 40% 84%;               /* aged paper band */
+    --muted-foreground: 30 18% 34%;
+    --accent: 215 45% 38%;             /* blue ballpoint entries */
+    --accent-foreground: 43 56% 97%;
+    --destructive: 0 72% 40%;
+    --destructive-foreground: 43 56% 97%;
+    --border: 37 32% 72%;              /* printed rule line */
+    --input: 37 32% 66%;
+    --ring: 358 63% 43%;
+    --success: 150 45% 30%;
+    --success-foreground: 43 56% 97%;
+    --warning: 38 88% 46%;
+    --warning-foreground: 30 30% 12%;
+    --bundle-save: 358 63% 43%;
+    --bundle-save-foreground: 43 56% 97%;
+    --radius: 0.375rem;                /* gummed-tag corner */
+    --sidebar-background: 40 45% 87%;
+    --sidebar-foreground: 27 26% 15%;
+    --sidebar-primary: 358 63% 43%;
+    --sidebar-primary-foreground: 43 56% 97%;
+    --sidebar-accent: 40 40% 82%;
+    --sidebar-accent-foreground: 27 26% 11%;
+    --sidebar-border: 37 32% 72%;
+    --sidebar-ring: 358 63% 43%;
+    --shadow-warm: 30 40% 15%;         /* brown ink shadow */
+    /* Fonts (registered via Fontsource imports in app/layout.tsx). */
     --font-inter: "Inter Variable";
     --font-bengali: "Hind Siliguri";
-    --font-display: "Noto Serif Bengali Variable";
+    --font-display: "Tiro Bangla";
   }
 
   .dark {
-    --background: 152 24% 7%;          /* deep green charcoal */
-    --foreground: 140 22% 92%;
-    --card: 152 20% 10%;
-    --card-foreground: 140 22% 92%;
-    --popover: 152 20% 10%;
-    --popover-foreground: 140 22% 92%;
-    --primary: 142 52% 44%;            /* brighter leaf green on dark */
-    --primary-foreground: 152 25% 8%;
-    --secondary: 152 30% 15%;
-    --secondary-foreground: 140 22% 92%;
-    --muted: 152 16% 16%;
-    --muted-foreground: 140 14% 66%;
-    --accent: 128 48% 48%;
-    --accent-foreground: 152 25% 8%;
-    --destructive: 0 65% 50%;
-    --destructive-foreground: 140 22% 92%;
-    --border: 152 14% 22%;
-    --input: 152 14% 22%;
-    --ring: 142 52% 44%;
-    --success: 142 55% 48%;
-    --success-foreground: 152 25% 8%;
+    --background: 30 15% 9%;           /* shop after closing */
+    --foreground: 40 30% 88%;
+    --card: 32 14% 13%;
+    --card-foreground: 40 30% 88%;
+    --popover: 32 14% 13%;
+    --popover-foreground: 40 30% 88%;
+    --primary: 358 60% 55%;
+    --primary-foreground: 30 15% 8%;
+    --secondary: 33 25% 20%;
+    --secondary-foreground: 40 30% 88%;
+    --muted: 30 12% 17%;
+    --muted-foreground: 38 16% 64%;
+    --accent: 215 55% 60%;
+    --accent-foreground: 30 15% 8%;
+    --destructive: 0 62% 52%;
+    --destructive-foreground: 40 30% 92%;
+    --border: 32 14% 24%;
+    --input: 32 14% 24%;
+    --ring: 358 60% 55%;
+    --success: 150 40% 45%;
+    --success-foreground: 30 15% 8%;
     --warning: 38 85% 56%;
     --warning-foreground: 30 25% 10%;
-    --bundle-save: 4 64% 50%;          /* 4.85:1 against white (see :root) */
+    --bundle-save: 358 60% 52%;
     --bundle-save-foreground: 0 0% 100%;
-    --sidebar-background: 152 22% 9%;
-    --sidebar-foreground: 140 20% 88%;
-    --sidebar-primary: 142 52% 44%;
-    --sidebar-primary-foreground: 152 25% 8%;
-    --sidebar-accent: 152 16% 18%;
-    --sidebar-accent-foreground: 140 22% 92%;
-    --sidebar-border: 152 14% 22%;
-    --sidebar-ring: 142 52% 44%;
-    --shadow-warm: 152 60% 5%;
+    --sidebar-background: 30 14% 11%;
+    --sidebar-foreground: 40 25% 84%;
+    --sidebar-primary: 358 60% 55%;
+    --sidebar-primary-foreground: 30 15% 8%;
+    --sidebar-accent: 30 12% 18%;
+    --sidebar-accent-foreground: 40 30% 88%;
+    --sidebar-border: 32 14% 24%;
+    --sidebar-ring: 358 60% 55%;
+    --shadow-warm: 30 60% 3%;
+  }
+
+  /* ------------------------------------------------------------------
+     BAZAR — "The Flexiload Counter"
+     The mobile top-up shop: laminated chart white, board-black chrome,
+     azure as the tariff-chart primary, signal red as the offer accent.
+     Departments each own one colour end-to-end (set per-section in the
+     template, derived from these bases).
+     ------------------------------------------------------------------ */
+  html[data-template="bazar"] {
+    --background: 210 20% 98%;         /* laminated chart stock */
+    --foreground: 220 20% 9%;          /* marker ink */
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 9%;
+    --primary: 203 91% 40%;            /* tariff azure */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 20% 12%;          /* counter board */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 16% 94%;
+    --muted-foreground: 215 12% 38%;
+    --accent: 2 76% 50%;               /* offer red chip */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 78% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 14% 85%;
+    --input: 210 14% 82%;
+    --ring: 203 91% 40%;
+    --success: 145 65% 32%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 48%;
+    --warning-foreground: 30 30% 10%;
+    --bundle-save: 2 76% 46%;
+    --bundle-save-foreground: 0 0% 100%;
+    --radius: 0.5rem;                  /* laminated chip corner */
+    --sidebar-background: 210 18% 96%;
+    --sidebar-foreground: 220 16% 22%;
+    --sidebar-primary: 203 91% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 16% 92%;
+    --sidebar-accent-foreground: 220 20% 12%;
+    --sidebar-border: 210 14% 85%;
+    --sidebar-ring: 203 91% 40%;
+    --shadow-warm: 215 30% 12%;
+    --font-bengali: "Hind Siliguri";
+    --font-display: "Anek Bangla Variable";
+  }
+
+  html[data-template="bazar"].dark {
+    --background: 220 18% 7%;
+    --foreground: 210 16% 92%;
+    --card: 220 16% 10%;
+    --card-foreground: 210 16% 92%;
+    --popover: 220 16% 10%;
+    --popover-foreground: 210 16% 92%;
+    --primary: 203 85% 55%;
+    --primary-foreground: 220 20% 7%;
+    --secondary: 220 14% 16%;
+    --secondary-foreground: 210 16% 92%;
+    --muted: 220 14% 15%;
+    --muted-foreground: 213 10% 64%;
+    --accent: 2 78% 60%;
+    --accent-foreground: 220 20% 7%;
+    --destructive: 0 66% 52%;
+    --destructive-foreground: 210 16% 95%;
+    --border: 220 12% 21%;
+    --input: 220 12% 21%;
+    --ring: 203 85% 55%;
+    --success: 145 55% 45%;
+    --success-foreground: 220 20% 7%;
+    --warning: 38 88% 56%;
+    --warning-foreground: 30 25% 10%;
+    --bundle-save: 2 70% 55%;
+    --bundle-save-foreground: 0 0% 100%;
+    --sidebar-background: 220 16% 9%;
+    --sidebar-foreground: 210 14% 86%;
+    --sidebar-primary: 203 85% 55%;
+    --sidebar-primary-foreground: 220 20% 7%;
+    --sidebar-accent: 220 14% 16%;
+    --sidebar-accent-foreground: 210 16% 92%;
+    --sidebar-border: 220 12% 21%;
+    --sidebar-ring: 203 85% 55%;
+    --shadow-warm: 220 60% 3%;
+  }
+
+  /* ------------------------------------------------------------------
+     GLOBAL — "The Mail-Order Index"
+     The great catalogue: white page, ink text, catalogue blue for
+     actions, catalogue red reserved for the sale insert pages, square
+     print corners, hairline rules.
+     ------------------------------------------------------------------ */
+  html[data-template="global"] {
+    --background: 0 0% 100%;           /* catalogue page */
+    --foreground: 0 0% 7%;             /* print ink */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 217 70% 37%;            /* catalogue blue */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 45% 15%;          /* ink-navy chrome */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 40 20% 96%;               /* newsprint tint */
+    --muted-foreground: 0 0% 38%;
+    --accent: 3 75% 46%;               /* sale-pages red */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 3 75% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 86%;                /* hairline rule */
+    --input: 0 0% 82%;
+    --ring: 217 70% 37%;
+    --success: 150 55% 30%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 46%;
+    --warning-foreground: 30 30% 10%;
+    --bundle-save: 3 75% 46%;
+    --bundle-save-foreground: 0 0% 100%;
+    --radius: 0.125rem;                /* print corner */
+    --sidebar-background: 40 20% 97%;
+    --sidebar-foreground: 0 0% 20%;
+    --sidebar-primary: 217 70% 37%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 40 18% 93%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 86%;
+    --sidebar-ring: 217 70% 37%;
+    --shadow-warm: 220 20% 10%;
+    --font-bengali: "Archivo Variable";
+    --font-display: "Archivo Variable";
+  }
+
+  html[data-template="global"].dark {
+    --background: 220 15% 8%;
+    --foreground: 40 15% 92%;
+    --card: 220 14% 11%;
+    --card-foreground: 40 15% 92%;
+    --popover: 220 14% 11%;
+    --popover-foreground: 40 15% 92%;
+    --primary: 217 75% 60%;
+    --primary-foreground: 220 15% 7%;
+    --secondary: 217 30% 18%;
+    --secondary-foreground: 40 15% 92%;
+    --muted: 220 12% 15%;
+    --muted-foreground: 220 8% 64%;
+    --accent: 3 78% 58%;
+    --accent-foreground: 220 15% 7%;
+    --destructive: 3 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 12% 22%;
+    --input: 220 12% 22%;
+    --ring: 217 75% 60%;
+    --success: 150 50% 45%;
+    --success-foreground: 220 15% 7%;
+    --warning: 38 88% 56%;
+    --warning-foreground: 30 25% 10%;
+    --bundle-save: 3 72% 55%;
+    --bundle-save-foreground: 0 0% 100%;
+    --sidebar-background: 220 14% 10%;
+    --sidebar-foreground: 40 12% 86%;
+    --sidebar-primary: 217 75% 60%;
+    --sidebar-primary-foreground: 220 15% 7%;
+    --sidebar-accent: 220 12% 16%;
+    --sidebar-accent-foreground: 40 15% 92%;
+    --sidebar-border: 220 12% 22%;
+    --sidebar-ring: 217 75% 60%;
+    --shadow-warm: 220 60% 3%;
+  }
+
+  /* ------------------------------------------------------------------
+     PREMIUM — "The Batch Label"
+     Apothecary/perfume packaging: the page IS viridian lacquer, the
+     buy panel is label stock, foil-gold carries the purchase action,
+     vermilion is the seal accent. Hard four-colour commitment: no
+     fifth hue anywhere in this world.
+     ------------------------------------------------------------------ */
+  html[data-template="premium"] {
+    --background: 160 62% 13%;         /* viridian lacquer field */
+    --foreground: 43 45% 94%;          /* label-stock text */
+    --card: 42 45% 94%;                /* label panel */
+    --card-foreground: 160 30% 10%;
+    --popover: 42 45% 94%;
+    --popover-foreground: 160 30% 10%;
+    --primary: 45 55% 52%;             /* foil gold — the buy action */
+    --primary-foreground: 160 45% 9%;
+    --secondary: 162 55% 9%;           /* deep lacquer chrome */
+    --secondary-foreground: 43 45% 94%;
+    --muted: 160 40% 18%;              /* lacquer band */
+    --muted-foreground: 43 25% 74%;
+    --accent: 8 81% 50%;               /* vermilion wax seal */
+    --accent-foreground: 43 45% 96%;
+    --destructive: 8 81% 44%;
+    --destructive-foreground: 43 45% 96%;
+    --border: 46 30% 38%;              /* foil hairline */
+    --input: 46 30% 34%;
+    --ring: 45 55% 52%;
+    --success: 150 45% 40%;
+    --success-foreground: 160 45% 9%;
+    --warning: 45 80% 50%;
+    --warning-foreground: 160 45% 9%;
+    --bundle-save: 8 81% 50%;
+    --bundle-save-foreground: 43 45% 96%;
+    --radius: 0.125rem;                /* box-board corner */
+    --sidebar-background: 162 55% 11%;
+    --sidebar-foreground: 43 35% 88%;
+    --sidebar-primary: 45 55% 52%;
+    --sidebar-primary-foreground: 160 45% 9%;
+    --sidebar-accent: 160 40% 17%;
+    --sidebar-accent-foreground: 43 45% 94%;
+    --sidebar-border: 46 30% 30%;
+    --sidebar-ring: 45 55% 52%;
+    --shadow-warm: 162 70% 4%;
+    --font-bengali: "Jost Variable";
+    --font-display: "Bodoni Moda Variable";
+  }
+
+  html[data-template="premium"].dark {
+    --background: 160 30% 6%;          /* midnight lacquer */
+    --foreground: 43 40% 92%;
+    --card: 160 24% 10%;
+    --card-foreground: 43 40% 92%;
+    --popover: 160 24% 10%;
+    --popover-foreground: 43 40% 92%;
+    --primary: 45 60% 58%;
+    --primary-foreground: 160 40% 7%;
+    --secondary: 160 26% 12%;
+    --secondary-foreground: 43 40% 92%;
+    --muted: 160 22% 13%;
+    --muted-foreground: 43 20% 68%;
+    --accent: 8 78% 56%;
+    --accent-foreground: 160 40% 7%;
+    --destructive: 8 72% 50%;
+    --destructive-foreground: 43 40% 95%;
+    --border: 46 25% 30%;
+    --input: 46 25% 30%;
+    --ring: 45 60% 58%;
+    --success: 150 45% 45%;
+    --success-foreground: 160 40% 7%;
+    --warning: 45 78% 55%;
+    --warning-foreground: 160 40% 7%;
+    --bundle-save: 8 74% 54%;
+    --bundle-save-foreground: 43 40% 95%;
+    --sidebar-background: 160 26% 8%;
+    --sidebar-foreground: 43 30% 86%;
+    --sidebar-primary: 45 60% 58%;
+    --sidebar-primary-foreground: 160 40% 7%;
+    --sidebar-accent: 160 22% 14%;
+    --sidebar-accent-foreground: 43 40% 92%;
+    --sidebar-border: 46 25% 30%;
+    --sidebar-ring: 45 60% 58%;
+    --shadow-warm: 162 80% 2%;
   }
 }
 
@@ -110,10 +380,17 @@
   h1, h2, h3, h4, h5 {
     @apply font-display tracking-tight;
   }
-  /* Selection feels warm */
   ::selection {
     background-color: hsl(var(--accent) / 0.45);
     color: hsl(var(--accent-foreground));
+  }
+  /* Browser surfaces carry the world too: caret and themed scrollbar. */
+  input, textarea {
+    caret-color: hsl(var(--primary));
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.4) transparent;
   }
 }
 
@@ -149,7 +426,7 @@
     }
   }
 
-  /* Warm, soft shadows tuned for cream backgrounds */
+  /* World-tinted soft shadows (offset + blur; tint follows --shadow-warm). */
   .shadow-warm-sm {
     box-shadow: 0 1px 2px 0 hsl(var(--shadow-warm) / 0.06),
                 0 1px 3px 0 hsl(var(--shadow-warm) / 0.08);
@@ -167,43 +444,6 @@
                 0 8px 16px -8px hsl(var(--shadow-warm) / 0.10);
   }
 
-  /* Signature hero / promo gradients */
-  .bg-warm-gradient {
-    background-image:
-      radial-gradient(ellipse 80% 60% at 15% 0%, hsl(var(--accent) / 0.25), transparent 60%),
-      radial-gradient(ellipse 80% 60% at 100% 100%, hsl(var(--primary) / 0.18), transparent 55%),
-      linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
-  }
-  .bg-terracotta-gradient {
-    background-image: linear-gradient(135deg,
-      hsl(var(--primary)) 0%,
-      hsl(146 60% 24%) 50%,
-      hsl(var(--secondary)) 100%);
-  }
-  .bg-saffron-gradient {
-    background-image: linear-gradient(135deg,
-      hsl(122 52% 50%) 0%,
-      hsl(var(--accent)) 50%,
-      hsl(var(--primary)) 100%);
-  }
-
-  /* Diagonal weave used to mark a merchandising band (deals, trust strip)
-     apart from the plain shelves around it. Tinted from --primary, so it
-     re-skins with the variant theme instead of shipping a fixed colour. */
-  .bg-weave-motif {
-    background-image: linear-gradient(
-      135deg,
-      hsl(var(--primary)) 25%,
-      transparent 25%,
-      transparent 50%,
-      hsl(var(--primary)) 50%,
-      hsl(var(--primary)) 75%,
-      transparent 75%
-    );
-    background-size: 32px 32px;
-  }
-
-  /* Decorative motifs */
   .text-balance {
     text-wrap: balance;
   }
@@ -211,94 +451,95 @@
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 }
+
 /* Chat Markdown Styles */
 @layer components {
   .chat-markdown {
     @apply text-sm leading-relaxed;
   }
-  
+
   .chat-markdown p {
     @apply mb-2 last:mb-0;
   }
-  
+
   .chat-markdown ul,
   .chat-markdown ol {
     @apply mb-2 space-y-1;
   }
-  
+
   .chat-markdown ul {
     @apply list-disc list-inside;
   }
-  
+
   .chat-markdown ol {
     @apply list-decimal list-inside;
   }
-  
+
   .chat-markdown li {
     @apply text-sm;
   }
-  
+
   .chat-markdown a {
     @apply text-primary hover:underline font-medium;
   }
-  
+
   .chat-markdown code {
     @apply bg-background/50 px-1 py-0.5 rounded text-xs font-mono;
   }
-  
+
   .chat-markdown pre {
     @apply bg-background/50 p-2 rounded text-xs font-mono overflow-x-auto mb-2;
   }
-  
+
   .chat-markdown pre code {
     @apply bg-transparent p-0;
   }
-  
+
   .chat-markdown strong {
     @apply font-semibold;
   }
-  
+
   .chat-markdown em {
     @apply italic;
   }
-  
+
   .chat-markdown blockquote {
     @apply border-l-2 border-primary/40 pl-3 italic my-2;
   }
-  
+
   .chat-markdown h1,
   .chat-markdown h2,
   .chat-markdown h3,
   .chat-markdown h4 {
     @apply font-semibold mb-2 mt-3 first:mt-0;
   }
-  
+
   .chat-markdown h1 {
     @apply text-base;
   }
-  
+
   .chat-markdown h2 {
     @apply text-sm;
   }
-  
+
   .chat-markdown h3,
   .chat-markdown h4 {
     @apply text-sm;
   }
-  
+
   .chat-markdown hr {
     @apply border-border my-3;
   }
-  
+
   .chat-markdown table {
     @apply w-full border-collapse mb-2;
   }
-  
+
   .chat-markdown th,
   .chat-markdown td {
     @apply border border-border px-2 py-1 text-xs;
   }
-  
+
   .chat-markdown th {
     @apply bg-muted font-semibold;
   }

@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useAtom } from "jotai";
-import { Facebook, Heart, Linkedin, Twitter } from "lucide-react";
+import { useAtom, useAtomValue } from "jotai";
+import { Facebook, Heart, Linkedin, PhoneCall, Twitter } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
-import { Button } from "@/components/shared/ui/button";
 import { toast } from "@/components/shared/ui/sonner";
 import Price from "@/components/shared/Price";
 import { useCart } from "@/contexts/CartContext";
 import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
+import { businessSettingsAtom } from "@/store/ui-atoms";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
@@ -18,27 +18,27 @@ import {
 	trackUnifiedAddToCart,
 	trackUnifiedViewProduct,
 } from "@/lib/analytics";
-import {
-	ProductImageGallery,
-	QuantitySelector,
-	ProductDeliveryInfo,
-	ProductDetailsTabs,
-} from "@/components/product/product-details";
+import { ProductDetailsTabs } from "@/components/product/product-details";
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
 import { ComboOfferCard } from "@/components/home/ComboPromo";
-import type {
-	Product,
-	ProductVariant,
-} from "@/(app-routes)/products/model";
+import type { Product, ProductVariant } from "@/(app-routes)/products/model";
 import type { ProductDetailsLayoutProps } from "@/templates/types";
-import { BazarSectionTitle } from "../home/BazarSectionTitle";
+import { BazarSectionBand } from "../home/BazarSectionBand";
 import { BazarProductsGrid } from "./BazarProductsGrid";
+import { BazarDeliveryChart } from "./BazarDeliveryChart";
+import { BazarGallery } from "./BazarGallery";
+import { BazarQuantityKeys } from "./BazarQuantityKeys";
 import { cn } from "@/lib/utils/utils";
+import "../bazar.css";
 
 /**
- * Bazar PDP: breadcrumb, gallery left, purchase column right (title, SKU,
- * price + save badge, variant selector, quantity + stock, Add to Cart / Buy
- * Now / wishlist, delivery info, share), tabs, related products.
+ * The PDP as a single tariff entry: breadcrumb chart strip, gallery left,
+ * purchase column right. The column reads top-down the way a counter sells —
+ * name, printed stock state, heavy tabular price over the struck original,
+ * variants, combos, quantity, THE DELIVERY-FEE CHART (fees before the ask),
+ * the phone-confirm trust line, then two ≥48px order keys. The order keys
+ * repeat at the page bottom after the tabs, so the thumb never has to travel
+ * back up.
  */
 export function BazarProductDetails({
 	product,
@@ -47,13 +47,12 @@ export function BazarProductDetails({
 	const { t } = useTranslation();
 	const router = useRouter();
 	const { items, addToCart } = useCart();
+	const settings = useAtomValue(businessSettingsAtom);
 	const [userProfile] = useAtom(miniProfileAtom);
 	const [wishlistIds, setWishlistIds] = useAtom(wishlistAtom);
 	const [isWishlistLoading, setIsWishlistLoading] = useState(false);
 	const [quantity, setQuantity] = useState(1);
-	const [selectedColorId, setSelectedColorId] = useState<number | null>(
-		null
-	);
+	const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
 	const [selectedVariant, setSelectedVariant] =
 		useState<ProductVariant | null>(
 			product.variants && product.variants.length > 0
@@ -134,9 +133,7 @@ export function BazarProductDetails({
 	const handleAddToCart = () => {
 		if (doAddToCart()) {
 			toast.success(t("bazar.addToCart"), {
-				description: `${product.name} ${t(
-					"productCard.addedToCart"
-				)}`,
+				description: `${product.name} ${t("productCard.addedToCart")}`,
 			});
 		}
 	};
@@ -154,9 +151,7 @@ export function BazarProductDetails({
 		if (!userProfile) {
 			toast.error(t("productCard.loginRequired"));
 			router.push(
-				`/login?redirect=${encodeURIComponent(
-					window.location.pathname
-				)}`
+				`/login?redirect=${encodeURIComponent(window.location.pathname)}`
 			);
 			return;
 		}
@@ -176,8 +171,7 @@ export function BazarProductDetails({
 				);
 			} else {
 				toast.error(
-					response.message ||
-						t("productCard.wishlistUpdateFailed")
+					response.message || t("productCard.wishlistUpdateFailed")
 				);
 			}
 		} catch {
@@ -198,27 +192,54 @@ export function BazarProductDetails({
 	};
 
 	const colorImage = selectedColorId
-		? product.colors_image?.find((ci) => ci.id === selectedColorId)
-				?.photo
+		? product.colors_image?.find((ci) => ci.id === selectedColorId)?.photo
 		: undefined;
+
+	/* The order keys — rendered twice (purchase column + page bottom). */
+	const orderKeys = (
+		<div className="grid grid-cols-2 gap-2">
+			<button
+				type="button"
+				onClick={handleAddToCart}
+				disabled={availableStock <= 0}
+				className="bz-key ring-warm-focus min-h-14 rounded-lg bg-secondary px-4 text-sm font-bold text-secondary-foreground shadow-warm-sm disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
+			>
+				{t("bazar.addToCart")}
+			</button>
+			<button
+				type="button"
+				onClick={handleBuyNow}
+				disabled={availableStock <= 0}
+				className="bz-key ring-warm-focus min-h-14 rounded-lg bg-primary px-4 text-sm font-bold text-primary-foreground shadow-warm disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
+			>
+				{t("bazar.buyNow")}
+			</button>
+		</div>
+	);
 
 	return (
 		<main className="container mx-auto py-6">
+			{/* Breadcrumb — a chart line closed by the board rule. */}
 			<nav
-				className="mb-6 rounded-md bg-muted/60 px-4 py-3 text-sm"
+				className="mb-6 border-b-[3px] border-secondary pb-3 text-sm"
 				aria-label="Breadcrumb"
 			>
-				<Link href="/" className="font-semibold hover:text-primary">
+				<Link
+					href="/"
+					className="ring-warm-focus rounded-md font-bold underline-offset-4 hover:text-primary hover:underline"
+				>
 					{t("bazar.home")}
 				</Link>
-				<span className="mx-2 text-muted-foreground">&gt;</span>
+				<span className="mx-2 text-muted-foreground" aria-hidden="true">
+					/
+				</span>
 				<span className="line-clamp-1 inline text-muted-foreground">
 					{product.name}
 				</span>
 			</nav>
 
 			<div className="grid gap-8 lg:grid-cols-2">
-				<ProductImageGallery
+				<BazarGallery
 					productName={product.name}
 					thumbnailImage={product.thumbnail_image}
 					galleryImages={product.gallery_images}
@@ -226,30 +247,43 @@ export function BazarProductDetails({
 				/>
 
 				<div className="space-y-5">
-					<h1 className="text-2xl font-bold md:text-3xl">
-						{product.name}
-					</h1>
-					{product.sku && (
-						<p className="text-sm text-muted-foreground">
-							<span className="font-semibold text-foreground">
-								{t("bazar.sku")}:
-							</span>{" "}
-							{product.sku}
+					<div>
+						<h1 className="text-balance font-display text-2xl font-bold leading-tight md:text-3xl">
+							{product.name}
+						</h1>
+						<p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+							<span
+								className={cn(
+									"font-bold",
+									availableStock > 0
+										? "text-success"
+										: "text-destructive"
+								)}
+							>
+								{availableStock > 0
+									? `${availableStock} ${t("bazar.inStock")}`
+									: t("bazar.stockSoldOut", "স্টক শেষ")}
+							</span>
+							{product.sku && (
+								<span className="text-muted-foreground">
+									{t("bazar.sku")}: {product.sku}
+								</span>
+							)}
 						</p>
-					)}
+					</div>
 
-					<div className="flex flex-wrap items-center gap-3">
-						<span className="text-3xl font-bold text-primary tabular-nums">
+					{/* The price, chart-entry style: heavy current, struck original. */}
+					<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-y border-dashed border-border py-3">
+						<span className="bz-num font-display text-4xl font-bold text-primary">
 							<Price amount={price} />
 						</span>
 						{saveAmount > 0 && (
 							<>
-								<span className="text-muted-foreground line-through tabular-nums">
+								<span className="bz-num text-lg text-muted-foreground line-through">
 									<Price amount={originalPrice} />
 								</span>
-								<span className="rounded bg-accent px-3 py-1 text-sm font-semibold text-accent-foreground">
-									{t("bazar.save")}:{" "}
-									<Price amount={saveAmount} />
+								<span className="bz-num rounded-md bg-accent px-2.5 py-1 text-sm font-bold text-accent-foreground">
+									{t("bazar.save")} <Price amount={saveAmount} />
 								</span>
 							</>
 						)}
@@ -277,93 +311,86 @@ export function BazarProductDetails({
 						</div>
 					)}
 
-					<>
-							<div className="flex flex-wrap items-center gap-4">
-								<QuantitySelector
-									quantity={quantity}
-									onQuantityChange={setQuantity}
-									stock={availableStock}
-								/>
-								<span
+					{/* Fees before the ask — the counter never surprises. */}
+					<BazarDeliveryChart />
+
+					{/* The order strip — one keypad block: quantity keys over the
+					    two order keys, everything a depressing key. */}
+					<div className="space-y-3 rounded-lg border border-border bg-card p-3 shadow-warm-sm">
+						<div className="flex flex-wrap items-center justify-between gap-3">
+							<span className="text-sm font-bold">
+								{t("bazar.quantity", "পরিমাণ")}
+							</span>
+							<BazarQuantityKeys
+								quantity={quantity}
+								onQuantityChange={setQuantity}
+								stock={availableStock}
+							/>
+						</div>
+						{orderKeys}
+						<div className="flex items-center justify-between gap-3">
+							{settings?.contact_phone ? (
+								<a
+									href={`tel:${settings.contact_phone}`}
+									className="bz-key ring-warm-focus inline-flex min-h-12 items-center gap-2 rounded-lg border border-primary/50 bg-card px-4 text-sm font-bold text-primary shadow-warm-sm"
+								>
+									<PhoneCall className="h-4 w-4" aria-hidden="true" />
+									{t("bazar.orderByPhone", "ফোনে অর্ডার করুন")}
+								</a>
+							) : (
+								<span />
+							)}
+							<button
+								type="button"
+								onClick={handleToggleWishlist}
+								disabled={isWishlistLoading}
+								aria-label={t("bazar.wishlist")}
+								aria-pressed={isWishlisted}
+								className={cn(
+									"bz-key ring-warm-focus flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border shadow-warm-sm disabled:opacity-60",
+									isWishlisted
+										? "border-accent bg-accent text-accent-foreground"
+										: "border-border bg-card text-muted-foreground hover:border-accent hover:text-accent"
+								)}
+							>
+								<Heart
 									className={cn(
-										"text-sm font-medium",
-										availableStock > 0
-											? "text-primary"
-											: "text-destructive"
+										"h-5 w-5",
+										isWishlisted && "fill-current"
 									)}
-								>
-									{availableStock > 0
-										? `${availableStock} ${t("bazar.inStock")}`
-										: t("bazar.stockOut")}
-								</span>
-							</div>
+									aria-hidden="true"
+								/>
+							</button>
+						</div>
+					</div>
 
-							<div className="flex flex-wrap items-center gap-3">
-								<Button
-									size="lg"
-									variant="secondary"
-									className="rounded-full px-8 font-semibold"
-									onClick={handleAddToCart}
-									disabled={availableStock <= 0}
-								>
-									{t("bazar.addToCart")}
-								</Button>
-								<Button
-									size="lg"
-									className="rounded-full px-8 font-semibold"
-									onClick={handleBuyNow}
-									disabled={availableStock <= 0}
-								>
-									{t("bazar.buyNow")}
-								</Button>
-								<Button
-									size="icon"
-									variant={isWishlisted ? "default" : "outline"}
-									className="rounded-full"
-									onClick={handleToggleWishlist}
-									disabled={isWishlistLoading}
-									aria-label={t("bazar.wishlist")}
-									aria-pressed={isWishlisted}
-								>
-									<Heart
-										className={cn(
-											"h-5 w-5",
-											isWishlisted && "fill-current"
-										)}
-									/>
-								</Button>
-							</div>
-					</>
-
-					<ProductDeliveryInfo />
-
-					<div className="flex items-center gap-3 border-t pt-4">
-						<span className="text-sm font-medium">
+					<div className="flex items-center gap-3 border-t border-dashed border-border pt-4">
+						<span className="text-sm font-bold">
 							{t("bazar.shareOn")}:
 						</span>
 						<button
 							type="button"
 							onClick={() => share("facebook")}
 							aria-label="Facebook"
-							className="flex h-9 w-9 items-center justify-center rounded-full border text-muted-foreground hover:border-primary hover:text-primary"
+							className="bz-key ring-warm-focus flex h-10 w-10 items-center justify-center rounded-lg border border-border text-muted-foreground hover:border-primary hover:text-primary"
 						>
-							<Facebook className="h-4 w-4" />
+							<Facebook className="h-4 w-4" aria-hidden="true" />
 						</button>
 						<button
 							type="button"
 							onClick={() => share("twitter")}
 							aria-label="Twitter"
-							className="flex h-9 w-9 items-center justify-center rounded-full border text-muted-foreground hover:border-primary hover:text-primary"
+							className="bz-key ring-warm-focus flex h-10 w-10 items-center justify-center rounded-lg border border-border text-muted-foreground hover:border-primary hover:text-primary"
 						>
-							<Twitter className="h-4 w-4" />
+							<Twitter className="h-4 w-4" aria-hidden="true" />
 						</button>
 						<button
 							type="button"
 							onClick={() => share("linkedin")}
 							aria-label="LinkedIn"
-							className="flex h-9 w-9 items-center justify-center rounded-full border text-muted-foreground hover:border-primary hover:text-primary"
+							className="bz-key ring-warm-focus flex h-10 w-10 items-center justify-center rounded-lg border border-border text-muted-foreground hover:border-primary hover:text-primary"
 						>
-							<Linkedin className="h-4 w-4" />
+							<Linkedin className="h-4 w-4" aria-hidden="true" />
 						</button>
 					</div>
 				</div>
@@ -373,15 +400,25 @@ export function BazarProductDetails({
 				<ProductDetailsTabs product={product} />
 			</div>
 
-			{product.related_products &&
-				product.related_products.length > 0 && (
-					<section className="mt-12">
-						<BazarSectionTitle titleKey="bazar.relatedProducts" />
-						<BazarProductsGrid
-							products={product.related_products as Product[]}
-						/>
-					</section>
-				)}
+			{/* The order keys again — the thumb ends here after reading the tabs. */}
+			<div className="mx-auto mt-8 max-w-xl space-y-2 border-t-[3px] border-secondary pt-6">
+				<p className="text-center text-sm font-semibold text-muted-foreground">
+					{t(
+						"bazar.confirmCallNote",
+						"অর্ডার কনফার্ম করতে আমরা ফোনে কল করব"
+					)}
+				</p>
+				{orderKeys}
+			</div>
+
+			{product.related_products && product.related_products.length > 0 && (
+				<section className="mt-12">
+					<BazarSectionBand titleKey="bazar.relatedProducts" />
+					<BazarProductsGrid
+						products={product.related_products as Product[]}
+					/>
+				</section>
+			)}
 		</main>
 	);
 }

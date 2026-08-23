@@ -1,14 +1,12 @@
-"use client";
-
 import type { Product } from "@/(app-routes)/products/model";
 import { GlobalSectionTitle } from "./GlobalSectionTitle";
 import { GlobalProductScroller } from "../product/GlobalProductScroller";
 
 /**
- * A per-category product row: section heading + "View All" + horizontal
- * scroller. Reused for each top category showcase on the homepage.
+ * One department's spread: ruled section header + a row of plates.
+ * Collapses when the department has no stock to show.
  */
-export function CategoryShowcase({
+export function CatalogueShowcase({
 	title,
 	viewAllHref,
 	products,

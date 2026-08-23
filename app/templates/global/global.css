@@ -1,0 +1,214 @@
+/* ==========================================================================
+   THE MAIL-ORDER INDEX — template-scoped CSS for the "global" paradigm.
+   Everything here is scoped under html[data-template="global"] and consumes
+   only the semantic tokens declared in app/globals.css. One mechanical
+   motion grammar sitewide: slide-and-settle (a page turned), exponential
+   ease-out, entrances visible by default.
+   ========================================================================== */
+
+html[data-template="global"] {
+  /* The single easing of this world. */
+  --g-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --------------------------------------------------------------------------
+   Browser surfaces — the parts we did not draw still carry the catalogue.
+   -------------------------------------------------------------------------- */
+html[data-template="global"] ::selection {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+html[data-template="global"] input,
+html[data-template="global"] textarea {
+  caret-color: hsl(var(--primary));
+}
+
+html[data-template="global"] {
+  scrollbar-color: hsl(var(--foreground) / 0.35) hsl(var(--muted));
+  scrollbar-width: thin;
+}
+
+html[data-template="global"] a {
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+/* --------------------------------------------------------------------------
+   Slide-and-settle — the one motion grammar. Transform-only so the element
+   is readable even mid-animation; disabled under reduced motion.
+   -------------------------------------------------------------------------- */
+@keyframes g-settle {
+  from {
+    transform: translateY(14px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+html[data-template="global"] .g-settle {
+  animation: g-settle 0.7s var(--g-ease) both;
+}
+
+html[data-template="global"] .g-settle-2 {
+  animation: g-settle 0.7s var(--g-ease) 0.08s both;
+}
+
+html[data-template="global"] .g-settle-3 {
+  animation: g-settle 0.7s var(--g-ease) 0.16s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-template="global"] .g-settle,
+  html[data-template="global"] .g-settle-2,
+  html[data-template="global"] .g-settle-3 {
+    animation: none;
+  }
+}
+
+/* Interactive settle: plates and tabs nudge with the same ease. */
+html[data-template="global"] .g-lift {
+  transition: transform 0.45s var(--g-ease);
+}
+
+html[data-template="global"] .g-lift:hover {
+  transform: translateY(-3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-template="global"] .g-lift,
+  html[data-template="global"] .g-lift:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Print registration corners — 2px ink corner marks on composed spreads
+   (hero tableau, deals insert). Drawn with background gradients so they
+   need no extra markup.
+   -------------------------------------------------------------------------- */
+html[data-template="global"] .g-corners {
+  --g-corner-ink: hsl(var(--foreground));
+  background-image:
+    linear-gradient(var(--g-corner-ink), var(--g-corner-ink)),
+    linear-gradient(var(--g-corner-ink), var(--g-corner-ink)),
+    linear-gradient(var(--g-corner-ink), var(--g-corner-ink)),
+    linear-gradient(var(--g-corner-ink), var(--g-corner-ink)),
+    linear-gradient(var(--g-corner-ink), var(--g-corner-ink)),
+    linear-gradient(var(--g-corner-ink), var(--g-corner-ink)),
+    linear-gradient(var(--g-corner-ink), var(--g-corner-ink)),
+    linear-gradient(var(--g-corner-ink), var(--g-corner-ink));
+  background-repeat: no-repeat;
+  background-size:
+    12px 2px, 2px 12px,
+    12px 2px, 2px 12px,
+    12px 2px, 2px 12px,
+    12px 2px, 2px 12px;
+  background-position:
+    left top, left top,
+    right top, right top,
+    left bottom, left bottom,
+    right bottom, right bottom;
+}
+
+html[data-template="global"] .g-corners-accent {
+  --g-corner-ink: hsl(var(--accent));
+}
+
+/* --------------------------------------------------------------------------
+   The horizon datum — a literal hairline sections register to.
+   -------------------------------------------------------------------------- */
+html[data-template="global"] .g-datum {
+  position: relative;
+}
+
+html[data-template="global"] .g-datum::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 100vw;
+  transform: translateX(-50%);
+  border-bottom: 1px solid hsl(var(--border));
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Index tabs — the department rail. A tab is bordered on three sides and
+   fuses with the rule below it when active, like a catalogue thumb index.
+   -------------------------------------------------------------------------- */
+html[data-template="global"] .g-tab {
+  position: relative;
+  border: 1px solid hsl(var(--border));
+  border-bottom-color: transparent;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: hsl(var(--muted));
+  transition:
+    background-color 0.45s var(--g-ease),
+    transform 0.45s var(--g-ease);
+}
+
+html[data-template="global"] .g-tab:hover {
+  background: hsl(var(--background));
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-template="global"] .g-tab,
+  html[data-template="global"] .g-tab:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Masthead search — the dominant instrument of the catalogue. The shared
+   HeaderSearch component is restyled from outside: full middle width, a 2px
+   ink rule box, and a placeholder set in the catalogue's small-caps voice.
+   -------------------------------------------------------------------------- */
+html[data-template="global"] .g-masthead-search > div {
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
+}
+
+/* The shared component also fixes its inner field wrapper to w-72/md:w-96 —
+   that cap is what shrank the field to ~27% of the masthead. Stretch it to
+   the full middle band. */
+html[data-template="global"] .g-masthead-search > div > div {
+  width: 100%;
+}
+
+html[data-template="global"] .g-masthead-search input {
+  height: 3rem;
+  border: 2px solid hsl(var(--foreground));
+  border-radius: var(--radius);
+  background: hsl(var(--background));
+  font-size: 1rem;
+}
+
+html[data-template="global"] .g-masthead-search input:focus-visible {
+  border-color: hsl(var(--primary));
+}
+
+html[data-template="global"] .g-masthead-search input::placeholder {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+}
+
+/* --------------------------------------------------------------------------
+   Hidden-scrollbar strips (tab rails, thumbnail rows).
+   -------------------------------------------------------------------------- */
+html[data-template="global"] .g-no-scrollbar {
+  scrollbar-width: none;
+}
+
+html[data-template="global"] .g-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

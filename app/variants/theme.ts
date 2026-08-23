@@ -19,15 +19,17 @@ export function buildVariantThemeCss(variant: VariantDescriptor): string {
       .map(([name, value]) => `--${name}: ${value};`)
       .join(" ");
 
-  // Use slightly higher-specificity selectors than globals.css (`:root` / `.dark`)
-  // so these overrides always win regardless of stylesheet injection order:
-  //   `:root:root`  (0,2,0) beats `:root`  (0,1,0)
-  //   `:root.dark`  (0,2,0) beats `.dark`  (0,1,0)
+  // Use higher-specificity selectors than every globals.css layer so these
+  // overrides always win regardless of stylesheet injection order:
+  //   template worlds use `html[data-template="…"]`        (0,1,1)
+  //   and their dark blocks `html[data-template="…"].dark` (0,2,1)
+  //   `:root:root:root`       (0,3,0) beats both light layers
+  //   `:root:root:root.dark`  (0,4,0) beats the dark layers
   if (Object.keys(root).length > 0) {
-    blocks.push(`:root:root{${toDecls(root)}}`);
+    blocks.push(`:root:root:root{${toDecls(root)}}`);
   }
   if (Object.keys(dark).length > 0) {
-    blocks.push(`:root.dark{${toDecls(dark)}}`);
+    blocks.push(`:root:root:root.dark{${toDecls(dark)}}`);
   }
 
   return blocks.join("");

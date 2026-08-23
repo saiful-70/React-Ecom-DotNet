@@ -248,7 +248,7 @@ export function OrderSummary({
 				</div>
 				<Button
 					type="submit"
-					className="w-full"
+					className="h-12 w-full"
 					disabled={isProcessing || !isFormValid || isLoadingPrices}
 					onClick={onSubmit}
 				>

@@ -1,26 +1,30 @@
-import { HeaderWrapper } from "@/components/layout/HeaderWrapper";
-import { Navigation } from "@/components/layout/Navigation";
-import FooterWrapper from "@/components/layout/FooterWrapper";
-import { ProductDetails } from "@/components/pages/ProductDetails";
 import type { Template } from "../types";
+import { KhataHeader } from "./chrome/KhataHeader";
+import { KhataNavigation } from "./chrome/KhataNavigation";
+import { KhataFooter } from "./chrome/KhataFooter";
+import { KhataMobileNav } from "./chrome/KhataMobileNav";
 import { ClassicHome } from "./ClassicHome";
 import { ClassicProductListing } from "./ClassicProductListing";
+import { KhataProductDetails } from "./product/KhataProductDetails";
 
 /**
- * The original storefront paradigm. Chrome slots are the existing wrapper
- * components (each fetches its own categories via the short-lived cached action, so
- * there is no extra backend cost). Mobile nav lives inside Header, hence null.
+ * CLASSIC — "The Mudir Dokan Khata".
+ *
+ * The neighbourhood grocer's ruled ledger: kraft-board masthead chrome, a
+ * ruled category strip, ledger-entry product surfaces, and a printed ledger
+ * close. Tap-to-call lives in the header trust line and the mobile bottom
+ * nav, so there is no separate floating action.
  */
 export const classicTemplate: Template = {
 	id: "classic",
 	chrome: {
-		Header: HeaderWrapper,
-		Navigation: Navigation,
-		Footer: FooterWrapper,
-		MobileNav: null,
+		Header: KhataHeader,
+		Navigation: KhataNavigation,
+		Footer: KhataFooter,
+		MobileNav: KhataMobileNav,
 		FloatingActions: null,
 	},
 	HomeLayout: ClassicHome,
 	ProductListingLayout: ClassicProductListing,
-	ProductDetailsLayout: ProductDetails,
+	ProductDetailsLayout: KhataProductDetails,
 };

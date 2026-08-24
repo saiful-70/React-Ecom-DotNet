@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { KhataImage } from "../shared/KhataImage";
+import { ClassicImage } from "../shared/ClassicImage";
 import { cn } from "@/lib/utils/utils";
 
-interface KhataGalleryProps {
+interface ClassicGalleryProps {
 	productName: string;
 	thumbnailImage?: string | null;
 	galleryImages?: string[] | null;
@@ -14,16 +14,16 @@ interface KhataGalleryProps {
 }
 
 /**
- * The PDP photograph, in-world: main frame matted on page white with a strip
- * of thumbnail frames beneath. Every frame degrades to the printed
- * first-letter plate when its URL is missing or fails to load.
+ * The PDP photograph: one 1:1 frame given the full column with a strip of
+ * thumbnails beneath. Every frame degrades to the in-world fallback plate
+ * when its URL is missing or fails to load.
  */
-export function KhataGallery({
+export function ClassicGallery({
 	productName,
 	thumbnailImage,
 	galleryImages,
 	colorImage,
-}: KhataGalleryProps) {
+}: ClassicGalleryProps) {
 	const { t } = useTranslation();
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [showColorImage, setShowColorImage] = useState(false);
@@ -47,22 +47,25 @@ export function KhataGallery({
 			: (images[selectedIndex] ?? images[0] ?? null);
 
 	return (
-		<div className="space-y-3">
-			<div className="relative aspect-square overflow-hidden rounded-sm">
-				<KhataImage
+		<div className="space-y-2 md:space-y-3">
+			{/* 1:1 always. On a phone the square is capped by viewport HEIGHT via
+			    a matching max-width, so the frame stays square (no CLS, no crop)
+			    and the name + price clear the fold. Desktop is uncapped. */}
+			<div className="relative mx-auto aspect-square w-full max-w-[46vh] overflow-hidden rounded-xl border border-border bg-muted lg:mx-0 lg:max-w-none">
+				<ClassicImage
 					src={mainSrc}
 					alt={productName}
 					fallbackText={productName}
-					width={640}
-					height={640}
+					width={720}
+					height={720}
 					priority
-					className="aspect-square h-full w-full rounded-sm object-cover"
+					className="aspect-square h-full w-full object-cover"
 					sizes="(max-width: 1024px) 100vw, 50vw"
 				/>
 			</div>
 			{images.length > 1 && (
 				<ul
-					className="flex gap-2 overflow-x-auto"
+					className="flex justify-center gap-2 overflow-x-auto lg:justify-start"
 					aria-label={t("classic2.galleryThumbs", "আরও ছবি")}
 				>
 					{images.map((url, index) => {
@@ -79,13 +82,13 @@ export function KhataGallery({
 									aria-label={`${productName} — ${index + 1}`}
 									aria-pressed={isActive}
 									className={cn(
-										"ring-warm-focus block h-16 w-16 overflow-hidden rounded-sm border-2 transition-colors",
+										"ring-warm-focus block h-14 w-14 overflow-hidden rounded-lg border bg-muted transition-colors md:h-16 md:w-16",
 										isActive
-											? "border-accent"
-											: "border-border hover:border-accent/60"
+											? "border-primary"
+											: "border-border hover:border-muted-foreground/50"
 									)}
 								>
-									<KhataImage
+									<ClassicImage
 										src={url}
 										alt=""
 										fallbackText={productName}

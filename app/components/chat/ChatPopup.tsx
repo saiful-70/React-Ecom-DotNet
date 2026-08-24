@@ -102,7 +102,10 @@ export function ChatPopup() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-28 right-2 md:right-6 left-2 md:left-auto z-50 md:w-full md:max-w-md animate-in slide-in-from-bottom-4 fade-in">
+    <div
+      className="fixed right-2 md:right-6 left-2 md:left-auto z-50 md:w-full md:max-w-md animate-in slide-in-from-bottom-4 fade-in"
+      style={{ bottom: "calc(7rem + var(--mobile-nav-offset, 0px))" }}
+    >
       <div className="bg-background border rounded-lg shadow-2xl overflow-hidden flex flex-col h-[500px] md:h-[600px]">
         {/* Header */}
         <div className="bg-primary text-primary-foreground px-3 md:px-4 py-2.5 md:py-3 flex items-center justify-between">

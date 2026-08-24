@@ -4,41 +4,47 @@
   "title": "Design System: DebuggerMind Storefront",
   "extensions": {
     "colorMeta": {
-      "classic-khata-paper": {
+      "classic-shopfloor-white": {
         "role": "neutral",
-        "displayName": "Khata Paper",
-        "canonical": "hsl(40 52% 90%)",
-        "tonalRamp": ["hsl(40 52% 15%)", "hsl(40 52% 26%)", "hsl(40 52% 38%)", "hsl(40 52% 49%)", "hsl(40 52% 61%)", "hsl(40 52% 72%)", "hsl(40 52% 84%)", "hsl(40 52% 95%)"]
+        "displayName": "Shopfloor White",
+        "canonical": "hsl(0 0% 100%)",
+        "tonalRamp": ["hsl(215 16% 13%)", "hsl(215 14% 26%)", "hsl(215 13% 42%)", "hsl(214 14% 60%)", "hsl(214 15% 76%)", "hsl(214 15% 89%)", "hsl(210 20% 97%)", "hsl(0 0% 100%)"]
       },
-      "classic-pen-ink": {
+      "classic-shopfront-ink": {
         "role": "neutral",
-        "displayName": "Pen Ink",
-        "canonical": "hsl(27 26% 11%)",
-        "tonalRamp": ["hsl(27 26% 11%)", "hsl(27 26% 22%)", "hsl(27 26% 34%)", "hsl(27 24% 46%)", "hsl(27 22% 58%)", "hsl(27 20% 70%)", "hsl(27 18% 83%)", "hsl(27 16% 95%)"]
+        "displayName": "Shopfront Ink",
+        "canonical": "hsl(215 16% 13%)",
+        "tonalRamp": ["hsl(215 16% 13%)", "hsl(215 15% 24%)", "hsl(215 13% 36%)", "hsl(215 12% 48%)", "hsl(214 12% 60%)", "hsl(214 13% 72%)", "hsl(214 15% 85%)", "hsl(210 20% 97%)"]
       },
-      "classic-stamp-red": {
+      "classic-vermilion-orange": {
         "role": "primary",
-        "displayName": "Rubber-Stamp Red",
-        "canonical": "hsl(358 63% 43%)",
-        "tonalRamp": ["hsl(358 63% 15%)", "hsl(358 63% 26%)", "hsl(358 63% 38%)", "hsl(358 63% 49%)", "hsl(358 60% 61%)", "hsl(358 58% 72%)", "hsl(358 55% 84%)", "hsl(358 50% 95%)"]
+        "displayName": "Vermilion Orange",
+        "canonical": "hsl(8 75% 47%)",
+        "tonalRamp": ["hsl(8 75% 15%)", "hsl(8 75% 26%)", "hsl(8 75% 38%)", "hsl(8 75% 47%)", "hsl(8 72% 60%)", "hsl(8 70% 72%)", "hsl(8 68% 84%)", "hsl(8 65% 95%)"]
       },
-      "classic-kraft-board": {
+      "classic-ink-band": {
         "role": "secondary",
-        "displayName": "Kraft Board",
-        "canonical": "hsl(33 47% 30%)",
-        "tonalRamp": ["hsl(33 47% 15%)", "hsl(33 47% 26%)", "hsl(33 47% 38%)", "hsl(33 45% 49%)", "hsl(33 43% 61%)", "hsl(33 40% 72%)", "hsl(33 38% 84%)", "hsl(33 35% 95%)"]
+        "displayName": "Ink Band",
+        "canonical": "hsl(215 22% 12%)",
+        "tonalRamp": ["hsl(215 22% 12%)", "hsl(215 20% 22%)", "hsl(215 18% 34%)", "hsl(215 16% 46%)", "hsl(215 15% 58%)", "hsl(214 15% 70%)", "hsl(214 15% 83%)", "hsl(214 16% 95%)"]
       },
-      "classic-ballpoint-blue": {
+      "classic-delivery-green": {
         "role": "tertiary",
-        "displayName": "Ballpoint Blue",
-        "canonical": "hsl(215 45% 38%)",
-        "tonalRamp": ["hsl(215 45% 15%)", "hsl(215 45% 26%)", "hsl(215 45% 38%)", "hsl(215 45% 49%)", "hsl(215 43% 61%)", "hsl(215 40% 72%)", "hsl(215 38% 84%)", "hsl(215 35% 95%)"]
+        "displayName": "Delivery Green",
+        "canonical": "hsl(152 60% 31%)",
+        "tonalRamp": ["hsl(152 60% 12%)", "hsl(152 60% 21%)", "hsl(152 60% 31%)", "hsl(152 55% 40%)", "hsl(152 50% 52%)", "hsl(152 46% 66%)", "hsl(152 44% 80%)", "hsl(152 42% 94%)"]
       },
-      "classic-rule-line": {
+      "classic-shelf-grey": {
         "role": "neutral",
-        "displayName": "Printed Rule Line",
-        "canonical": "hsl(37 32% 72%)",
-        "tonalRamp": ["hsl(37 32% 15%)", "hsl(37 32% 26%)", "hsl(37 32% 38%)", "hsl(37 32% 49%)", "hsl(37 32% 61%)", "hsl(37 32% 72%)", "hsl(37 32% 84%)", "hsl(37 32% 95%)"]
+        "displayName": "Shelf Grey",
+        "canonical": "hsl(210 20% 97%)",
+        "tonalRamp": ["hsl(210 20% 15%)", "hsl(210 20% 26%)", "hsl(210 20% 38%)", "hsl(210 20% 52%)", "hsl(210 20% 68%)", "hsl(210 20% 84%)", "hsl(210 20% 95%)", "hsl(210 20% 97%)"]
+      },
+      "classic-hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "hsl(214 15% 89%)",
+        "tonalRamp": ["hsl(214 15% 15%)", "hsl(214 15% 26%)", "hsl(214 15% 38%)", "hsl(214 15% 52%)", "hsl(214 15% 66%)", "hsl(214 15% 80%)", "hsl(214 15% 89%)", "hsl(214 15% 96%)"]
       },
       "bazar-chart-white": {
         "role": "neutral",
@@ -150,7 +156,7 @@
       }
     },
     "typographyMeta": {
-      "classic-display": { "displayName": "Tiro Bangla", "purpose": "Classic world headings and poster prices — the khata ledger bookhand. Routed via --font-display." },
+      "classic-display": { "displayName": "Baloo Da 2 Variable", "purpose": "Classic world headings and poster prices — the rounded retail display face, 700–800. Routed via --font-display." },
       "bazar-display": { "displayName": "Anek Bangla Variable", "purpose": "Bazar world headings, prices, and the phone number — the tariff-chart grotesque." },
       "global-display": { "displayName": "Archivo Variable (900)", "purpose": "Global world display at weight 900, uppercase, tight tracking — catalogue headline type." },
       "premium-display": { "displayName": "Bodoni Moda Variable", "purpose": "Premium world didone at real scale contrast — huge product names, listing titles up to 6xl." },

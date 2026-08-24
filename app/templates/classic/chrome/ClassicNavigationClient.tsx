@@ -8,10 +8,10 @@ import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import type { Category } from "@/components/shared/models/category";
 
 /**
- * The ruled category strip. Entries read like column heads written along one
- * ledger line; the strip scrolls sideways on narrow paper.
+ * The department line: one row of category links on the white field, scrolling
+ * sideways on a phone. Separated by a hairline, never a bar of colour.
  */
-export function KhataNavigationClient({
+export function ClassicNavigationClient({
 	categories,
 }: {
 	categories: Category[];
@@ -20,15 +20,15 @@ export function KhataNavigationClient({
 
 	return (
 		<nav
-			aria-label={t("classic2.categoriesNav", "পণ্যের খাত")}
-			className="border-b bg-muted"
+			aria-label={t("classic2.categoriesNav", "পণ্যের বিভাগ")}
+			className="border-b border-border bg-background"
 		>
 			<div className="container mx-auto">
 				<ul className="flex items-stretch gap-1 overflow-x-auto py-1.5">
 					<li className="shrink-0">
 						<Link
 							href={ABSOLUTE_ROUTES.PRODUCTS}
-							className="ring-warm-focus flex h-9 items-center rounded-md px-3 text-sm font-bold text-foreground underline decoration-accent decoration-2 underline-offset-[6px] hover:bg-background"
+							className="ring-warm-focus flex h-10 items-center rounded-lg px-3 text-sm font-bold transition-colors hover:bg-accent active:bg-accent"
 						>
 							{t("classic2.allProducts", "সব পণ্য")}
 						</Link>
@@ -39,7 +39,7 @@ export function KhataNavigationClient({
 								href={ABSOLUTE_ROUTES.PRODUCTS_BY_CATEGORY(
 									category.id
 								)}
-								className="ring-warm-focus flex h-9 items-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+								className="ring-warm-focus flex h-10 items-center whitespace-nowrap rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground active:bg-accent"
 							>
 								{category.name}
 							</Link>

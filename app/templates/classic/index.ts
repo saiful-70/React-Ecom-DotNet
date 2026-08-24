@@ -1,30 +1,31 @@
 import type { Template } from "../types";
-import { KhataHeader } from "./chrome/KhataHeader";
-import { KhataNavigation } from "./chrome/KhataNavigation";
-import { KhataFooter } from "./chrome/KhataFooter";
-import { KhataMobileNav } from "./chrome/KhataMobileNav";
+import { ClassicHeader } from "./chrome/ClassicHeader";
+import { ClassicNavigation } from "./chrome/ClassicNavigation";
+import { ClassicFooter } from "./chrome/ClassicFooter";
+import { ClassicMobileNav } from "./chrome/ClassicMobileNav";
 import { ClassicHome } from "./ClassicHome";
 import { ClassicProductListing } from "./ClassicProductListing";
-import { KhataProductDetails } from "./product/KhataProductDetails";
+import { ClassicProductDetails } from "./product/ClassicProductDetails";
 
 /**
- * CLASSIC — "The Mudir Dokan Khata".
+ * CLASSIC — "The Open Shopfront".
  *
- * The neighbourhood grocer's ruled ledger: kraft-board masthead chrome, a
- * ruled category strip, ledger-entry product surfaces, and a printed ledger
- * close. Tap-to-call lives in the header trust line and the mobile bottom
- * nav, so there is no separate floating action.
+ * The BD retail standard played straight: a white sticky masthead over a
+ * utility strip, a department line, the banner carousel as the first content
+ * of the home page, 1:1 photography, and one vermilion-orange carrying every
+ * buy action. Tap-to-call lives in the utility strip and the mobile bottom
+ * bar, so there is no separate floating action.
  */
 export const classicTemplate: Template = {
 	id: "classic",
 	chrome: {
-		Header: KhataHeader,
-		Navigation: KhataNavigation,
-		Footer: KhataFooter,
-		MobileNav: KhataMobileNav,
+		Header: ClassicHeader,
+		Navigation: ClassicNavigation,
+		Footer: ClassicFooter,
+		MobileNav: ClassicMobileNav,
 		FloatingActions: null,
 	},
 	HomeLayout: ClassicHome,
 	ProductListingLayout: ClassicProductListing,
-	ProductDetailsLayout: KhataProductDetails,
+	ProductDetailsLayout: ClassicProductDetails,
 };

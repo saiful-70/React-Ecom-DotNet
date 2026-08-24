@@ -21,13 +21,12 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { trackSortChanged } from "@/lib/analytics/tracking";
 import type { ProductListingLayoutProps } from "../types";
-import { KhataProductCard } from "./product/KhataProductCard";
+import { ClassicProductCard } from "./product/ClassicProductCard";
 
 /**
- * The khata listing: a full page of the ledger. Heading over its double
- * rule, a written-entry search line and sort, the shared filter sidebar, and
- * the infinite ledger-entry grid (2 columns on phones). Filter/sort/search
- * semantics are URL-driven, identical to the shared toolbar.
+ * The department page: heading and count, search and sort on one line, the
+ * shared filter sidebar, and the infinite offer grid (two columns on phones).
+ * Filter/sort/search semantics are URL-driven, identical to the shared toolbar.
  */
 export function ClassicProductListing({
 	products,
@@ -87,137 +86,121 @@ export function ClassicProductListing({
 
 	return (
 		<main className="container mx-auto py-6 md:py-8">
-			<div className="khata-spine pl-5 md:pl-8">
-				{/* Page heading over its double rule. */}
-				<h1 className="font-display text-3xl font-bold text-balance md:text-4xl">
-					{selectedCategoryName ?? t("classic2.allProducts", "সব পণ্য")}
-				</h1>
-				<p className="mt-1 text-sm tabular-nums text-muted-foreground">
-					{t("classic2.entriesCount", "{{shown}} / {{total}} এন্ট্রি", {
-						shown: products.length,
-						total,
-					})}
-				</p>
-				<div className="khata-rule-double mt-3" aria-hidden />
+			<h1 className="font-display text-3xl font-extrabold tracking-tight text-balance md:text-4xl">
+				{selectedCategoryName ?? t("classic2.allProducts", "সব পণ্য")}
+			</h1>
+			<p className="classic-price mt-1 text-sm text-muted-foreground">
+				{t("classic2.productCount", "{{shown}} / {{total}} পণ্য", {
+					shown: products.length,
+					total,
+				})}
+			</p>
 
-				{/* Search + sort written on one ledger line. */}
-				<div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-					<div className="relative flex-1 sm:max-w-md">
-						<Search
-							className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-							aria-hidden
-						/>
-						<input
-							type="search"
-							value={searchQuery}
-							onChange={(e) => {
-								setSearchQuery(e.target.value);
-								setIsUserInput(true);
-							}}
-							placeholder={t(
-								"classic2.searchPlaceholder",
-								"খাতায় খুঁজুন…"
-							)}
-							aria-label={t(
-								"classic2.searchPlaceholder",
-								"খাতায় খুঁজুন…"
-							)}
-							className="ring-warm-focus h-11 w-full rounded-md border border-input bg-card pl-9 pr-3 text-base placeholder:text-muted-foreground md:text-sm"
-						/>
-					</div>
-					<div className="flex items-center gap-2">
-						<div className="sm:hidden">
-							<ProductFilters
-								categories={categories}
-								brands={brands}
-								activeFiltersCount={activeFiltersCount}
-								buttonOnly
-							/>
-						</div>
-						<Select value={sortBy} onValueChange={handleSortChange}>
-							<SelectTrigger
-								className="h-11 w-44 bg-card sm:w-52"
-								aria-label={t("classic2.sortBy", "সাজান")}
-							>
-								<SelectValue
-									placeholder={t("classic2.sortBy", "সাজান")}
-								/>
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="name_asc">
-									{t("classic2.sortNameAsc", "নাম: আগে অ→ঐ")}
-								</SelectItem>
-								<SelectItem value="name_desc">
-									{t("classic2.sortNameDesc", "নাম: শেষ থেকে")}
-								</SelectItem>
-								<SelectItem value="price_low_high">
-									{t(
-										"classic2.sortPriceLowHigh",
-										"দাম: কম থেকে বেশি"
-									)}
-								</SelectItem>
-								<SelectItem value="price_high_low">
-									{t(
-										"classic2.sortPriceHighLow",
-										"দাম: বেশি থেকে কম"
-									)}
-								</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
+			{/* Search + sort on one line. */}
+			<div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+				<div className="relative flex-1 sm:max-w-md">
+					<Search
+						className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+						aria-hidden
+					/>
+					<input
+						type="search"
+						value={searchQuery}
+						onChange={(e) => {
+							setSearchQuery(e.target.value);
+							setIsUserInput(true);
+						}}
+						placeholder={t(
+							"classic2.searchPlaceholder",
+							"পণ্য খুঁজুন…"
+						)}
+						aria-label={t("classic2.searchPlaceholder", "পণ্য খুঁজুন…")}
+						className="ring-warm-focus h-12 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-base placeholder:text-muted-foreground"
+					/>
 				</div>
-
-				{/* Sidebar + ledger entries. */}
-				<div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start">
-					<div className="hidden sm:block">
+				<div className="flex items-center gap-2">
+					<div className="sm:hidden">
 						<ProductFilters
 							categories={categories}
 							brands={brands}
 							activeFiltersCount={activeFiltersCount}
+							buttonOnly
 						/>
 					</div>
-					<div className="min-w-0 flex-1">
-						{products.length === 0 ? (
-							<div className="rounded-md border border-dashed bg-card px-6 py-16 text-center">
-								<p className="font-display text-xl font-bold">
-									{t(
-										"classic2.emptyTitle",
-										"খাতায় কোনো এন্ট্রি নেই"
-									)}
-								</p>
-								<p className="mt-2 text-sm text-muted-foreground">
-									{t(
-										"classic2.emptyBody",
-										"এই খোঁজে কিছু পাওয়া যায়নি — অন্য নামে খুঁজে দেখুন"
-									)}
-								</p>
-								<Link
-									href={ABSOLUTE_ROUTES.PRODUCTS}
-									className="ring-warm-focus mt-5 inline-flex min-h-11 items-center rounded-md border border-accent/60 px-5 text-sm font-bold text-accent transition-colors hover:bg-accent hover:text-accent-foreground"
-								>
-									{t("classic2.clearSearch", "সব পণ্য দেখুন")}
-								</Link>
-							</div>
-						) : (
-							<ProductsInfiniteList
-								key={infiniteListKey}
-								initialProducts={products}
-								initialMeta={
-									meta ?? {
-										current_page: 1,
-										per_page: perPage,
-										total: products.length,
-										last_page: 1,
-										from: 1,
-										to: products.length,
-									}
-								}
-								baseQuery={baseQuery}
-								viewMode={viewMode}
-								CardComponent={KhataProductCard}
+					<Select value={sortBy} onValueChange={handleSortChange}>
+						<SelectTrigger
+							className="h-12 w-44 bg-background sm:w-52"
+							aria-label={t("classic2.sortBy", "সাজান")}
+						>
+							<SelectValue
+								placeholder={t("classic2.sortBy", "সাজান")}
 							/>
-						)}
-					</div>
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="name_asc">
+								{t("classic2.sortNameAsc", "নাম: অ → ঐ")}
+							</SelectItem>
+							<SelectItem value="name_desc">
+								{t("classic2.sortNameDesc", "নাম: ঐ → অ")}
+							</SelectItem>
+							<SelectItem value="price_low_high">
+								{t("classic2.sortPriceLowHigh", "দাম: কম থেকে বেশি")}
+							</SelectItem>
+							<SelectItem value="price_high_low">
+								{t("classic2.sortPriceHighLow", "দাম: বেশি থেকে কম")}
+							</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+			</div>
+
+			{/* Sidebar + the grid. */}
+			<div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start">
+				<div className="hidden sm:block">
+					<ProductFilters
+						categories={categories}
+						brands={brands}
+						activeFiltersCount={activeFiltersCount}
+					/>
+				</div>
+				<div className="min-w-0 flex-1">
+					{products.length === 0 ? (
+						<div className="rounded-xl border border-border px-6 py-16 text-center">
+							<p className="font-display text-xl font-extrabold">
+								{t("classic2.emptyTitle", "কোনো পণ্য পাওয়া যায়নি")}
+							</p>
+							<p className="mt-2 text-sm text-muted-foreground">
+								{t(
+									"classic2.emptyBody",
+									"এই খোঁজে কিছু মেলেনি — অন্য নামে খুঁজে দেখুন"
+								)}
+							</p>
+							<Link
+								href={ABSOLUTE_ROUTES.PRODUCTS}
+								className="ring-warm-focus mt-6 inline-flex min-h-12 items-center rounded-lg bg-primary px-6 text-sm font-extrabold text-primary-foreground transition-colors hover:bg-primary/90"
+							>
+								{t("classic2.clearSearch", "সব পণ্য দেখুন")}
+							</Link>
+						</div>
+					) : (
+						<ProductsInfiniteList
+							key={infiniteListKey}
+							initialProducts={products}
+							initialMeta={
+								meta ?? {
+									current_page: 1,
+									per_page: perPage,
+									total: products.length,
+									last_page: 1,
+									from: 1,
+									to: products.length,
+								}
+							}
+							baseQuery={baseQuery}
+							viewMode={viewMode}
+							CardComponent={ClassicProductCard}
+						/>
+					)}
 				</div>
 			</div>
 		</main>

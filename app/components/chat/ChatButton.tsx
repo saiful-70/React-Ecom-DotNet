@@ -42,7 +42,10 @@ export function ChatButton() {
   return (
     <div
       className="fixed right-4 z-50"
-      style={{ bottom: "calc(4rem + var(--combo-actionbar-height, 0px))" }}
+      style={{
+        bottom:
+          "calc(4rem + var(--combo-actionbar-height, 0px) + var(--mobile-nav-offset, 0px))",
+      }}
     >
       <Button
         size="sm"

@@ -1,22 +1,24 @@
 import type { VariantDescriptor } from "../types";
 
 /**
- * bn-01 — the current Bengali storefront, migrated as-is.
+ * bn-01 — the flagship Bengali storefront, on the `classic` template.
  *
- * The globals.css defaults already carry this variant's green palette, so no
- * theme overrides are needed here. New Bengali demos (bn-02, …) supply their
- * own `theme.root`/`theme.dark` overrides instead of editing globals.css.
+ * The classic template plays the BD retail standard straight ("The Open
+ * Shopfront": white field, photography-led cards, one vermilion-orange buy
+ * colour, green trust lines). A metaphor world was tried here and rejected as
+ * wrong for BD shoppers — see the brand commitment in PRODUCT.md before
+ * proposing another one.
  */
 const bn01: VariantDescriptor = {
   id: "bn-01",
   market: "bn",
   template: "classic",
-  name: "Bengali — Mudir Dokan Khata",
+  name: "Bengali — Open Shopfront",
   description:
-    "The original Bengali storefront on the classic template: khata-ledger UI, stamp-red ordering, Bengali-first, full feature set.",
+    "The flagship Bengali storefront on the classic template: banner carousel, white photography-led retail UI, orange ordering, Bengali-first, full feature set.",
   theme: {
     // Intentionally empty: the globals.css :root block IS the classic
-    // template's "Mudir Dokan Khata" world, which is bn-01's dress.
+    // template's "Open Shopfront" world, which is bn-01's dress.
     root: {},
     dark: {},
   },

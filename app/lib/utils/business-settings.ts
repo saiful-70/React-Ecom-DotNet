@@ -176,17 +176,27 @@ export function isMaintenanceModeEnabled(
 }
 
 /**
- * Get formatted currency
+ * Get formatted currency.
+ *
+ * Grouping separators come from `locale` (Bengali deployments pass
+ * `bn-BD-u-nu-latn`, which keeps Latin digits with South-Asian grouping), and
+ * whole amounts drop their decimals — the same rule the client-side `Price`
+ * component applies, so server- and client-rendered money agree.
  */
 export function formatCurrency(
   amount: number,
-  settings: BusinessSettingsModel
+  settings: BusinessSettingsModel,
+  locale = "en"
 ): string {
   const currency = settings.currency || DEFAULT_CURRENCY;
   const decimals = getBusinessSettingAsNumber(settings, "decimal_digits", 2);
   const position = settings.currency_position || "left";
 
-  const formatted = amount.toFixed(decimals);
+  const hasFraction = Math.abs(amount % 1) > Number.EPSILON;
+  const formatted = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: hasFraction ? decimals : 0,
+    maximumFractionDigits: hasFraction ? decimals : 0,
+  }).format(amount);
 
   if (position === "left") {
     return `${getCurrencySymbol(currency)}${formatted}`;
@@ -208,5 +218,20 @@ export function getCurrencySymbol(currency: string): string {
     // Add more as needed
   };
 
-  return symbols[currency] || currency;
+  // Business settings do not always carry a clean ISO code: backends in this
+  // market send "tk", "Tk", "taka", or "৳" for Bangladeshi taka. Normalise
+  // case and the common aliases so a shopper never sees a bare "tk" suffix
+  // where the currency glyph belongs.
+  const raw = (currency || "").trim();
+  const aliases: Record<string, string> = {
+    TK: "BDT",
+    "TK.": "BDT",
+    TAKA: "BDT",
+    "৳": "BDT",
+    US$: "USD",
+    RS: "INR",
+  };
+  const code = aliases[raw.toUpperCase()] ?? raw.toUpperCase();
+
+  return symbols[code] || raw;
 }

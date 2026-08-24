@@ -1,123 +1,152 @@
 /* ==========================================================================
-   CLASSIC — "The Mudir Dokan Khata" template-owned CSS.
+   CLASSIC — "The Open Shopfront" template-owned CSS.
 
-   Structural grammar only; every colour is a semantic token so variant
-   theming still wins. Imported by the classic template components (App
-   Router allows global CSS imports anywhere).
+   The BD retail standard played straight: white field, ink text, hairline
+   separation, one vermilion-orange buy signal. Structural grammar only —
+   every colour resolves through a semantic token, so variant theming still
+   wins. Imported by the classic template components (the App Router allows
+   global CSS imports anywhere).
    ========================================================================== */
 
-/* --- The ledger rule-spine -------------------------------------------------
-   One printed vertical line down the content's left inside each major band.
-   Every element in the band registers against it. */
-.khata-spine {
-  position: relative;
+/* --- Browser surfaces ------------------------------------------------------
+   The parts we did not draw still belong to the world: selection, caret and
+   the scrollbar are themed from the tokens, scoped to this template so the
+   other worlds keep theirs. */
+html[data-template="classic"] {
+  scrollbar-color: hsl(var(--border)) transparent;
+  accent-color: hsl(var(--primary));
 }
-.khata-spine::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 2px;
-  background: hsl(var(--accent) / 0.55);
-  pointer-events: none;
+html[data-template="classic"] ::selection {
+  background: hsl(var(--primary) / 0.18);
+  color: hsl(var(--foreground));
 }
-
-/* --- Printed double rule ---------------------------------------------------
-   Hard band boundaries: a heavy rule over a hairline, like the closing rules
-   drawn under a day's entries. */
-.khata-rule-double {
-  border: none;
-  height: 5px;
-  background:
-    linear-gradient(hsl(var(--foreground) / 0.55), hsl(var(--foreground) / 0.55)) top / 100% 2px no-repeat,
-    linear-gradient(hsl(var(--foreground) / 0.35), hsl(var(--foreground) / 0.35)) bottom / 100% 1px no-repeat;
+html[data-template="classic"] :where(input, textarea) {
+  caret-color: hsl(var(--primary));
 }
-
-/* --- Ruled paper field -----------------------------------------------------
-   Flat printed rule lines (never a photographic texture). Line pitch 32px
-   keeps the rules quiet under real content. */
-.khata-ruled {
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 31px,
-    hsl(var(--border) / 0.5) 31px,
-    hsl(var(--border) / 0.5) 32px
-  );
+html[data-template="classic"] ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
 }
-
-/* --- Gummed tag ------------------------------------------------------------
-   A price/status tag with a punched string-hole on its left. Status only —
-   never clickable. */
-.khata-tag {
-  position: relative;
-  padding-left: 1.125rem;
+html[data-template="classic"] ::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
 }
-.khata-tag::before {
-  content: "";
-  position: absolute;
-  left: 0.375rem;
-  top: 50%;
-  width: 0.375rem;
-  height: 0.375rem;
-  transform: translateY(-50%);
+html[data-template="classic"] ::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border: 3px solid hsl(var(--muted));
   border-radius: 9999px;
+}
+html[data-template="classic"] ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.55);
+}
+
+/* --- Sticky chrome ---------------------------------------------------------
+   The header rides the scroll on a hairline. Once the page has moved the
+   hairline hands over to a soft shadow, so the chrome separates from the
+   photography without ever drawing a box. Driven by `data-scrolled` from the
+   header's own scroll listener. */
+.classic-chrome {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   background: hsl(var(--background));
-  box-shadow: inset 0 0 0 1.5px currentColor;
+  border-bottom: 1px solid hsl(var(--border));
+  transition:
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.classic-chrome[data-scrolled="true"] {
+  border-bottom-color: transparent;
+  box-shadow:
+    0 1px 2px 0 hsl(var(--shadow-warm) / 0.06),
+    0 6px 18px -6px hsl(var(--shadow-warm) / 0.14);
 }
 
-/* --- Stamp-settle ----------------------------------------------------------
-   The one authored motion: a stamp lands — scale from 1.06 to 1 with a single
-   overshoot, exponential ease-out. Applied at the authored moment per
-   surface (order confirmation), never as a scattered entrance. */
-@keyframes khata-stamp-settle {
-  0% {
-    transform: scale(1.06);
-    opacity: 0.4;
-  }
-  55% {
-    transform: scale(0.985);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-.khata-stamp-in {
-  animation: khata-stamp-settle 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+/* --- Section band ----------------------------------------------------------
+   Alternating shelves: a faint grey field between hairlines. Never a card,
+   never a border radius — the band is the full page width. */
+.classic-band {
+  background: hsl(var(--muted));
+  border-top: 1px solid hsl(var(--border));
+  border-bottom: 1px solid hsl(var(--border));
 }
 
-/* --- Rule strike-through ---------------------------------------------------
-   A struck ledger entry: the rule draws itself across (a material event, not
-   a tint change). Used on sold-out entries. */
-.khata-strike {
-  position: relative;
+/* --- Price emphasis --------------------------------------------------------
+   Money is set tight, lining and tabular, so a column of prices aligns and
+   the current price reads as the heaviest thing in the card. */
+.classic-price {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  letter-spacing: -0.02em;
 }
-.khata-strike::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  height: 2px;
+
+/* --- Carousel track -------------------------------------------------------
+   THE authored motion of this world: the slide track glides one viewport
+   width on an exponential ease-out. Nothing else on the page animates
+   position. `data-animate="false"` (reduced motion, or a swipe already in
+   progress) makes the change a hard cut. */
+.classic-slide-track {
+  display: flex;
   width: 100%;
-  background: hsl(var(--foreground) / 0.65);
-  transform-origin: left center;
-  animation: khata-strike-draw 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform;
+  transition: transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-@keyframes khata-strike-draw {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
+.classic-slide-track[data-animate="false"] {
+  transition: none;
+}
+.classic-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+/* --- Carousel dots --------------------------------------------------------
+   The current slide is a filled vermilion lozenge; the rest are hairline
+   rings on the white field. Hit area stays 44px even though the mark is
+   small. */
+.classic-dot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  /* The 44px touch target is a phone requirement; on a pointer device the row
+     costs less height (the mark and its 24px minimum target are unchanged). */
+
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.classic-dot::after {
+  content: "";
+  display: block;
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 1px hsl(var(--border));
+  background: hsl(var(--background));
+  transition:
+    width 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 260ms ease-out,
+    box-shadow 260ms ease-out;
+}
+.classic-dot:hover::after {
+  box-shadow: inset 0 0 0 1px hsl(var(--muted-foreground) / 0.5);
+}
+.classic-dot[aria-current="true"]::after {
+  width: 1.75rem;
+  background: hsl(var(--primary));
+  box-shadow: none;
+}
+@media (min-width: 1024px) and (pointer: fine) {
+  .classic-dot {
+    height: 2rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .khata-stamp-in,
-  .khata-strike::after {
-    animation: none;
+  .classic-chrome,
+  .classic-slide-track,
+  .classic-dot::after {
+    transition: none;
   }
 }

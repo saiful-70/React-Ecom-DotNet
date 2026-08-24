@@ -23,89 +23,91 @@
 
 @layer base {
   /* ------------------------------------------------------------------
-     CLASSIC — "The Mudir Dokan Khata"
-     The neighbourhood grocery's ruled ledger: unbleached khata paper,
-     ink text, a red rubber-stamp for the order action, blue ballpoint
-     as the entry accent, kraft-board chrome. Flat printed fields, never
-     photographic paper textures.
+     CLASSIC — "The Open Shopfront"
+     The BD retail standard, played straight: a pure white field, ink
+     text, hairline separation, and ONE saturated vermilion-orange that
+     carries every buy action. Photography is the loudest thing on the
+     page; chrome is white and sticky, the footer band is ink. Trust
+     signals (cash on delivery, delivery window) are set in deep green.
+     No paper, no rules, no metaphor — the shop, lit and legible.
      ------------------------------------------------------------------ */
   :root {
-    --background: 40 52% 90%;          /* unbleached khata paper */
-    --foreground: 27 26% 11%;          /* pen ink */
-    --card: 43 56% 96%;                /* fresh page */
-    --card-foreground: 27 26% 11%;
-    --popover: 43 56% 96%;
-    --popover-foreground: 27 26% 11%;
-    --primary: 358 63% 43%;            /* rubber-stamp red — the order colour */
-    --primary-foreground: 43 56% 97%;
-    --secondary: 33 47% 30%;           /* kraft board chrome */
-    --secondary-foreground: 43 56% 96%;
-    --muted: 40 40% 84%;               /* aged paper band */
-    --muted-foreground: 30 18% 34%;
-    --accent: 215 45% 38%;             /* blue ballpoint entries */
-    --accent-foreground: 43 56% 97%;
-    --destructive: 0 72% 40%;
-    --destructive-foreground: 43 56% 97%;
-    --border: 37 32% 72%;              /* printed rule line */
-    --input: 37 32% 66%;
-    --ring: 358 63% 43%;
-    --success: 150 45% 30%;
-    --success-foreground: 43 56% 97%;
-    --warning: 38 88% 46%;
+    --background: 0 0% 100%;           /* white shopfloor */
+    --foreground: 215 16% 13%;         /* ink */
+    --card: 0 0% 100%;
+    --card-foreground: 215 16% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 16% 13%;
+    --primary: 8 75% 47%;              /* vermilion-orange — the buy colour */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 22% 12%;          /* ink band: footer, icon plates */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 20% 97%;              /* faint section band */
+    --muted-foreground: 215 12% 42%;
+    --accent: 210 20% 95%;             /* neutral hover surface */
+    --accent-foreground: 215 16% 13%;
+    --destructive: 0 72% 45%;          /* errors only */
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 15% 89%;             /* hairline */
+    --input: 214 15% 84%;
+    --ring: 8 75% 47%;
+    --success: 152 60% 31%;            /* COD + delivery-promise green */
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 48%;
     --warning-foreground: 30 30% 12%;
-    --bundle-save: 358 63% 43%;
-    --bundle-save-foreground: 43 56% 97%;
-    --radius: 0.375rem;                /* gummed-tag corner */
-    --sidebar-background: 40 45% 87%;
-    --sidebar-foreground: 27 26% 15%;
-    --sidebar-primary: 358 63% 43%;
-    --sidebar-primary-foreground: 43 56% 97%;
-    --sidebar-accent: 40 40% 82%;
-    --sidebar-accent-foreground: 27 26% 11%;
-    --sidebar-border: 37 32% 72%;
-    --sidebar-ring: 358 63% 43%;
-    --shadow-warm: 30 40% 15%;         /* brown ink shadow */
+    --bundle-save: 152 55% 30%;        /* "you save" — positive, not an error */
+    --bundle-save-foreground: 0 0% 100%;
+    --radius: 0.75rem;                 /* soft retail corner */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 16% 20%;
+    --sidebar-primary: 8 75% 47%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 20% 95%;
+    --sidebar-accent-foreground: 215 16% 13%;
+    --sidebar-border: 214 15% 89%;
+    --sidebar-ring: 8 75% 47%;
+    --shadow-warm: 215 25% 20%;        /* cool neutral shadow base */
     /* Fonts (registered via Fontsource imports in app/layout.tsx). */
     --font-inter: "Inter Variable";
     --font-bengali: "Hind Siliguri";
-    --font-display: "Tiro Bangla";
+    --font-display: "Baloo Da 2 Variable";
   }
 
   .dark {
-    --background: 30 15% 9%;           /* shop after closing */
-    --foreground: 40 30% 88%;
-    --card: 32 14% 13%;
-    --card-foreground: 40 30% 88%;
-    --popover: 32 14% 13%;
-    --popover-foreground: 40 30% 88%;
-    --primary: 358 60% 55%;
-    --primary-foreground: 30 15% 8%;
-    --secondary: 33 25% 20%;
-    --secondary-foreground: 40 30% 88%;
-    --muted: 30 12% 17%;
-    --muted-foreground: 38 16% 64%;
-    --accent: 215 55% 60%;
-    --accent-foreground: 30 15% 8%;
-    --destructive: 0 62% 52%;
-    --destructive-foreground: 40 30% 92%;
-    --border: 32 14% 24%;
-    --input: 32 14% 24%;
-    --ring: 358 60% 55%;
-    --success: 150 40% 45%;
-    --success-foreground: 30 15% 8%;
-    --warning: 38 85% 56%;
+    --background: 220 16% 8%;
+    --foreground: 210 16% 93%;
+    --card: 220 14% 11%;
+    --card-foreground: 210 16% 93%;
+    --popover: 220 14% 11%;
+    --popover-foreground: 210 16% 93%;
+    --primary: 12 84% 56%;
+    --primary-foreground: 220 20% 8%;
+    --secondary: 220 12% 16%;
+    --secondary-foreground: 210 16% 93%;
+    --muted: 220 12% 15%;
+    --muted-foreground: 213 10% 65%;
+    --accent: 220 12% 17%;
+    --accent-foreground: 210 16% 93%;
+    --destructive: 0 66% 52%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 11% 22%;
+    --input: 220 11% 22%;
+    --ring: 12 84% 56%;
+    --success: 152 50% 44%;
+    --success-foreground: 220 20% 8%;
+    --warning: 38 88% 56%;
     --warning-foreground: 30 25% 10%;
-    --bundle-save: 358 60% 52%;
+    --bundle-save: 152 46% 42%;
     --bundle-save-foreground: 0 0% 100%;
-    --sidebar-background: 30 14% 11%;
-    --sidebar-foreground: 40 25% 84%;
-    --sidebar-primary: 358 60% 55%;
-    --sidebar-primary-foreground: 30 15% 8%;
-    --sidebar-accent: 30 12% 18%;
-    --sidebar-accent-foreground: 40 30% 88%;
-    --sidebar-border: 32 14% 24%;
-    --sidebar-ring: 358 60% 55%;
-    --shadow-warm: 30 60% 3%;
+    --sidebar-background: 220 14% 10%;
+    --sidebar-foreground: 210 14% 88%;
+    --sidebar-primary: 12 84% 56%;
+    --sidebar-primary-foreground: 220 20% 8%;
+    --sidebar-accent: 220 12% 17%;
+    --sidebar-accent-foreground: 210 16% 93%;
+    --sidebar-border: 220 11% 22%;
+    --sidebar-ring: 12 84% 56%;
+    --shadow-warm: 220 60% 3%;
   }
 
   /* ------------------------------------------------------------------
@@ -361,6 +363,23 @@
 }
 
 @layer base {
+  /* Room reserved for a template's fixed mobile bottom nav, so floating
+     actions (chat FAB, back-to-top) never land on top of the bar. Consumed
+     via `calc(… + var(--mobile-nav-offset, 0px))`; templates without a
+     bottom nav (premium) simply never set it. */
+  html[data-template="classic"],
+  html[data-template="bazar"],
+  html[data-template="global"] {
+    --mobile-nav-offset: 3.75rem;
+  }
+  @media (min-width: 768px) {
+    html[data-template="classic"],
+    html[data-template="bazar"],
+    html[data-template="global"] {
+      --mobile-nav-offset: 0px;
+    }
+  }
+
   * {
     @apply border-border;
   }

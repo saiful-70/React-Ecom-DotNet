@@ -14,11 +14,11 @@ import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { trackMenuClick } from "@/lib/analytics/tracking";
 
 /**
- * Khata chrome: fixed bottom strip on mobile — a kraft-board counter edge
- * with five ≥48px thumb targets: home, products, tap-to-call, cart, account.
- * The footer and PDP order band reserve bottom padding for it.
+ * The fixed bottom bar on mobile: five ≥48px thumb targets on the white
+ * field — home, products, tap-to-call (the one vermilion plate), cart,
+ * account. The footer and the PDP order band reserve room for it.
  */
-export function KhataMobileNav() {
+export function ClassicMobileNav() {
 	const { t } = useTranslation();
 	const { itemCount } = useCart();
 	const settings = useAtomValue(businessSettingsAtom);
@@ -31,12 +31,12 @@ export function KhataMobileNav() {
 	}, []);
 
 	const itemClass =
-		"ring-warm-focus flex h-full flex-col items-center justify-center gap-0.5 text-[11px] font-semibold";
+		"ring-warm-focus flex h-full flex-col items-center justify-center gap-0.5 text-[11px] font-semibold text-muted-foreground transition-colors active:bg-accent";
 
 	return (
 		<nav
 			aria-label={t("classic2.mobileNav", "মোবাইল নেভিগেশন")}
-			className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-secondary-foreground/25 bg-secondary text-secondary-foreground md:hidden"
+			className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background md:hidden"
 		>
 			<div className="grid h-16 grid-cols-5 items-stretch">
 				<Link
@@ -73,7 +73,7 @@ export function KhataMobileNav() {
 						}
 						className={itemClass}
 					>
-						<span className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-accent-foreground">
+						<span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
 							<Phone className="h-5 w-5" aria-hidden />
 						</span>
 						{t("classic2.call", "কল করুন")}
@@ -91,7 +91,7 @@ export function KhataMobileNav() {
 					<span className="relative">
 						<ShoppingBag className="h-5 w-5" aria-hidden />
 						{isHydrated && itemCount > 0 && (
-							<span className="absolute -right-2.5 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold tabular-nums text-accent-foreground">
+							<span className="classic-price absolute -right-2.5 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
 								{itemCount}
 							</span>
 						)}

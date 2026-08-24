@@ -28,23 +28,27 @@ import {
 import { ProductVariantSelector } from "@/components/product/ProductVariantSelector";
 import type { Product, ProductVariant } from "@/(app-routes)/products/model";
 import type { ProductDetailsLayoutProps } from "@/templates/types";
-import { KhataSectionTitle } from "../home/KhataSectionTitle";
-import { KhataComboLedger } from "../home/KhataComboLedger";
-import { KhataProductCard } from "./KhataProductCard";
-import { KhataGallery } from "./KhataGallery";
+import { ClassicSectionTitle } from "../home/ClassicSectionTitle";
+import { ClassicComboRail } from "../home/ClassicComboRail";
+import { ClassicProductCard } from "./ClassicProductCard";
+import { ClassicGallery } from "./ClassicGallery";
 import { cn } from "@/lib/utils/utils";
 
-const FALLBACK_IMAGE =
-	"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop&auto=format";
+/**
+ * Neutral local placeholder for the CART LINE payload only (the cart thumbnail
+ * is rendered by shared code that needs a URL string). The gallery degrades
+ * through ClassicImage's own in-world plate instead.
+ */
+const CART_LINE_PLACEHOLDER = "/placeholder.svg";
 
 /**
- * The khata PDP: a long scroll staged in hard ledger bands — photograph,
- * proof, order — each boundary a printed double rule. Delivery fees, COD and
- * the confirming-call line are printed BEFORE the order button; the order
- * action repeats at the bottom of the scroll in the thumb zone. Red belongs
- * to the order zone alone.
+ * The product page: photograph on the left, the offer on the right — price
+ * anchoring, variants, quantity, the delivery-fee table, cash-on-delivery and
+ * the confirming-call line, all printed BEFORE the vermilion order button.
+ * Description and reviews follow on the grey band, then the order action
+ * repeats at the bottom of the scroll, clear of the mobile bottom bar.
  */
-export function KhataProductDetails({
+export function ClassicProductDetails({
 	product,
 	combos,
 }: ProductDetailsLayoutProps) {
@@ -63,9 +67,6 @@ export function KhataProductDetails({
 				? product.variants[0]
 				: null
 		);
-	// The one authored motion on this surface: the "written into the ledger"
-	// stamp settles after a successful add. Keyed so repeat adds re-stamp.
-	const [stampKey, setStampKey] = useState(0);
 
 	const isWishlisted = wishlistIds.includes(product.id);
 	const price = selectedVariant
@@ -76,6 +77,9 @@ export function KhataProductDetails({
 		: parseFloat(product.price.toString());
 	const stock = selectedVariant ? selectedVariant.stock : product.stock;
 	const hasDiscount = originalPrice > price;
+	const discountPercent = hasDiscount
+		? Math.round(((originalPrice - price) / originalPrice) * 100)
+		: 0;
 
 	useEffect(() => {
 		trackUnifiedViewProduct(
@@ -104,10 +108,10 @@ export function KhataProductDetails({
 	const availableStock = Math.max(stock - reservedQuantity, 0);
 	const isOutOfStock = availableStock <= 0;
 
-	const mainImage =
+	const cartLineImage =
 		(product.gallery_images && product.gallery_images[0]) ||
 		product.thumbnail_image ||
-		FALLBACK_IMAGE;
+		CART_LINE_PLACEHOLDER;
 
 	const doAddToCart = (): { id: number; variant_id?: number } | null => {
 		if (isOutOfStock || quantity > availableStock) {
@@ -120,7 +124,7 @@ export function KhataProductDetails({
 				? `${product.name} - ${selectedVariant.combination_text}`
 				: product.name,
 			price,
-			image: mainImage,
+			image: cartLineImage,
 			variant_id: selectedVariant?.id,
 			stock,
 			quantity,
@@ -138,8 +142,7 @@ export function KhataProductDetails({
 
 	const handleAddToCart = () => {
 		if (doAddToCart()) {
-			setStampKey((k) => k + 1);
-			toast.success(t("classic2.addedToBag", "খাতায় লেখা হলো"), {
+			toast.success(t("classic2.addedToBag", "ব্যাগে যোগ হয়েছে"), {
 				description: `${product.name} ${t("productCard.addedToCart")}`,
 			});
 		}
@@ -190,15 +193,15 @@ export function KhataProductDetails({
 		? product.colors_image?.find((ci) => ci.id === selectedColorId)?.photo
 		: undefined;
 
-	/** The printed terms + order actions block; reused in the closing band. */
+	/** The order actions; reused in the closing band at the bottom of the scroll. */
 	const orderActions = (compact = false) => (
-		<div className={cn("flex flex-wrap items-center gap-3")}>
+		<div className="flex flex-wrap items-center gap-3">
 			<button
 				type="button"
 				onClick={handleOrderNow}
 				disabled={isOutOfStock}
 				className={cn(
-					"ring-warm-focus inline-flex min-h-12 items-center justify-center rounded-md bg-primary px-8 text-base font-bold text-primary-foreground shadow-warm transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none",
+					"ring-warm-focus inline-flex min-h-12 items-center justify-center rounded-lg bg-primary px-8 text-base font-extrabold text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/95 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground",
 					compact ? "flex-1 sm:flex-none" : "w-full sm:w-auto"
 				)}
 			>
@@ -209,7 +212,7 @@ export function KhataProductDetails({
 				onClick={handleAddToCart}
 				disabled={isOutOfStock}
 				className={cn(
-					"ring-warm-focus inline-flex min-h-12 items-center justify-center rounded-md border border-accent/60 px-6 text-base font-bold text-accent transition-colors hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:border-border disabled:text-muted-foreground disabled:hover:bg-transparent",
+					"ring-warm-focus inline-flex min-h-12 items-center justify-center rounded-lg border border-border px-6 text-base font-bold transition-colors hover:bg-accent active:bg-accent disabled:cursor-not-allowed disabled:text-muted-foreground disabled:hover:bg-transparent",
 					compact ? "flex-1 sm:flex-none" : "w-full sm:w-auto"
 				)}
 			>
@@ -223,10 +226,10 @@ export function KhataProductDetails({
 					aria-label={t("classic2.wishlist", "পছন্দের তালিকা")}
 					aria-pressed={isWishlisted}
 					className={cn(
-						"ring-warm-focus inline-flex h-12 w-12 items-center justify-center rounded-md border transition-colors disabled:opacity-60",
+						"ring-warm-focus inline-flex h-12 w-12 items-center justify-center rounded-lg border border-border transition-colors disabled:opacity-60",
 						isWishlisted
-							? "border-accent text-accent"
-							: "text-muted-foreground hover:border-accent hover:text-accent"
+							? "text-primary"
+							: "text-muted-foreground hover:bg-accent hover:text-foreground"
 					)}
 				>
 					{isWishlistLoading ? (
@@ -246,52 +249,46 @@ export function KhataProductDetails({
 	);
 
 	return (
-		<main className="container mx-auto pb-24 pt-6 md:pb-8">
-			{/* Breadcrumb — one ledger line. */}
-			<nav
-				aria-label="Breadcrumb"
-				className="mb-6 border-b border-dashed pb-3 text-sm"
-			>
-				<Link
-					href="/"
-					className="ring-warm-focus font-semibold text-accent underline-offset-4 hover:underline"
-				>
-					{t("classic2.home", "হোম")}
-				</Link>
-				<span className="mx-2 text-muted-foreground" aria-hidden>
-					›
-				</span>
-				{product.category?.name && (
-					<>
-						<Link
-							href={`/products?category_id=${product.category.id}`}
-							className="ring-warm-focus text-accent underline-offset-4 hover:underline"
-						>
-							{product.category.name}
-						</Link>
-						<span className="mx-2 text-muted-foreground" aria-hidden>
-							›
-						</span>
-					</>
-				)}
-				<span className="text-muted-foreground">{product.name}</span>
-			</nav>
+		<main className="pb-24 md:pb-0">
+			<div className="container mx-auto pt-4 md:pt-6">
+				{/* Breadcrumb */}
+				<nav aria-label="Breadcrumb" className="mb-3 text-sm md:mb-6">
+					<Link
+						href="/"
+						className="ring-warm-focus rounded-md text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+					>
+						{t("classic2.home", "হোম")}
+					</Link>
+					<span className="mx-2 text-muted-foreground" aria-hidden>
+						/
+					</span>
+					{product.category?.name && (
+						<>
+							<Link
+								href={`/products?category_id=${product.category.id}`}
+								className="ring-warm-focus rounded-md text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+							>
+								{product.category.name}
+							</Link>
+							<span className="mx-2 text-muted-foreground" aria-hidden>
+								/
+							</span>
+						</>
+					)}
+					<span className="font-semibold">{product.name}</span>
+				</nav>
 
-			{/* ============ BAND 1 — the photograph and the entry ============ */}
-			<div className="khata-spine pl-5 md:pl-8">
-				<div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-					<div className="rounded-md border bg-card p-3 shadow-warm-sm">
-						<KhataGallery
-							productName={product.name}
-							thumbnailImage={product.thumbnail_image}
-							galleryImages={product.gallery_images}
-							colorImage={colorImage}
-						/>
-					</div>
+				<div className="grid gap-4 lg:grid-cols-2 lg:gap-14">
+					<ClassicGallery
+						productName={product.name}
+						thumbnailImage={product.thumbnail_image}
+						galleryImages={product.gallery_images}
+						colorImage={colorImage}
+					/>
 
-					<div className="flex flex-col gap-5">
+					<div className="flex flex-col gap-4 md:gap-6">
 						<div>
-							<h1 className="font-display text-3xl font-bold leading-tight text-balance md:text-4xl">
+							<h1 className="font-display text-2xl font-extrabold leading-tight tracking-tight text-balance sm:text-3xl md:text-4xl">
 								{product.name}
 							</h1>
 							{(product.sku || product.brand) && (
@@ -299,7 +296,7 @@ export function KhataProductDetails({
 									{product.sku && (
 										<>
 											{t("classic2.sku", "কোড")}:{" "}
-											<span className="tabular-nums">
+											<span className="classic-price">
 												{product.sku}
 											</span>
 										</>
@@ -310,28 +307,24 @@ export function KhataProductDetails({
 							)}
 						</div>
 
-						{/* Price anchoring: current heavy in stamp red. */}
-						<div className="flex flex-wrap items-baseline gap-x-3">
+						{/* Price anchoring: current heavy, original struck, chip. */}
+						<div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
 							<span
 								className={cn(
-									"font-display text-4xl font-bold tabular-nums text-primary md:text-5xl",
-									isOutOfStock &&
-										"khata-strike text-muted-foreground"
+									"classic-price font-display text-3xl font-extrabold sm:text-4xl md:text-5xl",
+									isOutOfStock && "text-muted-foreground"
 								)}
 							>
 								<Price amount={price} />
 							</span>
-							{hasDiscount && !isOutOfStock && (
-								<span className="text-lg tabular-nums text-muted-foreground line-through">
+							{hasDiscount && (
+								<span className="classic-price text-lg text-muted-foreground line-through">
 									<Price amount={originalPrice} />
 								</span>
 							)}
-							{hasDiscount && !isOutOfStock && (
-								<span className="khata-tag inline-flex items-center rounded-sm border border-success/40 px-2 py-0.5 text-xs font-semibold text-success">
-									{t("classic2.youSave", "সাশ্রয়")}{" "}
-									<span className="ml-1 tabular-nums">
-										<Price amount={originalPrice - price} />
-									</span>
+							{discountPercent > 0 && (
+								<span className="classic-price rounded-md bg-primary px-2 py-0.5 text-sm font-extrabold text-primary-foreground">
+									−{discountPercent}%
 								</span>
 							)}
 						</div>
@@ -357,10 +350,10 @@ export function KhataProductDetails({
 							/>
 							<span
 								className={cn(
-									"khata-tag inline-flex items-center rounded-sm border px-2 py-0.5 text-xs font-semibold",
+									"text-sm font-bold",
 									isOutOfStock
-										? "border-foreground/30 text-muted-foreground"
-										: "border-success/40 text-success"
+										? "text-muted-foreground"
+										: "text-success"
 								)}
 							>
 								{isOutOfStock
@@ -370,44 +363,33 @@ export function KhataProductDetails({
 											"টি স্টকে আছে"
 										)}`}
 							</span>
-							{stampKey > 0 && (
-								<span
-									key={stampKey}
-									className="khata-stamp-in inline-flex rotate-[-4deg] items-center rounded-sm border-2 border-primary px-2 py-0.5 text-xs font-bold uppercase text-primary"
-								>
-									{t("classic2.addedStamp", "লেখা হলো")}
-								</span>
-							)}
 						</div>
 
 						{/* Combo offers anchored to this product. */}
 						{combos && combos.length > 0 && (
-							<KhataComboLedger combos={combos} />
+							<ClassicComboRail combos={combos} />
 						)}
 
 						{/* Delivery fees printed BEFORE the order button. */}
 						<ProductDeliveryInfo />
 
-						{/* The shop's terms — printed, then the stamp. */}
-						<ul className="space-y-0 text-sm">
-							<li className="flex items-center gap-2 border-b border-dashed py-2 font-semibold">
-								<BadgeCheck
-									className="h-4 w-4 shrink-0 text-success"
-									aria-hidden
-								/>
+						{/* The terms, then the button. */}
+						<ul className="space-y-2.5 text-sm">
+							<li className="flex items-center gap-2 font-bold text-success">
+								<BadgeCheck className="h-4 w-4 shrink-0" aria-hidden />
 								{t(
 									"classic2.codLong",
 									"পণ্য হাতে পেয়ে টাকা দিন — ক্যাশ অন ডেলিভারি"
 								)}
 							</li>
-							<li className="flex items-center gap-2 border-b border-dashed py-2 text-muted-foreground">
+							<li className="flex items-center gap-2 text-success">
 								<Truck className="h-4 w-4 shrink-0" aria-hidden />
 								{t(
 									"classic2.deliveryPromise",
 									"ঢাকায় ২৪–৪৮ ঘণ্টা, ঢাকার বাইরে ২–৩ দিন"
 								)}
 							</li>
-							<li className="flex items-center gap-2 border-b border-dashed py-2 text-muted-foreground">
+							<li className="flex items-center gap-2 text-muted-foreground">
 								<Phone className="h-4 w-4 shrink-0" aria-hidden />
 								{t(
 									"classic2.confirmCall",
@@ -421,36 +403,35 @@ export function KhataProductDetails({
 				</div>
 			</div>
 
-			{/* ============ BAND 2 — proof ============ */}
-			<div className="khata-rule-double my-10" aria-hidden />
-			<div className="khata-spine pl-5 md:pl-8">
-				<h2 className="mb-4 font-display text-2xl font-bold">
-					{t("classic2.proofHeading", "বিবরণ ও রিভিউ")}
-				</h2>
-				<ProductDetailsTabs product={product} />
+			{/* Description and reviews on the grey band. */}
+			<div className="classic-band mt-12 py-10 md:mt-16 md:py-14">
+				<div className="container mx-auto">
+					<h2 className="mb-5 font-display text-2xl font-extrabold tracking-tight md:mb-6 md:text-3xl">
+						{t("classic2.proofHeading", "বিবরণ ও রিভিউ")}
+					</h2>
+					<ProductDetailsTabs product={product} />
+				</div>
 			</div>
 
-			{/* ============ BAND 3 — the order close ============ */}
-			<div className="khata-rule-double my-10" aria-hidden />
-			<div className="khata-spine pl-5 md:pl-8">
-				<div className="rounded-md border bg-card p-4 shadow-warm-sm md:p-6">
+			{/* The order action, repeated at the bottom of the scroll. */}
+			<div className="container mx-auto py-10 md:py-12">
+				<div className="rounded-xl border border-border p-4 md:p-6">
 					<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 						<div className="min-w-0">
-							<p className="truncate font-display text-lg font-bold">
+							<p className="truncate font-display text-lg font-extrabold">
 								{product.name}
 							</p>
 							<p className="flex flex-wrap items-baseline gap-x-2">
 								<span
 									className={cn(
-										"text-2xl font-bold tabular-nums text-primary",
-										isOutOfStock &&
-											"khata-strike text-muted-foreground"
+										"classic-price text-2xl font-extrabold",
+										isOutOfStock && "text-muted-foreground"
 									)}
 								>
 									<Price amount={price} />
 								</span>
-								{hasDiscount && !isOutOfStock && (
-									<span className="text-sm tabular-nums text-muted-foreground line-through">
+								{hasDiscount && (
+									<span className="classic-price text-sm text-muted-foreground line-through">
 										<Price amount={originalPrice} />
 									</span>
 								)}
@@ -458,11 +439,11 @@ export function KhataProductDetails({
 							{settings?.contact_phone && (
 								<a
 									href={`tel:${settings.contact_phone}`}
-									className="ring-warm-focus mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-accent underline-offset-4 hover:underline"
+									className="ring-warm-focus mt-1 inline-flex min-h-11 items-center gap-1.5 rounded-md text-sm font-bold text-primary underline-offset-4 hover:underline"
 								>
 									<Phone className="h-4 w-4" aria-hidden />
 									{t("classic2.callToOrder", "ফোনে অর্ডার")}:{" "}
-									<span className="tabular-nums">
+									<span className="classic-price">
 										{settings.contact_phone}
 									</span>
 								</a>
@@ -479,24 +460,20 @@ export function KhataProductDetails({
 				</div>
 			</div>
 
-			{/* Related entries. */}
+			{/* Related products. */}
 			{product.related_products && product.related_products.length > 0 && (
-				<section className="mt-12">
-					<div className="khata-spine pl-5 md:pl-8">
-						<KhataSectionTitle
-							titleKey="classic2.relatedProducts"
-							titleDefault="মিলিয়ে দেখুন"
-						/>
-						<div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
-							{(product.related_products as Product[]).map(
-								(related) => (
-									<KhataProductCard
-										key={related.id}
-										product={related}
-									/>
-								)
-							)}
-						</div>
+				<section className="container mx-auto pb-14">
+					<ClassicSectionTitle
+						titleKey="classic2.relatedProducts"
+						titleDefault="সম্পর্কিত পণ্য"
+					/>
+					<div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+						{(product.related_products as Product[]).map((related) => (
+							<ClassicProductCard
+								key={related.id}
+								product={related}
+							/>
+						))}
 					</div>
 				</section>
 			)}

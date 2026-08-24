@@ -42,6 +42,8 @@ Three things distinguish this product and must not regress:
 - Currency and money formatting follow the deployment (BDT for Bangladesh deployments); separators and date formats are locale-driven, never hardcoded.
 - **Undecided / not established in this interview:** whether "Bengali-first" is a positioning claim the product markets on, and what evidence or proof assets exist. Recorded as open rather than assumed.
 
+**Brand commitment (standing, 2026-08-23):** for the Bangladesh market the storefront plays the category standard straight — white surfaces, photography-led merchandising, one saturated signal colour on every buy action, and no metaphor world. Benchmarks whose craft level is the bar: Daraz BD, Chaldal, Pickaboo. A conceptual or material-metaphor world (ledger, chart, catalogue) was tried on the `classic` template and rejected by the product owner as wrong for BD shoppers; do not reintroduce one there without an explicit new decision.
+
 ## Evidence on Hand
 
 No testimonials, ratings, case studies, press, customer logos, or benchmark numbers have been confirmed as real and usable. Future work must not fabricate them. Product content (catalogue, prices, offers, business settings, delivery rules) comes from the backend API; demo variants are populated from that same API rather than from a curated content set.

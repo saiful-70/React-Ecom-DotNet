@@ -95,3 +95,6 @@ Thumbs.db
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 graft/
+
+# Claude Code personal, machine-specific settings (statusLine paths, local hooks)
+.claude/settings.local.json

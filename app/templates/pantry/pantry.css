@@ -1,0 +1,122 @@
+/* ============================================================================
+   PANTRY — "The Natural Pantry" world-owned CSS
+
+   Everything here is world grammar that cannot be expressed as a Tailwind
+   token: the shelf edge, the pack-tile press, the proof rule, the photographic
+   scrim. Colours resolve through the semantic tokens set in globals.css
+   (`html[data-template="pantry"]`) so a client override still retints them.
+   ========================================================================== */
+
+/* --- The shelf edge -------------------------------------------------------
+   Every band of goods sits on a shelf: a 2px green rule with a soft shadow
+   falling from it. This is the world's only structural line above 1px, and it
+   marks "goods below", nothing else. */
+.pn-shelf {
+	border-bottom: 2px solid hsl(var(--primary) / 0.9);
+	box-shadow: 0 6px 14px -12px hsl(var(--shadow-warm) / 0.45);
+}
+
+/* --- Pack tiles ----------------------------------------------------------
+   Pack sizes are read across a rail of identical tiles, never a dropdown. A
+   tile is a physical thing: it depresses 1px when pressed and its selected
+   state is a filled green field, never a tint. */
+.pn-pack {
+	transition:
+		transform 120ms ease-out,
+		border-color 120ms ease-out,
+		background-color 120ms ease-out;
+}
+.pn-pack:active {
+	transform: translateY(1px);
+}
+@media (prefers-reduced-motion: reduce) {
+	.pn-pack {
+		transition: none;
+	}
+	.pn-pack:active {
+		transform: none;
+	}
+}
+
+/* --- Proof rule ----------------------------------------------------------
+   The purity rail divides on hairlines, never on cards. Vertical between
+   columns on wide screens, horizontal between rows on phones. */
+.pn-proof > * + * {
+	border-top: 1px solid hsl(var(--border));
+}
+@media (min-width: 640px) {
+	.pn-proof > * + * {
+		border-top: 0;
+		border-left: 1px solid hsl(var(--border));
+	}
+}
+
+/* --- Photographic scrim --------------------------------------------------
+   Type sits on food photography only over a scrim that keeps it at 4.5:1 no
+   matter what the client uploaded: a bottom-anchored forest gradient, dense
+   at the base where the type lives. Never a flat overlay across the whole
+   image — the food has to stay visible. */
+.pn-scrim {
+	background: linear-gradient(
+		to top,
+		hsl(var(--secondary) / 0.92) 0%,
+		hsl(var(--secondary) / 0.72) 28%,
+		hsl(var(--secondary) / 0.28) 58%,
+		hsl(var(--secondary) / 0) 88%
+	);
+}
+
+/* --- The hero name -------------------------------------------------------
+   Tiro Bangla has one weight, so scale carries the emphasis instead. Clamped
+   so a long Bengali product name never overflows a 360px phone. */
+.pn-billboard {
+	font-family: var(--font-display), var(--font-bengali), serif;
+	font-size: clamp(1.875rem, 7vw, 4.25rem);
+	line-height: 1.06;
+	letter-spacing: -0.015em;
+	text-wrap: balance;
+}
+
+/* --- Sold-out hatch ------------------------------------------------------
+   Out of stock is printed on the goods, in the world's own material: a fine
+   diagonal hatch over the photograph rather than a grey wash. */
+.pn-hatch {
+	background-image: repeating-linear-gradient(
+		135deg,
+		hsl(var(--secondary) / 0.28) 0px,
+		hsl(var(--secondary) / 0.28) 1px,
+		transparent 1px,
+		transparent 16px
+	);
+}
+
+/* --- Browser surfaces ---------------------------------------------------
+   The parts we did not draw still belong to the world. */
+html[data-template="pantry"] ::selection {
+	background: hsl(var(--primary) / 0.18);
+	color: hsl(var(--foreground));
+}
+html[data-template="pantry"] {
+	scrollbar-color: hsl(var(--primary) / 0.45) hsl(var(--muted));
+}
+html[data-template="pantry"] ::-webkit-scrollbar {
+	width: 11px;
+	height: 11px;
+}
+html[data-template="pantry"] ::-webkit-scrollbar-track {
+	background: hsl(var(--muted));
+}
+html[data-template="pantry"] ::-webkit-scrollbar-thumb {
+	background: hsl(var(--primary) / 0.45);
+	border: 3px solid hsl(var(--muted));
+	border-radius: 9999px;
+}
+html[data-template="pantry"] ::-webkit-scrollbar-thumb:hover {
+	background: hsl(var(--primary) / 0.7);
+}
+html[data-template="pantry"] :where(input, textarea) {
+	caret-color: hsl(var(--primary));
+}
+html[data-template="pantry"] :where(a):not([class*="no-underline"]) {
+	text-underline-offset: 0.22em;
+}

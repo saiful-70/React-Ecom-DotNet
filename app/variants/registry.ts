@@ -2,6 +2,7 @@ import { DEFAULT_VARIANT_ID } from "@/lib/config/variant.config";
 import type { Market, VariantDescriptor } from "./types";
 import bn01 from "./bn-01";
 import bn02 from "./bn-02";
+import bn03 from "./bn-03";
 import intl01 from "./intl-01";
 import intl02 from "./intl-02";
 
@@ -15,6 +16,7 @@ import intl02 from "./intl-02";
 const VARIANTS: Record<string, VariantDescriptor> = {
   [bn01.id]: bn01,
   [bn02.id]: bn02,
+  [bn03.id]: bn03,
   [intl01.id]: intl01,
   [intl02.id]: intl02,
 };

@@ -22,12 +22,28 @@ interface ProductToolbarProps {
 	totalProducts: number;
 	displayedProducts: number;
 	filterButton?: React.ReactNode;
+	/**
+	 * Render the toolbar's own "All products" `<h1>`. Templates that print
+	 * their own page heading above the toolbar pass `false` — two `<h1>`s on
+	 * one page is both a duplicate title and an a11y defect. Defaults to
+	 * `true` so existing templates are unchanged.
+	 */
+	showHeading?: boolean;
+	/**
+	 * Render the toolbar's own search field. Templates whose header already
+	 * carries a persistent search box pass `false` — two search inputs a few
+	 * hundred pixels apart is a duplicate control, not a convenience. Defaults
+	 * to `true` so existing templates are unchanged.
+	 */
+	showSearch?: boolean;
 }
 
 export function ProductToolbar({
 	totalProducts,
 	displayedProducts,
 	filterButton,
+	showHeading = true,
+	showSearch = true,
 }: ProductToolbarProps) {
 	const { t } = useTranslation();
 	const router = useRouter();
@@ -97,44 +113,54 @@ export function ProductToolbar({
 
 	return (
 		<div className="mb-6">
-			<h1 className="text-3xl font-bold mb-4">
-				{t("products.allProducts") || "All Products"}
-			</h1>
+			{showHeading && (
+				<h1 className="text-3xl font-bold mb-4">
+					{t("products.allProducts") || "All Products"}
+				</h1>
+			)}
 			{/* Mobile Search Box */}
-			<div className="md:hidden mb-4">
-				<div className="relative w-full">
-					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-					<Input
-						placeholder={
-							t("products.searchPlaceholder") ||
-							"Search products..."
-						}
-						value={searchQuery}
-						onChange={(e) => {
-							setSearchQuery(e.target.value);
-							setIsUserInput(true);
-						}}
-						className="pl-10 h-8"
-					/>
+			{showSearch && (
+				<div className="md:hidden mb-4">
+					<div className="relative w-full">
+						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+						<Input
+							placeholder={
+								t("products.searchPlaceholder") ||
+								"Search products..."
+							}
+							value={searchQuery}
+							onChange={(e) => {
+								setSearchQuery(e.target.value);
+								setIsUserInput(true);
+							}}
+							className="pl-10 h-8"
+						/>
+					</div>
 				</div>
-			</div>
+			)}
 			{/* Desktop: Search bar and controls */}
-			<div className="hidden md:flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-4">
-				<div className="relative flex-1 max-w-md">
-					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-					<Input
-						placeholder={
-							t("products.searchPlaceholder") ||
-							"Search products..."
-						}
-						value={searchQuery}
-						onChange={(e) => {
-							setSearchQuery(e.target.value);
-							setIsUserInput(true); // Mark as user input
-						}}
-						className="pl-10"
-					/>
-				</div>
+			<div
+				className={`hidden md:flex flex-col md:flex-row gap-4 items-start md:items-center mb-4 ${
+					showSearch ? "justify-between" : "md:justify-end"
+				}`}
+			>
+				{showSearch && (
+					<div className="relative flex-1 max-w-md">
+						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+						<Input
+							placeholder={
+								t("products.searchPlaceholder") ||
+								"Search products..."
+							}
+							value={searchQuery}
+							onChange={(e) => {
+								setSearchQuery(e.target.value);
+								setIsUserInput(true); // Mark as user input
+							}}
+							className="pl-10"
+						/>
+					</div>
+				)}
 				<div className="flex items-center space-x-2">
 					<Select value={sortBy} onValueChange={handleSortChange}>
 						<SelectTrigger className="w-48">

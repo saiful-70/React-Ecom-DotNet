@@ -1,6 +1,6 @@
 ---
 name: DebuggerMind Storefront
-description: One storefront chassis, four template-scoped visual worlds, themed per client by token override.
+description: One storefront chassis, five template-scoped visual worlds, themed per client by token override.
 colors:
   classic-shopfloor-white: "hsl(0 0% 100%)"
   classic-shopfront-ink: "hsl(215 16% 13%)"
@@ -28,6 +28,13 @@ colors:
   premium-deep-lacquer: "hsl(162 55% 9%)"
   premium-vermilion-seal: "hsl(8 81% 50%)"
   premium-foil-hairline: "hsl(46 30% 38%)"
+  pantry-counter-white: "hsl(0 0% 100%)"
+  pantry-olive-ink: "hsl(96 14% 12%)"
+  pantry-leaf-green: "hsl(146 62% 22%)"
+  pantry-forest-chrome: "hsl(147 52% 13%)"
+  pantry-honey-amber: "hsl(32 88% 42%)"
+  pantry-stone-band: "hsl(84 24% 96%)"
+  pantry-stone-hairline: "hsl(96 12% 88%)"
 typography:
   classic-display:
     fontFamily: "Baloo Da 2 Variable, Hind Siliguri, ui-sans-serif, sans-serif"
@@ -42,6 +49,9 @@ typography:
   premium-display:
     fontFamily: "Bodoni Moda Variable, ui-serif, serif"
     fontWeight: 700
+  pantry-display:
+    fontFamily: "Tiro Bangla, Hind Siliguri, ui-serif, serif"
+    fontWeight: 400
   body-bengali:
     fontFamily: "Hind Siliguri, Inter Variable, ui-sans-serif, system-ui, sans-serif"
     fontWeight: 400
@@ -56,6 +66,7 @@ rounded:
   bazar: "0.5rem"
   global: "0.125rem"
   premium: "0.125rem"
+  pantry: "0.625rem"
   pill: "9999px"
 spacing:
   gutter-mobile: "16px"
@@ -67,16 +78,16 @@ spacing:
 
 ## Overview
 
-**Creative North Star: "One Chassis, Four Counters"**
+**Creative North Star: "One Chassis, Five Counters"**
 
-There is no single house style here; there is a single house *contract*. The storefront is one chassis — shared routes, shared data actions, shared semantic token slots — dressed by four complete visual worlds, one per template. `app/layout.tsx` stamps the active template id on `<html data-template="…">`, and `app/globals.css` resolves every semantic token for that world by attribute selector. A component never knows which world it lives in: it asks for `bg-primary` or `border-border` and the world answers. Swap the attribute and the same product card is an open-shopfront offer card, a laminated tariff row, a catalogue plate, or a batch label.
+There is no single house style here; there is a single house *contract*. The storefront is one chassis — shared routes, shared data actions, shared semantic token slots — dressed by five complete visual worlds, one per template. `app/layout.tsx` stamps the active template id on `<html data-template="…">`, and `app/globals.css` resolves every semantic token for that world by attribute selector. A component never knows which world it lives in: it asks for `bg-primary` or `border-border` and the world answers. Swap the attribute and the same product card is an open-shopfront offer card, a laminated tariff row, a catalogue plate, a batch label, or a pantry shelf tile.
 
-Three of the worlds are a material object rendered honestly — the flexiload top-up counter (bazar), the great mail-order catalogue (global), the apothecary batch label (premium). The fourth, `classic`, is deliberately *not* a metaphor: it is the Bangladeshi retail standard played straight, and it is the one world bound by a standing product commitment. PRODUCT.md fixes that constraint for the BD market — white surfaces, photography-led merchandising, one saturated signal colour on every buy action, no metaphor world, with Daraz BD / Chaldal / Pickaboo as the craft bar. A material-metaphor world was built on `classic` and rejected by the product owner as wrong for BD shoppers; reintroducing one there needs an explicit new decision. The worlds still diverge hard — white shopfloor vs. lacquer, 12px vs. 2px corners, didone vs. grotesque — but they obey the same invariants: money is always tabular, the page gutter lives in exactly one place, status is a pill and a pill is never a control, colors resolve only through tokens, broken data degrades in-world, and no surface fabricates a claim the backend cannot back. The direction contract for each world is embedded verbatim as a `<script type="text/x-impeccable-contract">` block in its HomeLayout.
+Three of the worlds are a material object rendered honestly — the flexiload top-up counter (bazar), the great mail-order catalogue (global), the apothecary batch label (premium). The other two, `classic` and `pantry`, are deliberately *not* metaphors: they are the Bangladeshi retail standard played straight — the general storefront and the single-brand natural-food shop respectively — and they are the worlds bound by a standing product commitment. PRODUCT.md fixes that constraint for the BD market — white surfaces, photography-led merchandising, one saturated signal colour on every buy action, no metaphor world, with Daraz BD / Chaldal / Pickaboo as the craft bar. A material-metaphor world was built on `classic` and rejected by the product owner as wrong for BD shoppers; reintroducing one there needs an explicit new decision. The worlds still diverge hard — white shopfloor vs. lacquer, 12px vs. 2px corners, didone vs. grotesque — but they obey the same invariants: money is always tabular, the page gutter lives in exactly one place, status is a pill and a pill is never a control, colors resolve only through tokens, broken data degrades in-world, and no surface fabricates a claim the backend cannot back. The direction contract for each world is embedded verbatim as a `<script type="text/x-impeccable-contract">` block in its HomeLayout.
 
-Above the worlds sits a third layer: per-client variant overrides (`app/variants/theme.ts`) injected as a server-rendered `<style>` using triple-`:root` selectors, so a client can retint any world without touching code. Confirmed rejections, shared by all four worlds: the generic shadcn default look, the banner-wall Bangladeshi marketplace, the Amazon-clone carousel arrangement, and the Temu urgency stack.
+Above the worlds sits a third layer: per-client variant overrides (`app/variants/theme.ts`) injected as a server-rendered `<style>` using triple-`:root` selectors, so a client can retint any world without touching code. Confirmed rejections, shared by all five worlds: the generic shadcn default look, the banner-wall Bangladeshi marketplace, the Amazon-clone carousel arrangement, and the Temu urgency stack.
 
 **Key Characteristics:**
-- Four self-contained visual worlds selected by `data-template`, all speaking one semantic token vocabulary
+- Five self-contained visual worlds selected by `data-template`, all speaking one semantic token vocabulary
 - A three-rung cascade ladder: `:root` default → template block → `:root:root:root` client override
 - Per-world display and body faces routed through two font variables (`--font-display`, `--font-bengali`)
 - World-tinted shadows (`--shadow-warm`) instead of neutral black, everywhere
@@ -84,7 +95,7 @@ Above the worlds sits a third layer: per-client variant overrides (`app/variants
 - Zoned BD conversion spine (COD, tap-to-call, Dhaka fees) in the Bengali worlds; flat-rate, estimated-date, guest-first spine in the international worlds
 - Honest data: empty sections collapse, broken images become typographic plates, urgency only when the backend flag backs it
 
-### The Four Worlds
+### The Five Worlds
 
 Each world owns a full DESIGN.md next to its code; the notes below are the index card, not the depth.
 
@@ -96,25 +107,27 @@ Each world owns a full DESIGN.md next to its code; the notes below are the index
 
 **premium — "The Batch Label"** (`app/templates/premium/DESIGN.md`, variant intl-02). Apothecary packaging: the page *is* viridian lacquer, the buy panel is a floating label-stock card, foil gold carries the purchase action, vermilion is the wax-seal accent. Bodoni Moda didone at real scale contrast over small tracked Jost caps; 2px box-board corners framed by foil hairlines and L-corner marks. Signature devices: the LOT provenance line inside every label, exploded numbered spec callouts pinned over photography, physically pressed variant keys (inset shadow + travel, never tint-only), and the vermilion seal-press on add-to-cart. **The Four-Colour Rule.** No fifth hue exists anywhere in this world; even warnings resolve to gold and vermilion.
 
+**pantry — "The Natural Pantry"** (`app/templates/pantry/DESIGN.md`, variant bn-03). The Bangladeshi single-brand natural-food shop, played straight — the second non-metaphor world, taken under the same standing BD commitment as classic. A white counter ground so the food is the loudest thing on screen, olive ink, stone-green bands, leaf green (`{colors.pantry-leaf-green}`) on every buy field and forest green (`{colors.pantry-forest-chrome}`) owning whole regions — promise bar, promise band, footer. Tiro Bangla at weight 400 *only* (there is no bold cut, so emphasis is scale) over Hind Siliguri body; 10px pack-tile corners. Signature devices: the **cash-on-delivery order form on the product page itself** in place of a cart checkout, the 2px green shelf edge (`.pn-shelf`) closing every band of goods, three shelf densities by meaning (grid / snap rail / numbered ranked list), pack-size tiles that depress and fill green rather than tint, and the diagonal sold-out hatch printed on the photograph. No secondary nav and no mobile bottom nav: a floating tap-to-call plus the PDP's phone-only sticky order bar. **The Amber Rule.** Honey amber (`{colors.pantry-honey-amber}`) appears only where the backend returned a real reduction — nowhere else, not in chrome, not in nav states, not even in the selection colour.
+
 ## Colors
 
 Color is a fixed vocabulary of semantic slots filled differently by each world; a slot means the same *job* everywhere.
 
 ### Primary
-- **`--primary` / `--ring`** — the buy slot: the colour of order actions, active prices, and focus rings. Vermilion-orange in classic, tariff azure in bazar, catalogue blue in global, foil gold in premium. Whatever the world, the brightest instance of this slot on screen is the purchase path.
+- **`--primary` / `--ring`** — the buy slot: the colour of order actions, active prices, and focus rings. Vermilion-orange in classic, tariff azure in bazar, catalogue blue in global, foil gold in premium, leaf green in pantry. Whatever the world, the brightest instance of this slot on screen is the purchase path.
 
 ### Secondary
-- **`--secondary`** — the chrome slot: masthead, footer, bottom nav, counter edges. Classic uses it for the ink footer band and icon plates (its masthead is white), then counter board-black, ink navy, deep lacquer. Chrome frames the goods and never becomes a call to action.
+- **`--secondary`** — the chrome slot: masthead, footer, bottom nav, counter edges. Classic uses it for the ink footer band and icon plates (its masthead is white), then counter board-black, ink navy, deep lacquer, and pantry's forest green. Chrome frames the goods and never becomes a call to action — pantry is the one world where chrome and buy share a hue family, which its own DESIGN.md records as a deliberate cost.
 
 ### Tertiary
-- **`--accent`** — the second signal *where a world has one*: the offer-red chip (bazar), the sale-insert red (global), the vermilion seal (premium). Classic is the deliberate exception — its accent is a neutral grey hover surface, because that world spends its whole colour budget on the single vermilion buy signal. Each world's own DESIGN.md restricts where its accent may appear; the restriction travels with the world, not with this file.
-- **`--destructive`, `--success`, `--warning`, `--bundle-save`** — feedback slots, each with a paired `-foreground`. `--success` carries classic's trust lines (cash on delivery, the delivery window, in stock). `--bundle-save` exists so a savings claim is never confused with an error: it resolves green in classic, alongside the accent/red family in the other three worlds.
+- **`--accent`** — the second signal *where a world has one*: the offer-red chip (bazar), the sale-insert red (global), the vermilion seal (premium), the honey amber of a real discount (pantry). Classic is the deliberate exception — its accent is a neutral grey hover surface, because that world spends its whole colour budget on the single vermilion buy signal. Each world's own DESIGN.md restricts where its accent may appear; the restriction travels with the world, not with this file.
+- **`--destructive`, `--success`, `--warning`, `--bundle-save`** — feedback slots, each with a paired `-foreground`. `--success` carries classic's trust lines (cash on delivery, the delivery window, in stock) and pantry's (cash on delivery, phone confirmation). `--bundle-save` exists so a savings claim is never confused with an error: it resolves green in classic, and lands in the accent family — red or amber — in the other four worlds.
 
 ### Neutral
-- **`--background` / `--foreground`** — the field and its ink: white shopfloor, chart white, catalogue page, viridian lacquer. Premium is the deliberate inversion — its field is dark and saturated, its cards are light.
-- **`--card`, `--popover`** (+ foregrounds) — raised surfaces: pure white in the three light worlds, label stock in premium.
-- **`--muted` / `--muted-foreground`** — bands, wells, and secondary text; in classic this is the faint grey shelf band that alternates the home scroll.
-- **`--border` / `--input`** — the rule line: hairline in classic and global, chart rule in bazar, foil hairline in premium. Borders are 1px structure in every world; a colored border thicker than 1px is off-system.
+- **`--background` / `--foreground`** — the field and its ink: white shopfloor, chart white, catalogue page, viridian lacquer, white counter. Premium is the deliberate inversion — its field is dark and saturated, its cards are light.
+- **`--card`, `--popover`** (+ foregrounds) — raised surfaces: pure white in the four light worlds, label stock in premium.
+- **`--muted` / `--muted-foreground`** — bands, wells, and secondary text; in classic this is the faint grey shelf band that alternates the home scroll, and in pantry the stone-green band that does the same.
+- **`--border` / `--input`** — the rule line: hairline in classic and global, chart rule in bazar, foil hairline in premium, stone hairline in pantry. Borders are 1px structure in every world; a colored border thicker than 1px is off-system — the sanctioned exceptions are each world's single named structural device (bazar's 3px section band, pantry's 2px shelf edge), which its own DESIGN.md defines and bounds.
 - **`--sidebar-*`** — a parallel eight-slot set for sidebar surfaces, filled per world alongside the main set.
 - **`--shadow-warm`** — the shadow tint base (see Elevation & Depth).
 
@@ -125,15 +138,15 @@ Every slot has a `.dark` mirror per world (`html[data-template="…"].dark`), tu
 
 **The Ladder Rule.** Three cascade rungs, weakest to strongest: `:root` (the classic world and default), `html[data-template="…"]` (0,1,1) with dark blocks at (0,2,1), then per-client variant overrides emitted by `buildVariantThemeCss` as `:root:root:root` (0,3,0) and `:root:root:root.dark` (0,4,0) in a server `<style id="variant-theme">` — present on first paint, winning regardless of stylesheet order. New tokens enter at rung 1, get world values at rung 2, and stay overridable at rung 3; skipping a rung breaks a template or a client.
 
-**The Same-Slot-Same-Job Rule.** A world may change what `--primary` looks like, never what it means. If a design wants a new *meaning* (as savings once did), it earns a new slot in all four worlds, not a repurposed one.
+**The Same-Slot-Same-Job Rule.** A world may change what `--primary` looks like, never what it means. If a design wants a new *meaning* (as savings once did), it earns a new slot in all five worlds, not a repurposed one.
 
 ## Typography
 
-**Display Font:** per world, via `--font-display` — Baloo Da 2 Variable (classic), Anek Bangla Variable (bazar), Archivo Variable (global), Bodoni Moda Variable (premium)
-**Body Font:** per world, via `--font-bengali` — Hind Siliguri (classic, bazar), Archivo Variable (global), Jost Variable (premium)
+**Display Font:** per world, via `--font-display` — Baloo Da 2 Variable (classic), Anek Bangla Variable (bazar), Archivo Variable (global), Bodoni Moda Variable (premium), Tiro Bangla (pantry, single weight 400)
+**Body Font:** per world, via `--font-bengali` — Hind Siliguri (classic, bazar, pantry), Archivo Variable (global), Jost Variable (premium)
 **Fallback chain:** `font-display` falls to `--font-bengali` then serif; `font-sans` falls from `--font-bengali` to Inter Variable then system sans (see `tailwind.config.ts`)
 
-**Character:** The type system is two variables and a discipline. All faces are self-hosted through Fontsource in `app/layout.tsx` (no build-time Google Fonts fetch); a world redeclares the two variables in its `globals.css` block and every heading, price, and body line follows. The Bengali worlds pair a Bengali display face with Hind Siliguri so Bengali and Latin strings share one voice; the international worlds go single-family grotesque (global) or didone-over-sans (premium).
+**Character:** The type system is two variables and a discipline. All faces are self-hosted through Fontsource in `app/layout.tsx` (no build-time Google Fonts fetch); a world redeclares the two variables in its `globals.css` block and every heading, price, and body line follows. The Bengali worlds pair a Bengali display face with Hind Siliguri so Bengali and Latin strings share one voice; the international worlds go single-family grotesque (global) or didone-over-sans (premium). Pantry is the one world whose display face ships a single weight (Tiro Bangla 400), so emphasis there is scale alone and `font-bold` on the display face is off-system.
 
 ### Hierarchy
 - **Headings** (`h1`–`h5`): globally set to `font-display` with tight tracking in the base layer — the one type decision made for all worlds at once. Sizes are per-world (each template DESIGN.md carries its ramp).
@@ -141,7 +154,7 @@ Every slot has a `.dark` mirror per world (`html[data-template="…"].dark`), tu
 - **Money**: the heaviest thing in its own block, always tabular (see rule below), current price in the world's price colour with the original struck through in muted.
 
 ### Named Rules
-**The Tabular Money Rule.** Every rendered amount uses `tabular-nums` so price columns and counters never jitter. Currency symbol, separators, and formatting come from business settings and the locale formatter — never a hardcoded string. All four worlds pass this today.
+**The Tabular Money Rule.** Every rendered amount uses `tabular-nums` so price columns and counters never jitter. Currency symbol, separators, and formatting come from business settings and the locale formatter — never a hardcoded string. All five worlds pass this today. The companion "heaviest thing in its block, in the buy colour" convention is fully held in four worlds; pantry holds it on its main price ladder (shelf tile, ranked row, PDP headline, sticky bar) and carries five logged deviations recorded in its own DESIGN.md.
 
 **The Display-Heads Rule.** `h1`–`h5` inherit the world's display face from the base layer; body copy, buttons, and form labels never borrow it. A didone button or a Baloo Da 2 input label is off-system in any world.
 
@@ -149,7 +162,7 @@ Every slot has a `.dark` mirror per world (`html[data-template="…"].dark`), tu
 
 One centered `.container` capped at 1400px carries every page. The responsive gutter is 16px, rising to 24px at 768px and 32px at 1024px — and it is defined only in `app/globals.css` (`@layer utilities`), deliberately not in `tailwind.config.ts`, because the pinned `container.screens` would silently drop per-breakpoint padding. Breakpoints run `xs` 475px, `sm` 640px, `md` 768px, `lg` 1024px, `xl` 1280px, `2xl` 1536px; the extra `xs` step exists because a meaningful share of shoppers sit below 400px wide.
 
-Product grids are two columns on phones in every world and never thinner; density steps down through padding and type size, not by dropping a column. Composition above the grid is entirely per-world (banner carousel and offer rails, tariff board, catalogue tableau, label hero) and lives in each template's own DESIGN.md. Homepage section ids `featured-products`, `today-deals`, and `top-selling` are a cross-world contract — the smooth-scroll navigation depends on them in all four templates.
+Product grids are two columns on phones in every world and never thinner; density steps down through padding and type size, not by dropping a column. Composition above the grid is entirely per-world (banner carousel and offer rails, tariff board, catalogue tableau, label hero, full-bleed pantry window) and lives in each template's own DESIGN.md. Homepage section ids `featured-products`, `today-deals`, and `top-selling` are a cross-world contract — the smooth-scroll navigation depends on them in all five templates.
 
 ### Named Rules
 **The Single Gutter Rule.** The page gutter lives on `.container` and only there. Adding `px-*` to a container element doubles the padding; this once cost a 390px phone a third of its usable width.
@@ -158,7 +171,7 @@ Product grids are two columns on phones in every world and never thinner; densit
 
 ## Elevation & Depth
 
-Depth is world-tinted and earned by state, never a permanent decoration. All four worlds share one shadow ramp (`shadow-warm-sm` / `shadow-warm` / `shadow-warm-md` / `shadow-warm-lg`) whose tint follows the world's `--shadow-warm` base — cool neutral on the white shopfloor, board-black on chart white, print-ink on the catalogue page, near-black lacquer under the labels — so shadows read as the world's own material rather than gray dirt. Premium's floating label panel (`shadow-warm-lg`) is the deepest resting elevation in the system and is a deliberate exception: the label genuinely sits on the lacquer.
+Depth is world-tinted and earned by state, never a permanent decoration. All five worlds share one shadow ramp (`shadow-warm-sm` / `shadow-warm` / `shadow-warm-md` / `shadow-warm-lg`) whose tint follows the world's `--shadow-warm` base — cool neutral on the white shopfloor, board-black on chart white, print-ink on the catalogue page, near-black lacquer under the labels, deep green on the pantry counter — so shadows read as the world's own material rather than gray dirt. Premium's floating label panel (`shadow-warm-lg`) is the deepest resting elevation in the system and is a deliberate exception: the label genuinely sits on the lacquer.
 
 ### Shadow Vocabulary
 - **Rest** (`shadow-warm-sm`: `0 1px 2px …/0.06, 0 1px 3px …/0.08`): default card state.
@@ -171,10 +184,10 @@ Depth is world-tinted and earned by state, never a permanent decoration. All fou
 
 ## Shapes
 
-Corner radius is a world signature, driven by one `--radius` per world: 6px gummed-tag corners in classic, 8px laminated-chip corners in bazar, and 2px print/box-board corners in both international worlds. Tailwind's `rounded-lg/md/sm` derive from the variable, so shared components change shape with the world automatically. Framing devices are per-world (double rules, 3px band breaks, registration marks, foil L-corners) and documented in each template's DESIGN.md; what is shared is the discipline that structure comes from 1px rules, not from fills or thick colored borders.
+Corner radius is a world signature, driven by one `--radius` per world: 6px gummed-tag corners in classic, 8px laminated-chip corners in bazar, 10px pack-tile corners in pantry, and 2px print/box-board corners in both international worlds. Tailwind's `rounded-lg/md/sm` derive from the variable, so shared components change shape with the world automatically. Framing devices are per-world (double rules, 3px band breaks, registration marks, foil L-corners) and documented in each template's DESIGN.md; what is shared is the discipline that structure comes from 1px rules, not from fills or thick colored borders.
 
 ### Named Rules
-**The Pill-For-Status Rule.** Fully-rounded means "this is a state, not a control": stock tags, discount chips, filter counts. No world ships pill buttons, and a pill that can be clicked is misusing the shape — this survived all four redesigns intact.
+**The Pill-For-Status Rule.** Fully-rounded means "this is a state, not a control": stock tags, discount chips, filter counts. No world ships pill buttons, and a pill that can be clicked is misusing the shape — this holds in all five worlds intact.
 
 ## Components
 
@@ -186,13 +199,13 @@ Shared component shells live under `app/components/` and are world-agnostic: `Pr
 - Motion is one authored moment per surface (carousel glide, key depress, slide-and-settle, seal press), transform-only so content is visible by default, and gated on `prefers-reduced-motion`.
 
 ### Image fallback plates
-- **Behavior:** a missing image URL or a load failure never shows the browser's broken-image glyph. It degrades to a flat plate in the world's field colour carrying the item's initial (or name) set in the display face — bazar's `BazarImage` and premium's wordmark plate are the reference implementations.
+- **Behavior:** a missing image URL or a load failure never shows the browser's broken-image glyph. It degrades to a flat plate in the world's field colour carrying the item's initial (or name) set in the display face — bazar's `BazarImage`, premium's wordmark plate, and pantry's `PantryImage` name plate (name only, sized per box scale to fill it) are the reference implementations.
 
 ### Brand-mark degrade
 - **Behavior:** when a client has no logo asset, the header and footer render a `site_name` wordmark in the world's display face instead of an empty box or a placeholder image.
 
 ### Conversion spine (two dialects, one skeleton)
-- **BD worlds (classic, bazar):** cash on delivery badged in chrome and on the PDP; tap-to-call as a first-class action (header, bottom nav, floating key); zoned delivery fees (inside/outside Dhaka, from the cities API) printed *before* every order button; the phone-confirmation trust line beside every order action; order CTAs at least 48px tall and repeated at the bottom of the PDP scroll.
+- **BD worlds (classic, bazar, pantry):** cash on delivery badged in chrome and on the PDP; tap-to-call as a first-class action (header, bottom nav, floating key); zoned delivery fees (inside/outside Dhaka, or the per-city charge from the cities API) printed *before* every order button; the phone-confirmation trust line beside every order action; order CTAs at least 48px tall and repeated at the bottom of the PDP scroll. Pantry pushes the dialect furthest: the PDP carries the whole cash-on-delivery order form in place of a cart button, and the shared cart remains only as a quiet secondary path.
 - **International worlds (global, premium):** flat `INTL_SHIPPING` rate and free-over threshold printed before the buy actions; an estimated arrival date computed from `SHIPPING_WINDOW_DAYS` and always labelled "Estimated"; guest-first buy path with no account pressure; a sticky mobile buy bar driven by IntersectionObserver with reserved bottom padding (no CLS).
 - **Both:** price anchoring is universal — heavy tabular current price in the buy colour, struck original in muted, savings in the `--bundle-save` slot.
 
@@ -217,7 +230,7 @@ Shared component shells live under `app/components/` and are world-agnostic: `Pr
 - **Don't** hardcode a hex, a neutral-black shadow, or a fixed radius in a shared component — it breaks the world switch and client theming silently.
 - **Don't** import template runtime code from `app/variants/*` or middleware; variants reference templates by id only, and the token layer must stay edge-safe.
 - **Don't** repurpose a semantic slot for a new meaning, and don't let one world's accent restriction leak into another (each world's DESIGN.md owns its own accent law).
-- **Don't** ship pill-shaped buttons, kickers/eyebrows above headings, icon-card scaffolds, gradient text, emoji-as-icons, rotated ribbons, or colored side borders thicker than 1px — the shared refuse-list all four worlds were reviewed against.
+- **Don't** ship pill-shaped buttons, kickers/eyebrows above headings, icon-card scaffolds, gradient text, emoji-as-icons, rotated ribbons, or colored side borders thicker than 1px — the shared refuse-list all five worlds were reviewed against.
 - **Don't** fabricate urgency, stock, reviews, or trust claims; if the backend has no field for it, the line does not exist.
 - **Don't** add `px-*` to a `.container` element or turn `<body>` into a scroll container.
 - **Don't** ship the shadcn default look, the banner-wall marketplace, the Amazon-clone carousel, or the Temu urgency stack — the four confirmed anti-references.

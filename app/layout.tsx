@@ -20,6 +20,7 @@ import "@fontsource-variable/anek-bangla"; // bazar display — tariff-chart gro
 import "@fontsource-variable/archivo"; // global display+body — catalogue grotesque
 import "@fontsource-variable/bodoni-moda"; // premium display — packaging didone
 import "@fontsource-variable/jost"; // premium body — label sans
+import "@fontsource/tiro-bangla/400.css"; // pantry display — single-weight Bengali serif
 import "./globals.css";
 import GlobalProvider from "./components/shared/providers/global-provider";
 import BackToTopButton from "./components/shared/BackToTopButton";

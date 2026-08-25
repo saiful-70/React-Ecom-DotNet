@@ -14,6 +14,7 @@ import { businessSettingsAtom } from "@/store/ui-atoms";
 import { miniProfileAtom } from "@/store/mini-profile.atom";
 import { wishlistAtom } from "@/store/wishlist.atom";
 import type { Category } from "@/components/shared/models/category";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import "../premium.css";
 
 /**
@@ -95,6 +96,13 @@ export function PremiumHeaderClient({ categories }: { categories: Category[] }) 
 					<Suspense fallback={<span className="h-9 w-9" />}>
 						<HeaderSearch placement="mobile" />
 					</Suspense>
+
+					{/* Language, in the label panel's own quiet register. Self-gates
+					    on the variant's flag and language list. */}
+					<LanguageSwitcher
+						showLabel
+						className="text-muted-foreground hover:text-foreground"
+					/>
 
 					{wishlistEnabled && (
 						<Link

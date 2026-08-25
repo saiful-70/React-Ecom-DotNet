@@ -44,7 +44,7 @@ export function GlobalTopBar() {
 						{currencyLabel}
 					</span>
 					<span aria-hidden="true" className="h-3 w-px bg-border" />
-					<LanguageSwitcher />
+					<LanguageSwitcher showLabel />
 					<VariantSwitcher />
 				</div>
 			</div>

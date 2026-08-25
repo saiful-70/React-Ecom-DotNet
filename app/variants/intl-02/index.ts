@@ -31,7 +31,7 @@ const intl02: VariantDescriptor = {
     currency_position: "left",
   },
   defaultLanguage: "en",
-  availableLanguages: ["en"],
+  availableLanguages: ["en", "bn"],
   features: {
     chatWidget: false,
     wishlist: true,
@@ -42,7 +42,7 @@ const intl02: VariantDescriptor = {
     campaigns: false,
     bundles: true,
     cookieConsent: true,
-    languageSwitcher: false,
+    languageSwitcher: true,
   },
 };
 

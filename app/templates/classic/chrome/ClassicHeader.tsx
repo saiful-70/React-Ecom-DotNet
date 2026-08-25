@@ -8,6 +8,7 @@ import { BadgeCheck, Heart, Phone, ShoppingBag, Truck, User } from "lucide-react
 import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { VariantSwitcher } from "@/components/shared/VariantSwitcher";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import { useVariant } from "@/components/shared/providers/variant-provider";
 import HeaderSearch from "@/components/layout/HeaderSearch";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
@@ -90,6 +91,13 @@ export function ClassicHeader() {
 						    than shop chrome — a dashed pill carrying the flask
 						    and the variant id, with the switcher's own long
 						    label suppressed so nothing truncates mid-word. */}
+						{/* Language. Self-gates on the variant's own flag and
+						    language list, so it simply does not render on a
+						    single-language deployment. */}
+						<LanguageSwitcher
+							showLabel
+							className="h-7 text-muted-foreground hover:text-foreground"
+						/>
 						{SHOWCASE_MODE && (
 							<span
 								title={`Demo variant: ${variant.name}`}

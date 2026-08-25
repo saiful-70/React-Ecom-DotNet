@@ -13,6 +13,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { VariantSwitcher } from "@/components/shared/VariantSwitcher";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 import HeaderSearch from "@/components/layout/HeaderSearch";
 import Price from "@/components/shared/Price";
 import { useCart } from "@/contexts/CartContext";
@@ -102,6 +103,13 @@ export function BazarHeader() {
 								<span className="hidden sm:inline">{t("bazar.login")}</span>
 							</Link>
 						)}
+						{/* Language keys: self-gated on the variant's own flag and
+						    language list, so a single-language deployment shows
+						    nothing here. */}
+						<LanguageSwitcher
+							showLabel
+							className="h-8 text-secondary-foreground/80 hover:bg-secondary-foreground/10 hover:text-secondary-foreground"
+						/>
 						<VariantSwitcher />
 					</div>
 				</div>

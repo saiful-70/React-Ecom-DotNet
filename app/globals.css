@@ -32,82 +32,86 @@
      No paper, no rules, no metaphor — the shop, lit and legible.
      ------------------------------------------------------------------ */
   :root {
-    --background: 0 0% 100%;           /* white shopfloor */
-    --foreground: 215 16% 13%;         /* ink */
-    --card: 0 0% 100%;
-    --card-foreground: 215 16% 13%;
+    /* Green brand palette — forest green + leaf green + mint/cream neutrals */
+    --background: 140 30% 97%;         /* pale mint-cream */
+    --foreground: 152 30% 10%;         /* deep green-black */
+    --card: 0 0% 100%;                 /* clean white cards */
+    --card-foreground: 152 30% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 215 16% 13%;
-    --primary: 8 75% 47%;              /* vermilion-orange — the buy colour */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 215 22% 12%;          /* ink band: footer, icon plates */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 210 20% 97%;              /* faint section band */
-    --muted-foreground: 215 12% 42%;
-    --accent: 210 20% 95%;             /* neutral hover surface */
-    --accent-foreground: 215 16% 13%;
-    --destructive: 0 72% 45%;          /* errors only */
-    --destructive-foreground: 0 0% 100%;
-    --border: 214 15% 89%;             /* hairline */
-    --input: 214 15% 84%;
-    --ring: 8 75% 47%;
-    --success: 152 60% 31%;            /* COD + delivery-promise green */
-    --success-foreground: 0 0% 100%;
-    --warning: 38 92% 48%;
-    --warning-foreground: 30 30% 12%;
-    --bundle-save: 152 55% 30%;        /* "you save" — positive, not an error */
+    --popover-foreground: 152 30% 10%;
+    --primary: 142 56% 30%;            /* rich leaf-forest green */
+    --primary-foreground: 140 30% 98%;
+    --secondary: 152 68% 11%;          /* deep forest green (chrome) */
+    --secondary-foreground: 140 30% 97%;
+    --muted: 140 28% 93%;              /* light mint band */
+    --muted-foreground: 152 12% 38%;
+    --accent: 128 50% 42%;             /* bright leaf green */
+    --accent-foreground: 140 30% 98%;
+    --destructive: 0 72% 48%;          /* red — badges & errors only */
+    --destructive-foreground: 140 30% 98%;
+    --border: 142 18% 85%;             /* soft green-gray */
+    --input: 142 18% 85%;
+    --ring: 142 56% 30%;
+    --success: 142 60% 34%;
+    --success-foreground: 140 30% 98%;
+    --warning: 38 88% 50%;             /* amber kept for warnings only */
+    --warning-foreground: 30 30% 14%;
+    --bundle-save: 4 74% 64%;          /* soft coral — "SAVE ৳400" pills */
     --bundle-save-foreground: 0 0% 100%;
-    --radius: 0.75rem;                 /* soft retail corner */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 215 16% 20%;
-    --sidebar-primary: 8 75% 47%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 20% 95%;
-    --sidebar-accent-foreground: 215 16% 13%;
-    --sidebar-border: 214 15% 89%;
-    --sidebar-ring: 8 75% 47%;
-    --shadow-warm: 215 25% 20%;        /* cool neutral shadow base */
-    /* Fonts (registered via Fontsource imports in app/layout.tsx). */
+    --radius: 0.875rem;
+    --sidebar-background: 140 30% 96%;
+    --sidebar-foreground: 152 20% 22%;
+    --sidebar-primary: 142 56% 30%;
+    --sidebar-primary-foreground: 140 30% 98%;
+    --sidebar-accent: 140 28% 91%;
+    --sidebar-accent-foreground: 152 25% 14%;
+    --sidebar-border: 142 18% 84%;
+    --sidebar-ring: 142 56% 30%;
+    /* Green-tinted shadow base (used by .shadow-warm-* utilities) */
+    --shadow-warm: 152 40% 14%;
+    /* Self-hosted font families (Fontsource, imported in app/layout.tsx).
+       Tailwind's fontFamily stacks (see tailwind.config.ts) reference these;
+       fallbacks live there, so each var holds only the primary family name. */
     --font-inter: "Inter Variable";
     --font-bengali: "Hind Siliguri";
-    --font-display: "Baloo Da 2 Variable";
+    --font-display: "Noto Serif Bengali Variable";
   }
 
   .dark {
-    --background: 220 16% 8%;
-    --foreground: 210 16% 93%;
-    --card: 220 14% 11%;
-    --card-foreground: 210 16% 93%;
-    --popover: 220 14% 11%;
-    --popover-foreground: 210 16% 93%;
-    --primary: 12 84% 56%;
-    --primary-foreground: 220 20% 8%;
-    --secondary: 220 12% 16%;
-    --secondary-foreground: 210 16% 93%;
-    --muted: 220 12% 15%;
-    --muted-foreground: 213 10% 65%;
-    --accent: 220 12% 17%;
-    --accent-foreground: 210 16% 93%;
-    --destructive: 0 66% 52%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 11% 22%;
-    --input: 220 11% 22%;
-    --ring: 12 84% 56%;
-    --success: 152 50% 44%;
-    --success-foreground: 220 20% 8%;
-    --warning: 38 88% 56%;
+    --background: 152 24% 7%;          /* deep green charcoal */
+    --foreground: 140 22% 92%;
+    --card: 152 20% 10%;
+    --card-foreground: 140 22% 92%;
+    --popover: 152 20% 10%;
+    --popover-foreground: 140 22% 92%;
+    --primary: 142 52% 44%;            /* brighter leaf green on dark */
+    --primary-foreground: 152 25% 8%;
+    --secondary: 152 30% 15%;
+    --secondary-foreground: 140 22% 92%;
+    --muted: 152 16% 16%;
+    --muted-foreground: 140 14% 66%;
+    --accent: 128 48% 48%;
+    --accent-foreground: 152 25% 8%;
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 140 22% 92%;
+    --border: 152 14% 22%;
+    --input: 152 14% 22%;
+    --ring: 142 52% 44%;
+    --success: 142 55% 48%;
+    --success-foreground: 152 25% 8%;
+    --warning: 38 85% 56%;
     --warning-foreground: 30 25% 10%;
-    --bundle-save: 152 46% 42%;
+    --bundle-save: 4 64% 56%;
     --bundle-save-foreground: 0 0% 100%;
-    --sidebar-background: 220 14% 10%;
-    --sidebar-foreground: 210 14% 88%;
-    --sidebar-primary: 12 84% 56%;
-    --sidebar-primary-foreground: 220 20% 8%;
-    --sidebar-accent: 220 12% 17%;
-    --sidebar-accent-foreground: 210 16% 93%;
-    --sidebar-border: 220 11% 22%;
-    --sidebar-ring: 12 84% 56%;
-    --shadow-warm: 220 60% 3%;
+    --sidebar-background: 152 22% 9%;
+    --sidebar-foreground: 140 20% 88%;
+    --sidebar-primary: 142 52% 44%;
+    --sidebar-primary-foreground: 152 25% 8%;
+    --sidebar-accent: 152 16% 18%;
+    --sidebar-accent-foreground: 140 22% 92%;
+    --sidebar-border: 152 14% 22%;
+    --sidebar-ring: 142 52% 44%;
+    --shadow-warm: 152 60% 5%;
   }
 
   /* ------------------------------------------------------------------
@@ -501,6 +505,30 @@
 }
 
 @layer utilities {
+  /* Signature hero / promo gradients.
+     Every stop resolves through a token, so these retint with the active
+     world and with client overrides. Shared surfaces still reference them
+     (campaign blocks, FeaturedCategories, the combo landing); the classic
+     world is where they read as designed. */
+  .bg-warm-gradient {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 15% 0%, hsl(var(--accent) / 0.25), transparent 60%),
+      radial-gradient(ellipse 80% 60% at 100% 100%, hsl(var(--primary) / 0.18), transparent 55%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+  }
+  .bg-terracotta-gradient {
+    background-image: linear-gradient(135deg,
+      hsl(var(--primary)) 0%,
+      hsl(146 60% 24%) 50%,
+      hsl(var(--secondary)) 100%);
+  }
+  .bg-saffron-gradient {
+    background-image: linear-gradient(135deg,
+      hsl(122 52% 50%) 0%,
+      hsl(var(--accent)) 50%,
+      hsl(var(--primary)) 100%);
+  }
+
   /* Responsive page gutter.
    *
    * This has to live here rather than in `theme.container.padding`: because

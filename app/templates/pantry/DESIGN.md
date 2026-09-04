@@ -207,6 +207,19 @@ by those cues, and a fourth green meaning may not be added.
   category, SKU — never under a provenance heading), provenance only when
   the backend returned it, combo link cards, reviews, and a repeated stone
   order block carrying the price.
+- **Combo shelf** (`PantryCombo`): the same 6/6 split as the PDP — photograph
+  left, decision right. Name in the big serif, one money voice, the packages
+  as `.pn-pack` tiles that fill green when chosen, per-unit pickers, then the
+  bill (total, saving, closing date) above a ≥52px green order button and the
+  two cash-on-delivery promises in trust green. The bag stays the quiet
+  underlined path. Contents run as a shelf of photographed goods closed by
+  `.pn-shelf`; the trust badges take the `.pn-proof` hairline rail. Amber
+  appears only on a real reduction, so the closing date prints plain.
+  **Deliberate deviation:** this page does *not* carry the on-page order form.
+  A bundle order needs a server-validated tier quote at checkout, which
+  `placePantryOrder` (single product, single variant) cannot express, so the
+  order button goes to the scoped buy-now checkout. Reversing this means
+  teaching the pantry order action about bundle tiers and quotes first.
 - **Order form** (`PantryOrderForm`): pack rail → quantity keys → name +
   phone (paired from `sm`) → area select → address → optional note folded
   into a native `<details>` → **the bill, above the button** (item total,

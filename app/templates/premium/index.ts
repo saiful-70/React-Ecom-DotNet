@@ -4,6 +4,7 @@ import { PremiumFooter } from "./chrome/PremiumFooter";
 import { PremiumHome } from "./home/PremiumHome";
 import { PremiumProductListing } from "./product/PremiumProductListing";
 import { PremiumProductDetails } from "./product/PremiumProductDetails";
+import { PremiumCombo } from "./product/PremiumCombo";
 
 /**
  * `premium` — single-brand editorial paradigm ("The Batch Label" world).
@@ -22,4 +23,5 @@ export const premiumTemplate: Template = {
 	HomeLayout: PremiumHome,
 	ProductListingLayout: PremiumProductListing,
 	ProductDetailsLayout: PremiumProductDetails,
+	ComboLayout: PremiumCombo,
 };

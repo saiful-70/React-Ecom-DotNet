@@ -213,6 +213,20 @@
     "estimatedDelivery": "অনুমানিত ডেলিভারি",
     "day": "দিন",
     "days": "দিন",
+    "paymentCod": "ক্যাশ অন ডেলিভারি",
+    "paymentCodDesc": "পণ্য হাতে পেয়ে ডেলিভারিম্যানকে টাকা দিন।",
+    "paymentStripe": "কার্ড (Stripe)",
+    "paymentStripeDesc": "Stripe-এর নিরাপদ পেজে কার্ড দিয়ে পেমেন্ট করুন।",
+    "paymentPaypal": "PayPal",
+    "paymentPaypalDesc": "PayPal ব্যালেন্স বা যুক্ত কার্ড দিয়ে পেমেন্ট করুন।",
+    "paymentRedirectNotice": "অর্ডার তৈরি হওয়ার পর পেমেন্ট সম্পন্ন করতে আপনাকে পাঠানো হবে।",
+    "paymentInitFailed": "পেমেন্ট শুরু করা যায়নি",
+    "paymentInitFailedDescription": "আপনার অর্ডার তৈরি হয়েছে, কিন্তু পেমেন্ট পেজ খোলেনি। প্রোফাইল থেকে অর্ডারটি খুলে আবার পেমেন্ট করুন।",
+    "paymentMissingOrderId": "অর্ডারের রেফারেন্স পাওয়া যায়নি, তাই পেমেন্ট শুরু করা যায়নি।",
+    "paypalCapturing": "আপনার পেমেন্ট নিশ্চিত করা হচ্ছে…",
+    "paypalCapturingDescription": "এই পেজটি খোলা রাখুন। ব্রাউজার বন্ধ করবেন না বা ব্যাক চাপবেন না।",
+    "paypalCaptureFailed": "PayPal পেমেন্ট সম্পন্ন করা যায়নি।",
+    "paypalMissingReference": "এই PayPal পেমেন্টটি শনাক্ত করা যায়নি।",
     "shippingMethod": "ডেলিভারি পদ্ধতি",
     "shippingMethodStandard": "স্ট্যান্ডার্ড ডেলিভারি",
     "shippingMethodStandardDesc": "৩-৭ কর্মদিবস",
@@ -391,6 +405,8 @@
   "common": {
     "loading": "লোড হচ্ছে...",
     "error": "কিছু ভুল হয়েছে",
+    "storeConfigTitle": "স্টোর কনফিগারেশন সমস্যা",
+    "storeConfigDescription": "এই স্টোরটি তার পণ্য তালিকার সাথে সঠিকভাবে যুক্ত নেই। অনুগ্রহ করে সাইট অ্যাডমিনিস্ট্রেটরের সাথে যোগাযোগ করুন।",
     "retry": "আবার চেষ্টা করুন",
     "cancel": "বাতিল",
     "save": "সংরক্ষণ",
@@ -759,7 +775,8 @@
     "clearFilters": "সব ফিল্টার মুছুন",
     "emptyTitle": "কোনো পণ্য পাওয়া যায়নি",
     "emptyBody": "অন্য বিভাগ দেখুন, অথবা আমাদের কল করুন — আমরা খুঁজে দেব",
-    "browseAll": "সব পণ্য দেখুন"
+    "browseAll": "সব পণ্য দেখুন",
+    "comboChooseUnits": "প্রতিটি পণ্য বাছুন"
   },
   "global": {
     "myCart": "আমার কার্ট",
@@ -910,6 +927,10 @@
     "listing": {
       "itemCount": "{{count}}টি পণ্য তালিকাভুক্ত",
       "emptyTitle": "এই পাতার সাথে মেলে এমন কিছু সূচিতে নেই।"
+    },
+    "combo": {
+      "setNo": "সেট নং",
+      "chooseUnits": "প্রতিটি পণ্য বাছুন"
     }
   },
   "classic2": {
@@ -970,7 +991,8 @@
     "relatedProducts": "সম্পর্কিত পণ্য",
     "moreZones": "+{{count}} আরও এলাকার চার্জ পণ্যের পাতায়",
     "scrollLeft": "আগের বিভাগ",
-    "scrollRight": "পরের বিভাগ"
+    "scrollRight": "পরের বিভাগ",
+    "comboChooseUnits": "প্রতিটি পণ্য বাছুন"
   },
   "premium": {
     "nav": {
@@ -1023,7 +1045,10 @@
     "viewCollection": "কালেকশন দেখুন",
     "featured": "নির্বাচিত পণ্যসমূহ",
     "latestArrivals": "নতুন আগমন",
-    "mostOrdered": "সর্বাধিক অর্ডারকৃত"
+    "mostOrdered": "সর্বাধিক অর্ডারকৃত",
+    "setPieces": "টি পণ্য",
+    "chooseEach": "প্রতিটি পণ্য বাছুন",
+    "availableUntil": "পাওয়া যাবে"
   },
   "pantry": {
     "codBadge": "ক্যাশ অন ডেলিভারি",
@@ -1128,6 +1153,8 @@
       "shelves": "আমাদের পণ্য",
       "customerCare": "ক্রেতা সেবা",
       "contact": "যোগাযোগ"
-    }
+    },
+    "chooseEachItem": "প্রতিটি পণ্য বাছুন",
+    "offerUntil": "অফার চলবে"
   }
 }

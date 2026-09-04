@@ -10,6 +10,8 @@ import {
 } from "@/lib/utils/seo.utils";
 import { getActiveVariant } from "@/variants/server";
 import { getTemplate } from "@/templates/registry";
+import { hasWebsiteKeyError } from "@/lib/config/website.config";
+import { StoreConfigError } from "@/components/shared/StoreConfigError";
 
 interface SearchParams {
 	category_id?: string;
@@ -188,6 +190,13 @@ export default async function Products({
 
 	const variant = await getActiveVariant();
 	const template = getTemplate(variant.template);
+
+	// A rejected X-Website-Key means the whole catalogue is unreachable, not
+	// that this store has no products — say so instead of rendering an empty
+	// grid that reads as "nothing in stock".
+	if (hasWebsiteKeyError(productsResponse)) {
+		return <StoreConfigError />;
+	}
 
 	// Breadcrumb label for templates that show "Home > <Category>": only when
 	// exactly one category filter is active.

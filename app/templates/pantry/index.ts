@@ -5,6 +5,7 @@ import { PantryCallFab } from "./chrome/PantryCallFab";
 import { PantryHome } from "./home/PantryHome";
 import { PantryProductListing } from "./product/PantryProductListing";
 import { PantryProductDetails } from "./product/PantryProductDetails";
+import { PantryCombo } from "./product/PantryCombo";
 
 /**
  * `pantry` — single-brand Bengali natural-food paradigm ("The Natural Pantry").
@@ -27,4 +28,5 @@ export const pantryTemplate: Template = {
 	HomeLayout: PantryHome,
 	ProductListingLayout: PantryProductListing,
 	ProductDetailsLayout: PantryProductDetails,
+	ComboLayout: PantryCombo,
 };

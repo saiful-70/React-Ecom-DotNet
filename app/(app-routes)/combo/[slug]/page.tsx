@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCombo } from "../action";
 import { getActiveVariant } from "@/variants/server";
-import { ComboLanding } from "@/components/product/bundle/ComboLanding";
+import { getTemplate } from "@/templates/registry";
 import { isValidComboSlug } from "@/lib/bundles/types";
 
 interface Props {
@@ -66,5 +66,6 @@ export default async function ComboPage({ params }: Props) {
 	// items must ship their own `variant_options` + `variants` (see
 	// docs/api/bundle-per-unit-variant-contract.md). No product-details calls
 	// here — when the payload is unusable the picker degrades to the flat card.
-	return <ComboLanding combo={combo} />;
+	const { ComboLayout } = getTemplate(variant.template);
+	return <ComboLayout combo={combo} />;
 }

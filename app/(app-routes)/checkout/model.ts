@@ -174,7 +174,7 @@ const OrderItemSchema = z.object({
 export const PurchaseOrderSchema = z.object({
   items: z.array(OrderItemSchema).min(1),
   shipping_address: ShippingAddressSchema,
-  payment_method: z.enum(["cod"]),
+  payment_method: z.enum(["cod", "stripe", "paypal"]),
   shipping_method: z.enum(["standard", "express", "overnight"]),
   shipping_cost: z.number().finite().min(0),
   notes: z.string().max(1000).optional(),
@@ -212,8 +212,55 @@ export interface FormData {
   zip?: string;
 }
 
-/** Documented payment method key for cash on delivery. */
-export type PaymentMethod = "cod";
+/**
+ * Payment methods the backend actually implements: cash on delivery plus the
+ * two hosted gateways. bKash / Nagad / SSLCommerz are NOT integrated — do not
+ * widen this union without a backend route to match.
+ */
+export type PaymentMethod = "cod" | "stripe" | "paypal";
+
+/** The subset that redirects the buyer off-site before the order is paid. */
+export type GatewayPaymentMethod = Exclude<PaymentMethod, "cod">;
+
+export const isGatewayPaymentMethod = (
+  method: PaymentMethod
+): method is GatewayPaymentMethod => method !== "cod";
+
+/**
+ * `POST /payments/stripe/initiate` — the documented field is `checkout_url`,
+ * but the legacy `/stripe` route answered with the URL as a bare `data`
+ * string, so both shapes are accepted (see `initiateStripePayment`).
+ */
+export interface StripeInitiateData {
+  checkout_url?: string;
+  [key: string]: unknown;
+}
+
+/** `POST /payments/paypal/initiate`. */
+export interface PaypalInitiateData {
+  approval_url?: string;
+  paypal_order_id?: string;
+  [key: string]: unknown;
+}
+
+/** `POST /payments/paypal/capture`. */
+export interface PaypalCaptureData {
+  order_id?: number;
+  order_number?: string;
+  order_tracking_number?: string;
+  payment_status?: string;
+  [key: string]: unknown;
+}
+
+/** Normalized result of starting a hosted-gateway payment. */
+export interface GatewayRedirect {
+  success: boolean;
+  /** Absolute URL to send the browser to. Only set when `success`. */
+  redirectUrl?: string;
+  /** PayPal only — needed by the capture call on return. */
+  paypalOrderId?: string;
+  message?: string;
+}
 
 export type ShippingMethod = "standard" | "express" | "overnight";
 

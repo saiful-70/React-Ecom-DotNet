@@ -6,6 +6,7 @@ import { ClassicMobileNav } from "./chrome/ClassicMobileNav";
 import { ClassicHome } from "./ClassicHome";
 import { ClassicProductListing } from "./ClassicProductListing";
 import { ClassicProductDetails } from "./product/ClassicProductDetails";
+import { ClassicCombo } from "./product/ClassicCombo";
 
 /**
  * CLASSIC — "The Open Shopfront".
@@ -28,4 +29,5 @@ export const classicTemplate: Template = {
 	HomeLayout: ClassicHome,
 	ProductListingLayout: ClassicProductListing,
 	ProductDetailsLayout: ClassicProductDetails,
+	ComboLayout: ClassicCombo,
 };

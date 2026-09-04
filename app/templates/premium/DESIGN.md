@@ -60,6 +60,20 @@ embedded verbatim as the first child of `PremiumHome`'s root element.
   most-ordered ranked ledger (rank carries the information) → engraved
   colophon footer. No deal walls, no countdowns.
 
+## The set label (combo landing)
+
+`product/PremiumCombo.tsx`. A combo is one boxed set: specimen photography on
+seven columns with the contents numbered like a spec sheet, and a single
+label-stock panel on five carrying the whole purchase — the set's own
+`LOT nnnn — N pieces` line under the name, the packages as `.premium-key`
+rows that sit visibly deeper when chosen, the shipping terms printed on the
+label, the gold seal-press action and the quiet express lane beneath it. Long
+copy and terms fold into the same in-world accordion the PDP uses.
+
+**No countdown, by rule.** `ends_at` is real data so it is honoured, but as a
+dated provenance line ("Available until Friday, 5 September"). A ticking clock
+would import the deal-wall grammar this template exists to refuse.
+
 ## Finish review
 
 - Contrast: label-stock/muted-foreground on viridian and lacquer pass; all

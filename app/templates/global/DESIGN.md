@@ -53,6 +53,15 @@ arrangement and the Temu urgency stack.
   restates that flag. No countdown, no fake stock. The old mock flash-deal
   timer (`_data/mock.ts`) was deleted.
 
+- **Set entry** (`product/GlobalCombo.tsx`) — the combo landing as a catalogue
+  spread. The set carries its own `Set No.` from `itemNo(combo.id)`; the
+  packages are index rows on hairlines with radio semantics; the contents are a
+  numbered plate list where each item prints its own item number. The delivery
+  course sits above the order actions as on every plate. A real `ends_at`
+  prints as one ink course line ("Offer ends in — 2 days · 04:11:22"), never a
+  red urgency box: the sale-insert rule keeps `--accent` on discount figures
+  only, and the honest-urgency rule bans invented ones, not backend-dated ones.
+
 ## Conversion spine (Baymard)
 
 - Variant selection is buttons (shared `ProductVariantSelector`), never

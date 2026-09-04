@@ -6,6 +6,7 @@ import { BazarFloatingCall } from "./chrome/BazarFloatingCall";
 import { BazarHome } from "./home/BazarHome";
 import { BazarProductListing } from "./product/BazarProductListing";
 import { BazarProductDetails } from "./product/BazarProductDetails";
+import { BazarCombo } from "./product/BazarCombo";
 
 /**
  * The "bazar" paradigm — The Flexiload Counter: board-black chrome with
@@ -25,4 +26,5 @@ export const bazarTemplate: Template = {
 	HomeLayout: BazarHome,
 	ProductListingLayout: BazarProductListing,
 	ProductDetailsLayout: BazarProductDetails,
+	ComboLayout: BazarCombo,
 };

@@ -85,6 +85,15 @@ Benchmarks: Daraz BD, Chaldal, Pickaboo. Seed key `144d8307`.
   grey band; the order action repeated at the bottom of the scroll, clear of
   the mobile bottom bar; related products in the offer-card language.
 
+- **Combo landing** (`product/ClassicCombo.tsx`): the PDP composition with the
+  package swapped in for the product — photograph beside the offer, price
+  anchoring, the packages as a hairline-separated radio list (never a box in a
+  box), per-unit pickers, the delivery-fee table and the three trust lines
+  before the vermilion order button, contents as a divided list on the grey
+  band, and the order action repeated at the foot. The countdown is ink on the
+  white field, not vermilion: it restates a real `ends_at`, but it is not a buy
+  action, and this world spends its whole colour budget on the one that is.
+
 ### The mobile fold
 
 Two surfaces are explicitly budgeted against the 390×844 first viewport, and

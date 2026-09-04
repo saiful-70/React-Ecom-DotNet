@@ -5,6 +5,7 @@ import {
 	getCheckoutData,
 	getCountries,
 	getShippingCost,
+	initiateGatewayPayment,
 } from "@/(app-routes)/checkout/action";
 import { validateBundle } from "@/(app-routes)/combo/action";
 import type {
@@ -12,7 +13,9 @@ import type {
 	FormData,
 	FormErrors,
 	CheckoutDataProduct,
+	PaymentMethod,
 } from "@/(app-routes)/checkout/model";
+import { isGatewayPaymentMethod } from "@/(app-routes)/checkout/model";
 import type { BundleValidationMap } from "@/(app-routes)/checkout/helpers/checkout-helpers";
 import {
 	hasFormErrors,
@@ -42,6 +45,7 @@ import {
 
 import { OrderSummary } from "@/(app-routes)/checkout/components/OrderSummary";
 import { ShippingAddressForm } from "@/(app-routes)/checkout/components/ShippingAddressForm";
+import { PaymentMethodForm } from "@/(app-routes)/checkout/components/PaymentMethodForm";
 import { GlobalShippingAddressForm } from "@/(app-routes)/checkout/components/GlobalShippingAddressForm";
 import {
 	prepareOrderData,
@@ -55,6 +59,7 @@ import {
 import { useVariant } from "@/components/shared/providers/variant-provider";
 import { findCountry, DEFAULT_COUNTRY_CODE } from "@/lib/data/countries";
 import { calculateItemTax } from "@/lib/utils/tax-calculator";
+import { rememberPaypalHandoff } from "@/lib/utils/paypal-handoff";
 
 export function CheckoutPage() {
 	const { t } = useTranslation();
@@ -63,6 +68,9 @@ export function CheckoutPage() {
 	// the "empty cart" guard from flashing while the cart is cleared mid-redirect.
 	const [orderPlaced, setOrderPlaced] = useState(false);
 	const [formErrors, setFormErrors] = useState<FormErrors>({});
+	// COD by default; the two gateways redirect off-site after the order row
+	// exists (both `initiate` endpoints take an `order_id`).
+	const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
 	const [isLoadingPrices, setIsLoadingPrices] = useState(true);
 	const [serverPrices, setServerPrices] = useState<CheckoutDataProduct[]>([]);
 	const [bundleValidations, setBundleValidations] =
@@ -526,10 +534,64 @@ export function CheckoutPage() {
 				bundleValidations: validations,
 				countryId: resolveCountryId(),
 				email: miniProfile?.email || undefined,
+				paymentMethod,
 			});
 
 			const response = await createPurchaseOrder(orderData);
 			if (response.success && response.data) {
+				const orderId = response.data?.order_id;
+
+				// Hosted gateways: the order exists but is unpaid, so hand the
+				// browser to Stripe/PayPal instead of the success page. The cart
+				// is deliberately NOT cleared here — the buyer can still abandon
+				// the gateway, and the unpaid order stays payable from
+				// /profile/orders/<id>.
+				if (isGatewayPaymentMethod(paymentMethod)) {
+					if (typeof orderId !== "number") {
+						toast.error(t("checkout.paymentInitFailed"), {
+							description: t("checkout.paymentMissingOrderId"),
+						});
+						return;
+					}
+
+					const gateway = await initiateGatewayPayment(
+						paymentMethod,
+						orderId
+					);
+					if (!gateway.success || !gateway.redirectUrl) {
+						toast.error(t("checkout.paymentInitFailed"), {
+							description:
+								gateway.message ||
+								t("checkout.paymentInitFailedDescription"),
+						});
+						return;
+					}
+
+					if (paymentMethod === "paypal") {
+						// The return page needs these to run the mandatory
+						// capture call; PayPal's own return params vary by
+						// integration, so persist our copy. The lines let it
+						// clear exactly what was paid for (a Buy Now order
+						// must not wipe the rest of the cart).
+						rememberPaypalHandoff(
+							orderId,
+							gateway.paypalOrderId,
+							items.map((i) => ({
+								id: i.id,
+								quantity: i.quantity,
+								variantId: i.variant_id,
+								bundleTierId: i.bundle_tier_id,
+							}))
+						);
+					}
+
+					setOrderPlaced(true);
+					// External gateway URL — a full navigation, not a router
+					// push (which would try to resolve it as an app route).
+					window.location.assign(gateway.redirectUrl);
+					return;
+				}
+
 				// Mark as placed first so clearing the cart doesn't render the
 				// empty-checkout state before the success-page navigation lands.
 				setOrderPlaced(true);
@@ -658,6 +720,12 @@ export function CheckoutPage() {
 								errors={formErrors}
 							/>
 						)}
+
+						<PaymentMethodForm
+							paymentMethod={paymentMethod}
+							onPaymentMethodChange={setPaymentMethod}
+							disabled={isProcessing}
+						/>
 					</div>
 
 					<div>

@@ -4,7 +4,7 @@ import type { Product, PaginationMeta } from "@/(app-routes)/products/model";
 import type { Category } from "@/components/shared/models/category";
 import type { Brand } from "@/components/shared/models/brand";
 import type { FeatureFlags, TemplateId } from "@/variants/types";
-import type { BundleSummary } from "@/lib/bundles/types";
+import type { Bundle, BundleSummary } from "@/lib/bundles/types";
 
 /**
  * Template system types.
@@ -58,6 +58,15 @@ export interface ProductDetailsLayoutProps {
   combos?: BundleSummary[];
 }
 
+export interface ComboLayoutProps {
+  /**
+   * A standalone combo offer with its tiers. The route has already rejected an
+   * inactive slug, a missing bundle, and a tier-less bundle, so a layout may
+   * assume at least one tier exists.
+   */
+  combo: Bundle;
+}
+
 export interface TemplateChrome {
   Header: ComponentType;
   /** Secondary nav bar under the header; null when the template has none. */
@@ -75,4 +84,6 @@ export interface Template {
   HomeLayout: ComponentType<HomeLayoutProps>;
   ProductListingLayout: ComponentType<ProductListingLayoutProps>;
   ProductDetailsLayout: ComponentType<ProductDetailsLayoutProps>;
+  /** The `/combo/[slug]` landing page, drawn in this template's world. */
+  ComboLayout: ComponentType<ComboLayoutProps>;
 }

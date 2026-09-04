@@ -9,6 +9,11 @@ export const ABSOLUTE_ROUTES = {
   PAYMENT_SUCCESS: (orderId: string) => `/payment-success?order_id=${orderId}`,
   PAYMENT_FAILED: "/payment-failed",
   PAYMENT_CANCEL: "/payment-cancel",
+  /**
+   * Where PayPal (or the backend's PayPal return handler) must land the buyer
+   * so the frontend can run the mandatory capture call.
+   */
+  PAYPAL_RETURN: "/paypal-return",
   WISHLIST: "/profile?tab=wishlist",
   PRODUCTS: "/products",
   PRODUCTS_BY_CATEGORY: (id: number | string) => `/products?category_id=${id}`,

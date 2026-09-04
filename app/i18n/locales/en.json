@@ -213,6 +213,20 @@
     "estimatedDelivery": "Est. Delivery",
     "day": "day",
     "days": "days",
+    "paymentCod": "Cash on Delivery",
+    "paymentCodDesc": "Pay the courier when your order arrives.",
+    "paymentStripe": "Card (Stripe)",
+    "paymentStripeDesc": "Pay by card on Stripe's secure page.",
+    "paymentPaypal": "PayPal",
+    "paymentPaypalDesc": "Pay with your PayPal balance or a linked card.",
+    "paymentRedirectNotice": "You will be redirected to complete the payment after the order is created.",
+    "paymentInitFailed": "Payment could not be started",
+    "paymentInitFailedDescription": "Your order was created but the payment page did not open. Open the order from your profile to pay again.",
+    "paymentMissingOrderId": "The order was created without a reference, so the payment could not be started.",
+    "paypalCapturing": "Confirming your payment…",
+    "paypalCapturingDescription": "Please keep this page open. Do not close the browser or press back.",
+    "paypalCaptureFailed": "PayPal payment could not be completed.",
+    "paypalMissingReference": "We could not identify this PayPal payment.",
     "shippingMethod": "Shipping Method",
     "shippingMethodStandard": "Standard Shipping",
     "shippingMethodStandardDesc": "3-7 business days",
@@ -391,6 +405,8 @@
   "common": {
     "loading": "Loading...",
     "error": "Something went wrong",
+    "storeConfigTitle": "Store configuration error",
+    "storeConfigDescription": "This storefront is not correctly connected to its catalogue. Please contact the site administrator.",
     "retry": "Retry",
     "cancel": "Cancel",
     "save": "Save",
@@ -759,7 +775,8 @@
     "clearFilters": "Clear all filters",
     "emptyTitle": "No products found",
     "emptyBody": "Try another department, or call us — we'll find it",
-    "browseAll": "Browse all products"
+    "browseAll": "Browse all products",
+    "comboChooseUnits": "Choose each item"
   },
   "global": {
     "myCart": "My cart",
@@ -910,6 +927,10 @@
     "listing": {
       "itemCount": "{{count}} items listed",
       "emptyTitle": "Nothing in the index matches this page."
+    },
+    "combo": {
+      "setNo": "Set No.",
+      "chooseUnits": "Choose each item"
     }
   },
   "classic2": {
@@ -970,7 +991,8 @@
     "relatedProducts": "Related products",
     "moreZones": "+{{count}} more zones — charges on the product page",
     "scrollLeft": "Previous departments",
-    "scrollRight": "Next departments"
+    "scrollRight": "Next departments",
+    "comboChooseUnits": "Choose each item"
   },
   "premium": {
     "nav": {
@@ -1023,7 +1045,10 @@
     "viewCollection": "View the collection",
     "featured": "Selected specimens",
     "latestArrivals": "Latest to the shelf",
-    "mostOrdered": "Most ordered"
+    "mostOrdered": "Most ordered",
+    "setPieces": "pieces",
+    "chooseEach": "Choose each piece",
+    "availableUntil": "Available until"
   },
   "pantry": {
     "codBadge": "Cash on delivery",
@@ -1128,6 +1153,8 @@
       "shelves": "Our products",
       "customerCare": "Customer care",
       "contact": "Contact"
-    }
+    },
+    "chooseEachItem": "Choose each item",
+    "offerUntil": "Offer runs until"
   }
 }

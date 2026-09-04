@@ -7,6 +7,7 @@ import { GlobalFloatingActions } from "./chrome/GlobalFloatingActions";
 import { GlobalHome } from "./home/GlobalHome";
 import { GlobalProductListing } from "./product/GlobalProductListing";
 import { GlobalProductDetails } from "./product/GlobalProductDetails";
+import { GlobalCombo } from "./product/GlobalCombo";
 
 /**
  * The "global" paradigm — THE MAIL-ORDER INDEX. An international marketplace
@@ -30,4 +31,5 @@ export const globalTemplate: Template = {
 	HomeLayout: GlobalHome,
 	ProductListingLayout: GlobalProductListing,
 	ProductDetailsLayout: GlobalProductDetails,
+	ComboLayout: GlobalCombo,
 };

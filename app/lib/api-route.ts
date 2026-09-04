@@ -46,9 +46,18 @@ export const API_ROUTES = {
   REVIEWS: {
     CREATE: "create-review",
   },
+  // Only COD, Stripe and PayPal are implemented server-side. bKash / Nagad /
+  // SSLCommerz are NOT available as APIs — do not add routes for them.
   PAYMENT_METHOD: {
-    /** Preferred gateway controller (JWT): body `{ order_id }`. */
+    /** Preferred gateway controller (JWT): body `{ order_id }` → `checkout_url`. */
     STRIPE_INITIATE: "payments/stripe/initiate",
+    /** JWT: body `{ order_id }` → `approval_url` + `paypal_order_id`. */
+    PAYPAL_INITIATE: "payments/paypal/initiate",
+    /**
+     * JWT. The frontend MUST call this after the buyer approves on PayPal;
+     * PayPal only authorises on approval, the funds are taken here.
+     */
+    PAYPAL_CAPTURE: "payments/paypal/capture",
   },
   CHAT: {
     ASK: "ask",

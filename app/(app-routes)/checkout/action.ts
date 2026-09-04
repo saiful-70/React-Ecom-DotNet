@@ -13,6 +13,11 @@ import type {
   CheckoutDataRequestItem,
   CheckoutDataResponse,
   CheckoutDataProduct,
+  GatewayPaymentMethod,
+  GatewayRedirect,
+  PaypalCaptureData,
+  PaypalInitiateData,
+  StripeInitiateData,
 } from "./model";
 
 /**
@@ -227,22 +232,220 @@ export async function createPurchaseOrder(
   }
 }
 
-export async function getStripeRedirectLink(
+/**
+ * Pull a redirect URL out of a gateway response.
+ *
+ * The documented shape is `data: { checkout_url }` / `data: { approval_url }`,
+ * but the legacy Stripe route answered with the URL as a bare `data` string
+ * and some builds put it at the top level. Accept all three rather than fail
+ * the payment on a field-name mismatch.
+ */
+function extractRedirectUrl(
+  payload: unknown,
+  ...keys: string[]
+): string | undefined {
+  if (typeof payload === "string") {
+    return payload.startsWith("http") ? payload : undefined;
+  }
+  if (!payload || typeof payload !== "object") return undefined;
+  const record = payload as Record<string, unknown>;
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "string" && value.startsWith("http")) return value;
+  }
+  return undefined;
+}
+
+/**
+ * Server action: start a Stripe Checkout session for an already-created order.
+ *
+ * `POST /payments/stripe/initiate` requires JWT, so the auth cookie is
+ * forwarded like every other authenticated call. Payment is confirmed by the
+ * Stripe webhook server-side — the browser return page is display only.
+ */
+export async function initiateStripePayment(
   orderId: number
-) {
-  // Documented gateway route (`POST /payments/stripe/initiate`) requires JWT,
-  // so forward the auth cookie like every other authenticated call.
-  return new ApiClient(API_ROUTES.PAYMENT_METHOD.STRIPE_INITIATE)
-    .withMethod("POST")
-    .withBody({
-      order_id: orderId
-    })
-    .withCookieHeaders(await cookies())
-    .execute<{
-      success: boolean;
-      data: string;
-      message: string;
-    }>();
+): Promise<GatewayRedirect> {
+  try {
+    const response = await new ApiClient(
+      API_ROUTES.PAYMENT_METHOD.STRIPE_INITIATE
+    )
+      .withMethod("POST")
+      .withBody({ order_id: orderId })
+      .withCookieHeaders(await cookies())
+      .execute<{
+        success: boolean;
+        data?: StripeInitiateData | string;
+        message?: string;
+      }>();
+
+    if (!response.success) {
+      return {
+        success: false,
+        message: response.message || "Failed to start the Stripe payment",
+      };
+    }
+
+    const redirectUrl =
+      extractRedirectUrl(response.data, "checkout_url", "url", "redirect_url") ??
+      extractRedirectUrl(response, "checkout_url");
+
+    if (!redirectUrl) {
+      console.error("[stripe/initiate] no checkout_url in response", response);
+      return {
+        success: false,
+        message: response.message || "Stripe did not return a checkout URL",
+      };
+    }
+
+    return { success: true, redirectUrl, message: response.message };
+  } catch (error) {
+    console.error("Error initiating Stripe payment:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "An error occurred while starting the Stripe payment",
+    };
+  }
+}
+
+/**
+ * Server action: start a PayPal order for an already-created order.
+ *
+ * Returns the approval URL plus the `paypal_order_id`, which the return page
+ * needs for the mandatory capture call.
+ */
+export async function initiatePaypalPayment(
+  orderId: number
+): Promise<GatewayRedirect> {
+  try {
+    const response = await new ApiClient(
+      API_ROUTES.PAYMENT_METHOD.PAYPAL_INITIATE
+    )
+      .withMethod("POST")
+      .withBody({ order_id: orderId })
+      .withCookieHeaders(await cookies())
+      .execute<{
+        success: boolean;
+        data?: PaypalInitiateData | string;
+        message?: string;
+      }>();
+
+    if (!response.success) {
+      return {
+        success: false,
+        message: response.message || "Failed to start the PayPal payment",
+      };
+    }
+
+    const redirectUrl =
+      extractRedirectUrl(response.data, "approval_url", "url", "redirect_url") ??
+      extractRedirectUrl(response, "approval_url");
+
+    if (!redirectUrl) {
+      console.error("[paypal/initiate] no approval_url in response", response);
+      return {
+        success: false,
+        message: response.message || "PayPal did not return an approval URL",
+      };
+    }
+
+    const data =
+      response.data && typeof response.data === "object" ? response.data : {};
+    const paypalOrderId =
+      typeof data.paypal_order_id === "string" ? data.paypal_order_id : undefined;
+
+    return { success: true, redirectUrl, paypalOrderId, message: response.message };
+  } catch (error) {
+    console.error("Error initiating PayPal payment:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "An error occurred while starting the PayPal payment",
+    };
+  }
+}
+
+/**
+ * Server action: capture an approved PayPal order.
+ *
+ * PayPal only AUTHORISES on approval — without this call the money is never
+ * taken. The return page must call it before showing a success state.
+ *
+ * ASSUMPTION (unconfirmed against the backend guide): the body is
+ * `{ order_id, paypal_order_id }`. Both ids are sent so the backend can key on
+ * whichever it expects.
+ */
+export async function capturePaypalPayment(params: {
+  orderId?: number;
+  paypalOrderId?: string;
+}): Promise<{
+  success: boolean;
+  message?: string;
+  data?: PaypalCaptureData;
+}> {
+  const { orderId, paypalOrderId } = params;
+
+  if (orderId == null && !paypalOrderId) {
+    return { success: false, message: "Missing PayPal order reference" };
+  }
+
+  try {
+    const response = await new ApiClient(
+      API_ROUTES.PAYMENT_METHOD.PAYPAL_CAPTURE
+    )
+      .withMethod("POST")
+      .withBody({
+        ...(orderId != null ? { order_id: orderId } : {}),
+        ...(paypalOrderId ? { paypal_order_id: paypalOrderId } : {}),
+      })
+      .withCookieHeaders(await cookies())
+      .execute<{
+        success: boolean;
+        data?: PaypalCaptureData;
+        message?: string;
+      }>();
+
+    if (!response.success) {
+      console.error("[paypal/capture] backend rejected the capture", {
+        orderId,
+        paypalOrderId,
+        message: response.message,
+      });
+      return {
+        success: false,
+        message: response.message || "PayPal payment could not be captured",
+      };
+    }
+
+    return { success: true, data: response.data, message: response.message };
+  } catch (error) {
+    console.error("Error capturing PayPal payment:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "An error occurred while capturing the PayPal payment",
+    };
+  }
+}
+
+/**
+ * Start a hosted-gateway payment for an order, dispatching on the method the
+ * buyer picked at checkout.
+ */
+export async function initiateGatewayPayment(
+  method: GatewayPaymentMethod,
+  orderId: number
+): Promise<GatewayRedirect> {
+  return method === "paypal"
+    ? initiatePaypalPayment(orderId)
+    : initiateStripePayment(orderId);
 }
 
 /**

@@ -5,6 +5,7 @@ import type {
   ShippingMethod,
   CheckoutDataProduct,
   OrderItem,
+  PaymentMethod,
 } from "@/(app-routes)/checkout/model";
 import type { BundleValidationResult } from "@/lib/bundles/types";
 
@@ -140,6 +141,8 @@ export const prepareOrderData = (params: {
   countryId?: number;
   email?: string;
   notes?: string;
+  /** Buyer's choice at checkout. Defaults to cash on delivery. */
+  paymentMethod?: PaymentMethod;
 }): PurchaseOrderRequest => {
   const {
     formData,
@@ -152,6 +155,7 @@ export const prepareOrderData = (params: {
     countryId,
     email,
     notes,
+    paymentMethod = "cod",
   } = params;
 
   // Single-bundle order path: attach the first bundle line's quote at the top
@@ -168,7 +172,7 @@ export const prepareOrderData = (params: {
       countryId,
       email,
     }),
-    payment_method: "cod",
+    payment_method: paymentMethod,
     shipping_method: shippingMethod,
     shipping_cost: shippingCost,
     ...(notes?.trim() ? { notes: notes.trim() } : {}),

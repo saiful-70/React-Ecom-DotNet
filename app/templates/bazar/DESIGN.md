@@ -94,6 +94,14 @@ embedded verbatim as the first child of `BazarHome`'s root element.
   keypad order strip (one block: `BazarQuantityKeys` quantity keys over the
   two order keys, phone/wishlist keys) → share. Tabs, repeated order keys
   behind a board rule, related-products band.
+- **Combo landing** (`product/BazarCombo.tsx`): the package as a tariff sheet.
+  Breadcrumb chart strip → gallery → chart-entry price → the packages as rows
+  you press (`.bz-key`, selected carries a primary bar and a tinted field) →
+  per-unit picker → `BazarDeliveryChart` → the keypad order block → trust
+  chart lines. Contents print as a `.bz-chart-divide` chart with tabular
+  counts under a `BazarSectionBand`, and the order keys repeat behind the 3px
+  board rule. The countdown takes board-black cells, the counter's display —
+  it is never given the offer red, which stays a savings signal.
 - **Chrome**: counter header (board strip + chart-white search row closed by
   the board rule), keypad mobile nav, floating call key, counter-board
   footer (identity chip, contact chart lines, COD/promise restated, keypad

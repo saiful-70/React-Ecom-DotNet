@@ -13,25 +13,45 @@ import { Separator } from "@/components/shared/ui/separator";
 import { formatText } from "@/lib/utils/utils";
 import { Button } from "@/components/shared/ui/button";
 import { useTransition } from "react";
-import { getStripeRedirectLink } from "@/(app-routes)/checkout/action";
-import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
+import { initiateGatewayPayment } from "@/(app-routes)/checkout/action";
+import { rememberPaypalHandoff } from "@/lib/utils/paypal-handoff";
 import { toast } from "sonner";
 
 type Props = { orderDetails: OrderDetailsModel };
 
+// Payment methods that can be retried from the order page. COD has nothing to
+// redirect to.
+const PAYABLE_METHODS = ["stripe", "paypal"] as const;
+type PayableMethod = (typeof PAYABLE_METHODS)[number];
+
+const asPayableMethod = (raw: string | undefined): PayableMethod | null =>
+	PAYABLE_METHODS.includes(raw as PayableMethod)
+		? (raw as PayableMethod)
+		: null;
+
 export default function OrderInfoCards({ orderDetails }: Props) {
 	const { t } = useTranslation();
 	const [loading, startTransition] = useTransition();
-	const router = useRouter();
+	const payableMethod = asPayableMethod(orderDetails.payment_method);
 	const handlePayNow = () => {
+		if (!payableMethod) return;
 		startTransition(async () => {
-			const response = await getStripeRedirectLink(
+			const response = await initiateGatewayPayment(
+				payableMethod,
 				orderDetails.id
 			);
 
-
-			if (response.success) {
-				router.push(response.data);
+			if (response.success && response.redirectUrl) {
+				if (payableMethod === "paypal") {
+					// No cart lines to settle on a retry — the order already
+					// exists; only the ids the capture call needs are stored.
+					rememberPaypalHandoff(
+						orderDetails.id,
+						response.paypalOrderId
+					);
+				}
+				// External gateway URL: full navigation, not a router push.
+				window.location.assign(response.redirectUrl);
 			} else {
 				toast.error(
 					response.message ||
@@ -76,7 +96,7 @@ export default function OrderInfoCards({ orderDetails }: Props) {
 								<span className="text-base text-destructive font-semibold">
 									{t("orderDetails.paymentStatus.unpaid")}
 								</span>
-								{orderDetails.payment_method === "stripe" ? (
+								{payableMethod ? (
 									<Button
 										disabled={loading}
 										onClick={handlePayNow}

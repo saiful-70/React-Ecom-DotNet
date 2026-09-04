@@ -55,6 +55,23 @@ const res = await new ApiClient(apiRoutes.products)
 - Default `cache: "no-store"`. Use `.withCache(tags, revalidate)` for cached server reads.
 - Errors are returned as `ApiResponse<T>`-shaped objects (not thrown). Callers should branch on `success`.
 
+### Multi-website (store identity)
+
+One backend + one database serve several storefronts. `execute()` attaches `X-Website-Key` to **every** call; the backend uses it to filter which products are visible and to stamp the order's source. Never send a website id in a body or query string — it is spoofable and the backend ignores it.
+
+- Keys live in `app/lib/config/website.config.ts`: per-variant (`WEBSITE_KEY_BN_01`, …) with a deployment-wide `WEBSITE_KEY` fallback. Server-only — **no `NEXT_PUBLIC_` prefix** (deliberate deviation from the backend guide, which assumed browser→backend calls). Add a literal line to `VARIANT_WEBSITE_KEYS` for a new variant; a dynamic `process.env[name]` lookup is not inlined by Next and yields `undefined`.
+- The variant is read from the `x-variant` header (`PINNED_VARIANT_ID`/`DEFAULT_VARIANT_ID` outside a request scope), so the active variant decides the store.
+- `withCache` tags are additionally scoped as `site:<variant>` and `<variant>:<tag>` so one store can be revalidated alone. The differing header already separates Data Cache entries.
+- A rejected key (HTTP 401) sets `websiteKeyError` on the response and logs loudly. Detect it with `hasWebsiteKeyError(response)` and render `StoreConfigError` — never a retry, it is a deploy misconfiguration. A product not assigned to this store 404s, which the PDP already handles.
+
+### Payments
+
+Only **COD, Stripe and PayPal** are implemented server-side — bKash / Nagad / SSLCommerz have no API, so don't add them as options. Routes are under `API_ROUTES.PAYMENT_METHOD` (`payments/{stripe,paypal}/...`).
+
+- COD completes in `createPurchaseOrder`. The two gateways create the order first (unpaid), then `initiateGatewayPayment(method, orderId)` returns a URL the browser is sent to with `window.location.assign` (external URL — not a router push).
+- The cart is **not** cleared on hand-off; an abandoned gateway leaves a payable order at `/profile/orders/<id>`, where "Pay Now" retries either gateway.
+- PayPal only *authorises* on approval. `/paypal-return` must run `capturePaypalPayment` or the money is never taken — the backend's PayPal `return_url` has to point there. Ids survive the redirect via `app/lib/utils/paypal-handoff.ts` (sessionStorage), which also carries the purchased cart lines so a Buy Now order clears only its own line.
+
 ### Auth flow
 
 1. JWT in cookie `__token__` (see `app/lib/config/auth.config.ts`).
@@ -83,10 +100,11 @@ Config constants (`DEMO_PREFIX`, `VARIANT_HEADER`, `SHOWCASE_MODE`, `PINNED_VARI
 
 `client = template × theme × branding × feature flags × language`. A **template** is a reusable layout *paradigm* (different chrome + page composition), not just a theme. Templates are code under `app/templates/<id>/`; a variant selects one via `VariantDescriptor.template` (`TemplateId = "classic" | "bazar" | "global"`). The union lives in `app/variants/types.ts` so variants reference templates by id only — never by import.
 
-- **Contract:** `app/templates/types.ts` — chrome slots (`Header`, `Navigation`, `Footer`, `MobileNav`, `FloatingActions` — nullable where a paradigm has none) plus `HomeLayout`, `ProductListingLayout`, `ProductDetailsLayout`.
+- **Contract:** `app/templates/types.ts` — chrome slots (`Header`, `Navigation`, `Footer`, `MobileNav`, `FloatingActions` — nullable where a paradigm has none) plus `HomeLayout`, `ProductListingLayout`, `ProductDetailsLayout`, `ComboLayout`.
 - **Registry:** `getTemplate(id)` in `app/templates/registry.ts`, falls back to `classic`. Never import this from `app/variants/*` or middleware (it pulls in the whole component tree).
 - **`classic`** re-exports the pre-existing components verbatim (used by bn-01). **`bazar`** (used by bn-02) is a distinct paradigm (contact top bar, department-sidebar home, stock ribbon cards, breadcrumb listing, new PDP, mobile bottom nav + floating call FAB). **`global`** (used by intl-01) is a 6Valley-style international marketplace paradigm (utility top bar, category mega-menu, department-rail hero, flash-deal countdown, mobile bottom nav, WhatsApp FAB).
-- **Data stays shared:** the shared routes (`app/layout.tsx`, `app/page.tsx`, `products/page.tsx`, `products/[id]/page.tsx`) fetch data and resolve the template via `getTemplate(variant.template)`, passing serializable props. Page-level template layouts may themselves be async Server Components calling the shared cached actions (as `BazarHome` does). SEO/metadata/actions/models are untouched by templates.
+- **Combo landing (`/combo/[slug]`)** is template-scoped too. All the state (tier choice, gallery, per-unit picks, sold-out rule, cart/buy-now) lives once in `useComboLanding` (`app/components/product/bundle/use-combo-landing.ts`); the five `ComboLayout`s are presentation only, so a behaviour fix is made once rather than five times. `useOfferCountdown` returns raw numbers and each world decides how to print them — classic/bazar tick, global prints one course line, premium and pantry print a date instead because a ticking clock is off-world there. The pantry combo deliberately uses buy-now checkout rather than its on-page COD order form: a bundle needs a server-validated tier quote that `placePantryOrder` cannot carry.
+- **Data stays shared:** the shared routes (`app/layout.tsx`, `app/page.tsx`, `products/page.tsx`, `products/[id]/page.tsx`, `combo/[slug]/page.tsx`) fetch data and resolve the template via `getTemplate(variant.template)`, passing serializable props. Page-level template layouts may themselves be async Server Components calling the shared cached actions (as `BazarHome` does). SEO/metadata/actions/models are untouched by templates.
 - Shared `ProductsGrid` / `ProductsInfiniteList` accept an optional `CardComponent` prop (defaults to `ProductCardItem`; a component function can only be passed from a client component, not across the server→client boundary). `BackToTopButton` takes an optional `className` so bottom-nav templates can lift it clear.
 
 ### State

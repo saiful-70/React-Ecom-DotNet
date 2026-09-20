@@ -46,6 +46,56 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 	const currentCategoryIds = useSearchParams().get("category_id");
 	const isHomePage = pathname === ABSOLUTE_ROUTES.HOME;
 	const scrollerRef = React.useRef<HTMLDivElement>(null);
+	const menuRef = React.useRef<React.ElementRef<typeof NavigationMenu>>(null);
+
+	// Shared viewport sits under the whole bar. Slide it under the open
+	// trigger so a right-hand category (e.g. Men's Fashion) does not open
+	// over the first item. Hang from the trigger's right edge when the
+	// panel would overflow the nav.
+	const placeViewport = React.useCallback(() => {
+		const root = menuRef.current;
+		if (!root) return;
+		const trigger = root.querySelector<HTMLElement>(
+			"button[data-state='open']"
+		);
+		if (!trigger) {
+			root.style.removeProperty("--nav-viewport-left");
+			return;
+		}
+		const rootRect = root.getBoundingClientRect();
+		const triggerRect = trigger.getBoundingClientRect();
+		const viewport = root.querySelector<HTMLElement>(
+			"[data-radix-navigation-menu-viewport]"
+		);
+		const panelWidth = viewport?.offsetWidth || 500;
+		const maxLeft = Math.max(0, rootRect.width - panelWidth);
+		let left = triggerRect.left - rootRect.left;
+		if (left + panelWidth > rootRect.width) {
+			left = triggerRect.right - rootRect.left - panelWidth;
+		}
+		root.style.setProperty(
+			"--nav-viewport-left",
+			`${Math.min(maxLeft, Math.max(0, left))}px`
+		);
+	}, []);
+
+	React.useEffect(() => {
+		const root = menuRef.current;
+		if (!root) return;
+		const observer = new MutationObserver(() => {
+			requestAnimationFrame(placeViewport);
+		});
+		observer.observe(root, {
+			attributes: true,
+			subtree: true,
+			attributeFilter: ["data-state", "style"],
+		});
+		window.addEventListener("resize", placeViewport);
+		return () => {
+			observer.disconnect();
+			window.removeEventListener("resize", placeViewport);
+		};
+	}, [placeViewport]);
 
 	// The category row is wider than the container. Map vertical wheel /
 	// trackpad motion to horizontal scroll so the strip moves without a
@@ -156,10 +206,15 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 	};
 
 	return (
-		<NavigationMenu className="w-full max-w-none min-w-0 py-1">
+		<NavigationMenu
+			ref={menuRef}
+			className="w-full max-w-none min-w-0 py-1"
+			onValueChange={() => requestAnimationFrame(placeViewport)}
+		>
 			<div
 				ref={scrollerRef}
 				onWheel={handleScrollerWheel}
+				onScroll={placeViewport}
 				role="region"
 				aria-label={t("navigation.categories") || "Product categories"}
 				className="overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:thin]"

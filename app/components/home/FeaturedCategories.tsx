@@ -64,36 +64,36 @@ export const FeaturedCategories = ({
 				<Carousel
 					setApi={setApi}
 					opts={{ align: "start", slidesToScroll: 2, loop: true }}
-					className="sm:px-10"
+					className="px-10"
 					onMouseEnter={() => setPaused(true)}
 					onMouseLeave={() => setPaused(false)}
 					onFocusCapture={() => setPaused(true)}
 					onBlurCapture={() => setPaused(false)}
 				>
-					<CarouselContent className="-ml-3 sm:-ml-4">
+					<CarouselContent className="-ml-2 sm:-ml-2.5">
 						{categories.map((category) => {
 							const name = category.name;
 							return (
 								<CarouselItem
 									key={category.id}
-									className="basis-1/3 pl-3 sm:basis-1/4 sm:pl-4 md:basis-1/5 lg:basis-1/6"
+									className="basis-1/4 pl-2 sm:basis-1/5 sm:pl-2.5 md:basis-1/6 lg:basis-[12.5%]"
 								>
 									<Link
 										href={`/products?category_id=${category.category_id}`}
 										aria-label={name}
-										className="group flex flex-col items-center gap-2.5 py-1 text-center transition-transform duration-300 hover:-translate-y-1"
+										className="group flex flex-col items-center gap-1.5 py-1 text-center transition-transform duration-300 hover:-translate-y-1"
 									>
 										{/* The gradient ring is the category's whole frame —
 										    it replaces the card box, which cost width on a
 										    360px phone and made every category read like a
 										    form field rather than a stall sign. */}
-										<div className="w-full rounded-full bg-saffron-gradient p-[3px] shadow-warm-sm transition-shadow duration-300 group-hover:shadow-warm-md">
+										<div className="mx-auto w-[86%] max-w-[6.5rem] rounded-full bg-saffron-gradient p-[3px] shadow-warm-sm transition-shadow duration-300 group-hover:shadow-warm-md">
 											<div className="relative aspect-square w-full overflow-hidden rounded-full bg-muted/40">
 												<Image
 													src={category.icon_url}
 													alt={name}
 													fill
-													sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 160px"
+													sizes="(max-width: 640px) 22vw, (max-width: 1024px) 14vw, 104px"
 													className="object-cover transition-transform duration-500 group-hover:scale-110"
 												/>
 											</div>
@@ -107,8 +107,8 @@ export const FeaturedCategories = ({
 						})}
 					</CarouselContent>
 
-					<CarouselPrevious className="hidden h-9 w-9 border-0 bg-primary text-primary-foreground hover:bg-primary/90 sm:flex" />
-					<CarouselNext className="hidden h-9 w-9 border-0 bg-primary text-primary-foreground hover:bg-primary/90 sm:flex" />
+					<CarouselPrevious className="left-0 z-10 h-8 w-8 border-0 bg-primary text-primary-foreground hover:bg-primary/90 sm:h-9 sm:w-9" />
+					<CarouselNext className="right-0 z-10 h-8 w-8 border-0 bg-primary text-primary-foreground hover:bg-primary/90 sm:h-9 sm:w-9" />
 				</Carousel>
 			</div>
 		</section>

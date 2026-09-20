@@ -2,6 +2,68 @@ import {
   BusinessSettingItem,
   BusinessSettingsModel,
 } from "@/components/shared/types/BusinessSettingModel";
+import { API_CONFIG } from "@/lib/config/api.config";
+
+/** Flat type/value bag from the API, including `company_*` keys. */
+type SettingsBag = Record<string, string | undefined>;
+
+function filled(value: unknown): string {
+  return typeof value === "string" && value.trim() ? value.trim() : "";
+}
+
+/** Turn `/Image/….png` into an absolute URL next/image can load. */
+function resolveAssetUrl(value: string): string {
+  const trimmed = filled(value);
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("data:")) {
+    return trimmed;
+  }
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) {
+    const base = API_CONFIG.API_BASE_URL.replace(/\/$/, "");
+    if (/^https?:\/\//i.test(base)) return `${base}${trimmed}`;
+  }
+  return trimmed;
+}
+
+/**
+ * Company Info (invoices) is stored as `company_*`. Chrome reads `site_name`,
+ * `header_logo`, `contact_*`. Prefer Company Info when the merchant set it;
+ * otherwise keep the Site Settings value.
+ */
+function applyCompanyFallbacks(
+  bag: SettingsBag
+): Partial<BusinessSettingsModel> {
+  const companyLogo = resolveAssetUrl(filled(bag.company_logo));
+  const headerLogo = resolveAssetUrl(filled(bag.header_logo));
+  const footerLogo = resolveAssetUrl(filled(bag.footer_logo));
+  const next: Partial<BusinessSettingsModel> = {};
+
+  const siteName = filled(bag.company_name) || filled(bag.site_name);
+  const email = filled(bag.company_email) || filled(bag.contact_email);
+  const phone = filled(bag.company_phone) || filled(bag.contact_phone);
+  const address = filled(bag.company_address) || filled(bag.address);
+  const header = companyLogo || headerLogo;
+  const footer = companyLogo || footerLogo;
+
+  if (siteName) next.site_name = siteName;
+  if (email) next.contact_email = email;
+  if (phone) next.contact_phone = phone;
+  if (address) next.address = address;
+  if (header) next.header_logo = header;
+  if (footer) next.footer_logo = footer;
+  return next;
+}
+
+function mergeSettings(
+  defaults: BusinessSettingsModel,
+  bag: SettingsBag
+): BusinessSettingsModel {
+  return {
+    ...defaults,
+    ...bag,
+    ...applyCompanyFallbacks(bag),
+  };
+}
 
 /**
  * Business Settings Utilities
@@ -81,10 +143,7 @@ export function normalizeBusinessSettings(
 
   // Case 1: Single BusinessSettingsModel object (future format)
   if (!Array.isArray(apiData) && typeof apiData === "object") {
-    return {
-      ...defaults,
-      ...apiData,
-    };
+    return mergeSettings(defaults, apiData as SettingsBag);
   }
 
   // Case 2: Array format
@@ -97,16 +156,13 @@ export function normalizeBusinessSettings(
     // Check if it's BusinessSettingItem[] format (has 'type' and 'value')
     if (apiData[0] && "type" in apiData[0] && "value" in apiData[0]) {
       const settingsArray = apiData as BusinessSettingItem[];
-      const apiSettings: Partial<BusinessSettingsModel> = {};
+      const apiSettings: SettingsBag = {};
 
       settingsArray.forEach((item) => {
-        (apiSettings as Record<string, string>)[item.type] = item.value;
+        apiSettings[String(item.type)] = item.value;
       });
 
-      return {
-        ...defaults,
-        ...apiSettings,
-      };
+      return mergeSettings(defaults, apiSettings);
     }
 
     // Check if it's BusinessSettingsModel[] format
@@ -118,13 +174,10 @@ export function normalizeBusinessSettings(
           ...acc,
           ...current,
         }),
-        {} as Partial<BusinessSettingsModel>
+        {} as SettingsBag
       );
 
-      return {
-        ...defaults,
-        ...mergedSettings,
-      };
+      return mergeSettings(defaults, mergedSettings);
     }
   }
 

@@ -53,6 +53,7 @@ export async function generateMetadata(): Promise<Metadata> {
 	try {
 		const response = await new ApiClient(API_ROUTES.BUSINESS_SETTINGS)
 			.withMethod("GET")
+			.withParams({ per_page: PER_PAGE_PARAMS.FIVE_HUNDRED })
 			.execute<BusinessSettingsResponseModel>();
 
 		if (response.success && response.data) {
@@ -115,7 +116,7 @@ export default async function RootLayout({
 
 	const response = await new ApiClient(API_ROUTES.BUSINESS_SETTINGS)
 		.withMethod("GET")
-		.withParams({ per_page: PER_PAGE_PARAMS.DEFAULT })
+		.withParams({ per_page: PER_PAGE_PARAMS.FIVE_HUNDRED })
 		.execute<BusinessSettingsResponseModel>();
 
 	// Normalize all business settings data into a single object

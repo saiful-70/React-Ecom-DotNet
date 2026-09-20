@@ -15,6 +15,7 @@ import {
 	NavigationMenuLink,
 	NavigationMenuList,
 	NavigationMenuTrigger,
+	NavigationMenuViewport,
 } from "@/components/shared/ui/navigation-menu";
 import { Button } from "@/components/shared/ui/button";
 import type { Category } from "@/components/shared/models/category";
@@ -44,6 +45,18 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 	const pathname = usePathname();
 	const currentCategoryIds = useSearchParams().get("category_id");
 	const isHomePage = pathname === ABSOLUTE_ROUTES.HOME;
+	const scrollerRef = React.useRef<HTMLDivElement>(null);
+
+	// The category row is wider than the container. Map vertical wheel /
+	// trackpad motion to horizontal scroll so the strip moves without a
+	// shift-key (html/body clip overflow-x, so the page itself cannot).
+	const handleScrollerWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+		const el = scrollerRef.current;
+		if (!el || el.scrollWidth <= el.clientWidth) return;
+		if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+		el.scrollLeft += e.deltaY;
+		e.preventDefault();
+	};
 
 	// Handler for special links: scroll on homepage, navigate to products page otherwise
 	const handleSpecialLinkClick = (
@@ -143,22 +156,24 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 	};
 
 	return (
-		<NavigationMenu className="py-1">
-			<NavigationMenuList className="flex items-center space-x-1">
+		<NavigationMenu className="w-full max-w-none min-w-0 py-1">
+			<div
+				ref={scrollerRef}
+				onWheel={handleScrollerWheel}
+				role="region"
+				aria-label={t("navigation.categories") || "Product categories"}
+				className="overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:thin]"
+			>
+				<NavigationMenuList className="flex w-max min-w-full flex-nowrap items-center justify-start space-x-1">
 				{/* Categories with Megamenu */}
-				{categories.map((category, index) => {
+				{categories.map((category) => {
 					const hasChildren =
 						category.child_category &&
 						category.child_category.length > 0;
 
-					// Items in the right half open right-aligned so the wide
-					// megamenu panel doesn't overflow the viewport edge.
-					const alignRight =
-						index >= Math.ceil(categories.length / 2);
-
 					if (hasChildren) {
 						return (
-							<NavigationMenuItem key={category.id}>
+							<NavigationMenuItem key={category.id} className="shrink-0">
 								<Link
 									href={ABSOLUTE_ROUTES.PRODUCTS_BY_CATEGORY(
 										generateCategorySearchParams(
@@ -178,9 +193,7 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 										{category.name}
 									</NavigationMenuTrigger>
 								</Link>
-								<NavigationMenuContent
-									className={alignRight ? "left-auto right-0" : ""}
-								>
+								<NavigationMenuContent>
 									<div className="w-[400px] p-4 md:w-[500px] lg:w-[600px] max-h-[500px] overflow-y-auto">
 										<div className="grid gap-4 md:grid-cols-2">
 											{renderCategoryTree(category.child_category)}
@@ -193,7 +206,7 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 
 					// Category without children - Button style
 					return (
-						<NavigationMenuItem key={category.id}>
+						<NavigationMenuItem key={category.id} className="shrink-0">
 							<Button
 								variant="ghost"
 								className="whitespace-nowrap hover:bg-primary/10 hover:text-primary transition-colors"
@@ -221,7 +234,7 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 				})}
 
 				{/* Featured */}
-				<NavigationMenuItem>
+				<NavigationMenuItem className="shrink-0">
 					<Button
 						variant="ghost"
 						className="whitespace-nowrap hover:bg-accent/10 transition-colors"
@@ -253,7 +266,7 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 				</NavigationMenuItem>
 
 				{/* Deal (Today's Deals) */}
-				<NavigationMenuItem>
+				<NavigationMenuItem className="shrink-0">
 					<Button
 						variant="ghost"
 						className="whitespace-nowrap hover:bg-primary/10 transition-colors"
@@ -285,7 +298,7 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 				</NavigationMenuItem>
 
 				{/* Sale (Top Selling) */}
-				<NavigationMenuItem>
+				<NavigationMenuItem className="shrink-0">
 					<Button
 						variant="ghost"
 						className="whitespace-nowrap hover:bg-accent/10 transition-colors"
@@ -317,7 +330,7 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 
 				{/* Combo (combo offers shelf on the homepage) */}
 				{bundlesEnabled && (
-					<NavigationMenuItem>
+					<NavigationMenuItem className="shrink-0">
 						<Button
 							variant="ghost"
 							className="whitespace-nowrap hover:bg-primary/10 transition-colors"
@@ -344,7 +357,9 @@ export const NavigationClient = ({ categories }: NavigationClientProps) => {
 						</Button>
 					</NavigationMenuItem>
 				)}
-			</NavigationMenuList>
+				</NavigationMenuList>
+			</div>
+			<NavigationMenuViewport />
 		</NavigationMenu>
 	);
 };

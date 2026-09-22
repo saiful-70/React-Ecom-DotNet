@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { StickyProductBar } from "@/components/product/StickyProductBar";
 import { toast } from "@/components/shared/ui/sonner";
 import { useCart } from "@/contexts/CartContext";
 import { useAtom } from "jotai";
@@ -61,6 +62,20 @@ export function ProductDetails({ product, combos }: ProductDetailsPageProps) {
 	// hydration so the first client render matches SSR and avoids a mismatch.
 	const isHydrated = useHydrated();
 	const isWishlisted = isHydrated && wishlistIds.includes(product.id);
+
+	const actionsRef = useRef<HTMLDivElement>(null);
+	const [actionsVisible, setActionsVisible] = useState(true);
+
+	useEffect(() => {
+		const node = actionsRef.current;
+		if (!node || typeof IntersectionObserver === "undefined") return;
+		const observer = new IntersectionObserver(
+			([entry]) => setActionsVisible(entry.isIntersecting),
+			{ rootMargin: "-72px 0px 0px 0px" }
+		);
+		observer.observe(node);
+		return () => observer.disconnect();
+	}, []);
 
 	// Track product view on mount
 	useEffect(() => {
@@ -320,8 +335,18 @@ export function ProductDetails({ product, combos }: ProductDetailsPageProps) {
 		}
 	};
 
+	const stickySummary = [
+		selectedVariant?.combination_text ?? "",
+		quantity > 1 ? `× ${quantity}` : "",
+	]
+		.filter(Boolean)
+		.join(" · ");
+
+	const soldOut = availableStock <= 0;
+	const stickyLineTotal = discountedPrice * quantity;
+
 	return (
-		<main className="container mx-auto py-3 sm:py-6 lg:py-8">
+		<main className="container mx-auto py-3 pb-20 sm:py-6 md:pb-6 lg:py-8">
 			{/* Breadcrumb */}
 			<ProductBreadcrumb productName={product.name} />
 
@@ -403,15 +428,17 @@ export function ProductDetails({ product, combos }: ProductDetailsPageProps) {
 							stock={availableStock}
 						/>
 
-						<ProductActionButtons
-							onAddToCart={handleAddToCart}
-							onBuyNow={handleBuyNow}
-							onToggleWishlist={handleToggleWishlist}
-							onShare={handleShare}
-							availableStock={availableStock}
-							isWishlisted={isWishlisted}
-							isWishlistLoading={isWishlistLoading}
-						/>
+						<div ref={actionsRef}>
+							<ProductActionButtons
+								onAddToCart={handleAddToCart}
+								onBuyNow={handleBuyNow}
+								onToggleWishlist={handleToggleWishlist}
+								onShare={handleShare}
+								availableStock={availableStock}
+								isWishlisted={isWishlisted}
+								isWishlistLoading={isWishlistLoading}
+							/>
+						</div>
 
 						<ProductDeliveryInfo />
 					</div>
@@ -434,6 +461,17 @@ export function ProductDetails({ product, combos }: ProductDetailsPageProps) {
 						/>
 					</div>
 				)}
+
+			<StickyProductBar
+				name={product.name}
+				image={mainImage}
+				price={stickyLineTotal}
+				summary={stickySummary || undefined}
+				onAddToCart={handleAddToCart}
+				onOrderNow={handleBuyNow}
+				disabled={soldOut}
+				visible={!actionsVisible}
+			/>
 		</main>
 	);
 }

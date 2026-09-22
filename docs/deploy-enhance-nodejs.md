@@ -94,36 +94,49 @@ Some shared Enhance tiers gate shell access. In that case:
 
 ---
 
-## Fastest path: per-environment scripts
+## Fastest path: one script, one target argument
 
-**Run from WSL/Linux** (not Windows, not Git Bash) so the build produces Linux-native binaries. Each script builds the standalone **locally**, then rsyncs the finished build to its server and restarts — **it never builds on the server** (the shared container caps process count and fails mid-build with `spawn ... EAGAIN` during "Collecting page data").
-
-```bash
-./scripts/deploy-bdbazar.sh                # production
-./scripts/deploy-staging.sh               # staging (same server, different dir)
-
-./scripts/deploy-bdbazar.sh --skip-build   # reuse ./deploy, just upload + restart
-./scripts/deploy-bdbazar.sh --no-restart   # upload but don't restart
-```
-
-### Structure (one self-contained script per environment)
-
-Each `scripts/deploy-<env>.sh` is standalone (no shared file). Add a new environment by copying one and changing the config block at the top:
+**Run from WSL/Linux** (not Windows, not Git Bash) so the build produces Linux-native binaries. The script builds the standalone **locally**, then rsyncs the finished build to that target's server and restarts — **it never builds on the server** (the shared container caps process count and fails mid-build with `spawn ... EAGAIN` during "Collecting page data").
 
 ```bash
-TARGET="staging"          # also selects local build-env .env.<target> if present
-HOST="bdbazar"            # ssh config alias (same server as prod here)
-DIR="nextapp/staging"     # app dir relative to remote home (Enhance workdir)
+./scripts/deploy.sh bdbazar                # production
+./scripts/deploy.sh shokhera               # second storefront
+./scripts/deploy.sh staging                # staging (same server, different dir)
+
+./scripts/deploy.sh bdbazar --skip-build   # reuse ./deploy-bdbazar, just upload + restart
+./scripts/deploy.sh bdbazar --no-restart   # upload but don't restart
 ```
 
-Each `HOST` is an **SSH config alias**, so set one up in `~/.ssh/config` (key auth → no password prompt):
+### Structure (one script, a table of targets)
+
+`scripts/deploy.sh` holds every target in the `target_config` case block at the top. Add an environment by adding one line:
+
+```bash
+staging)  HOST="showcase"; DIR="nextapp/staging"; APP_PORT="3000" ;;
+```
+
+- `HOST` — ssh config alias
+- `DIR` — app dir relative to remote home (Enhance working directory)
+- `APP_PORT` — must match the port in the Enhance panel
+
+The target name also selects the local build env `.env.<target>` and the local build folder `deploy-<target>`.
+
+Each `HOST` is an **SSH config alias**, so set one up in `~/.ssh/config` (key auth → no password prompt). The script checks SSH *before* building, so a missing alias fails in seconds instead of after a full build:
 
 ```
-Host bdbazar
+# showcase = staging on the same box as prod, different dir
+Host bdbazar showcase
     HostName 69.57.172.119
     User bdbazaro1
     Port 22
-    IdentityFile ~/.ssh/bd_bazar_ed25519
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+
+Host shokhera
+    HostName 209.42.27.117
+    User shokhera1
+    Port 22
+    IdentityFile ~/.ssh/id_ed25519
     IdentitiesOnly yes
 ```
 

@@ -1,36 +1,46 @@
 #!/bin/bash
-# Deploy — shokhera (shokhera1@209.42.27.117)
+# Deploy — one script, one target per invocation.
 #
-# Builds the Linux standalone LOCALLY (in WSL), rsyncs ./deploy-shokhera to the
-# server, and restarts. Never builds on the server (its container caps process
-# count and fails with "spawn ... EAGAIN"). The local .env.shokhera is the single
-# source of truth: used for the build (NEXT_PUBLIC_* baked in) AND uploaded to
-# the server as .env.production (runtime vars). Other local .env* never upload.
+# Builds the Linux standalone LOCALLY, rsyncs ./deploy-<target> to the server,
+# and restarts. Never builds on the server (its container caps process count and
+# fails with "spawn ... EAGAIN"). The local .env.<target> is the single source of
+# truth: used for the build (NEXT_PUBLIC_* baked in) AND uploaded to the server
+# as .env.production (runtime vars). Other local .env* never upload.
 #
 # Each target uses its OWN build folder (deploy-<target>) so targets can never
 # cross-contaminate env or compiled code, even with --skip-build.
 #
-# Usage (from WSL): ./scripts/deploy-shokhera.sh [--skip-build] [--no-restart]
+# Usage (from Linux/WSL): ./scripts/deploy.sh <target> [--skip-build] [--no-restart]
 set -euo pipefail
 
-# ── config ──────────────────────────────────────────────────────────────────
-TARGET="shokhera"
-HOST="shokhera"       # ~/.ssh/config alias (key auth, no password)
-DIR="nextapp/app"     # Enhance working directory (relative to website home)
-APP_PORT="3000"       # port the Enhance Node app listens on (matches the panel)
+# ── targets ─────────────────────────────────────────────────────────────────
+# HOST is a ~/.ssh/config alias (key auth, no password).
+# DIR is the Enhance working directory, relative to the remote home.
+# APP_PORT must match the port set for the app in the Enhance panel.
+target_config() {
+  case "$1" in
+    bdbazar)  HOST="bdbazar";  DIR="nextapp/app";     APP_PORT="3000" ;;  # bdbazaronline.com
+    shokhera) HOST="shokhera"; DIR="nextapp/app";     APP_PORT="3000" ;;
+    staging)  HOST="showcase"; DIR="nextapp/staging"; APP_PORT="3000" ;;  # showcase server
+    *) echo "❌ unknown target: $1 (known: bdbazar shokhera staging)" >&2; exit 1 ;;
+  esac
+}
 # ────────────────────────────────────────────────────────────────────────────
 
-DEPLOY_DIR="deploy-$TARGET"   # local build output for this target
-BUILD_ENV=".env.$TARGET"      # local env (build-time + uploaded as .env.production)
-
-SKIP_BUILD=0; RESTART=1
+TARGET=""; SKIP_BUILD=0; RESTART=1
 for arg in "$@"; do
   case "$arg" in
     --skip-build) SKIP_BUILD=1 ;;
     --no-restart) RESTART=0 ;;
-    *) echo "❌ unknown option: $arg" >&2; exit 1 ;;
+    -*) echo "❌ unknown option: $arg" >&2; exit 1 ;;
+    *) [ -z "$TARGET" ] || { echo "❌ one target at a time." >&2; exit 1; }; TARGET="$arg" ;;
   esac
 done
+[ -n "$TARGET" ] || { echo "❌ usage: ./scripts/deploy.sh <target> [--skip-build] [--no-restart]" >&2; exit 1; }
+target_config "$TARGET"
+
+DEPLOY_DIR="deploy-$TARGET"   # local build output for this target
+BUILD_ENV=".env.$TARGET"      # local env (build-time + uploaded as .env.production)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -41,8 +51,13 @@ case "$(uname -s)" in Linux) ;; *)
   echo "❌ Run from WSL/Linux so the build produces Linux-native binaries." >&2
   exit 1 ;;
 esac
-command -v node >/dev/null 2>&1 || { echo "❌ node not found in this WSL shell." >&2; exit 1; }
+command -v node >/dev/null 2>&1 || { echo "❌ node not found in this shell." >&2; exit 1; }
 [ -f "$BUILD_ENV" ] || { echo "❌ $BUILD_ENV not found — create it locally with this target's env." >&2; exit 1; }
+# Check SSH before the build — a missing ~/.ssh/config alias used to surface only
+# after a full build, minutes in.
+ssh -o BatchMode=yes -o ConnectTimeout=10 "$HOST" true 2>/dev/null || {
+  echo "❌ cannot ssh to '$HOST' — add a Host block for it in ~/.ssh/config (key auth)." >&2
+  exit 1; }
 
 # ── local build ─────────────────────────────────────────────────────────────
 if [ "$SKIP_BUILD" = 0 ]; then

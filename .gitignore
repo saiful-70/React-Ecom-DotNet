@@ -98,3 +98,10 @@ graft/
 
 # Claude Code personal, machine-specific settings (statusLine paths, local hooks)
 .claude/settings.local.json
+
+# graft-generated agent wiring — machine-specific (BAKED npm paths, absolute hook paths).
+# Regenerate after clone: `graft init` (or `graft init --agents cursor claude`).
+.claude/helpers/graft-*.cjs
+.cursor/hooks/
+.cursor/hooks.json
+.impeccable/hook.cache.json

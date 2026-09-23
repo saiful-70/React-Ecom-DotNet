@@ -66,7 +66,7 @@ One backend + one database serve several storefronts. `execute()` attaches `X-We
 
 ### Payments
 
-Only **COD, Stripe and PayPal** are implemented server-side — bKash / Nagad / SSLCommerz have no API, so don't add them as options. Routes are under `API_ROUTES.PAYMENT_METHOD` (`payments/{stripe,paypal}/...`).
+Only **COD, Stripe and PayPal** are implemented server-side — bKash / Nagad / SSLCommerz have no API, so don't add them as options. Routes are under `API_ROUTES.PAYMENT_METHOD` (`payments/{stripe,paypal}/...`). The two gateways show at checkout only when the variant's `onlinePayments` flag is on (off for bn-01 / bdbazaronline.com → COD only).
 
 - COD completes in `createPurchaseOrder`. The two gateways create the order first (unpaid), then `initiateGatewayPayment(method, orderId)` returns a URL the browser is sent to with `window.location.assign` (external URL — not a router push).
 - The cart is **not** cleared on hand-off; an abandoned gateway leaves a payable order at `/profile/orders/<id>`, where "Pay Now" retries either gateway.

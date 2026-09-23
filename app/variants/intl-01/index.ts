@@ -43,6 +43,7 @@ const intl01: VariantDescriptor = {
     bundles: false,
     cookieConsent: true,
     languageSwitcher: true,
+    onlinePayments: true,
   },
 };
 

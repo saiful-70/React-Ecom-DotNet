@@ -9,6 +9,7 @@ import {
 } from "@/components/shared/ui/card";
 import { Label } from "@/components/shared/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/shared/ui/radio-group";
+import { useFeature } from "@/components/shared/providers/variant-provider";
 import { Banknote, CreditCard, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -61,6 +62,10 @@ export function PaymentMethodForm({
   disabled = false,
 }: PaymentMethodFormProps) {
   const { t } = useTranslation();
+  const onlinePayments = useFeature("onlinePayments");
+  const options = onlinePayments
+    ? PAYMENT_OPTIONS
+    : PAYMENT_OPTIONS.filter((o) => o.value === "cod");
 
   return (
     <Card>
@@ -79,7 +84,7 @@ export function PaymentMethodForm({
           disabled={disabled}
         >
           <div className="space-y-3">
-            {PAYMENT_OPTIONS.map(
+            {options.map(
               ({
                 value,
                 Icon,

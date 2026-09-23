@@ -741,6 +741,7 @@ export function CheckoutPage() {
 							isFormValid={!hasFormErrors(formErrors)}
 							isLoadingPrices={isLoadingPrices}
 							readOnlyQuantities={!!onlyId}
+							submitFirst={variant.template === "classic"}
 						/>
 					</div>
 				</div>

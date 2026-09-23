@@ -55,6 +55,8 @@ export interface FeatureFlags {
   cookieConsent: boolean;
   /** In-header language switcher. */
   languageSwitcher: boolean;
+  /** Stripe + PayPal at checkout. Off = cash on delivery only. */
+  onlinePayments: boolean;
 }
 
 /**

@@ -45,6 +45,8 @@ interface OrderSummaryProps {
 	 * instead, mirroring the bundle-line fixed-quantity display below.
 	 */
 	readOnlyQuantities?: boolean;
+	/** Render the order button above the line items instead of below the total. */
+	submitFirst?: boolean;
 }
 
 export function OrderSummary({
@@ -59,6 +61,7 @@ export function OrderSummary({
 	isLoadingPrices = false,
 	items: propItems,
 	readOnlyQuantities = false,
+	submitFirst = false,
 }: OrderSummaryProps) {
 	const { t } = useTranslation();
 	const {
@@ -79,6 +82,25 @@ export function OrderSummary({
 	const tax = propTax ?? cartTax;
 	const total = propTotal ?? cartTotal;
 
+	const submitButton = (
+		<Button
+			type="submit"
+			className="h-12 w-full"
+			disabled={isProcessing || !isFormValid || isLoadingPrices}
+			onClick={onSubmit}
+		>
+			{isLoadingPrices
+				? t("checkout.loadingPrices") || "Loading prices..."
+				: isProcessing
+					? t("checkout.processing") || "Processing..."
+					: !isFormValid
+						? t("checkout.fillRequiredFields") ||
+						"Fill required fields"
+						: `${t("checkout.placeOrder") || "Place Order"} - `}
+			{!isProcessing && isFormValid && !isLoadingPrices && <Price amount={total} />}
+		</Button>
+	);
+
 	return (
 		<Card className="sticky top-4">
 			<CardHeader>
@@ -87,6 +109,7 @@ export function OrderSummary({
 				</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-4">
+				{submitFirst && submitButton}
 				<div className="space-y-3">
 					{items.map((item) => {
 						const atStockLimit =
@@ -246,22 +269,7 @@ export function OrderSummary({
 						</span>
 					</div>
 				</div>
-				<Button
-					type="submit"
-					className="h-12 w-full"
-					disabled={isProcessing || !isFormValid || isLoadingPrices}
-					onClick={onSubmit}
-				>
-					{isLoadingPrices
-						? t("checkout.loadingPrices") || "Loading prices..."
-						: isProcessing
-							? t("checkout.processing") || "Processing..."
-							: !isFormValid
-								? t("checkout.fillRequiredFields") ||
-								"Fill required fields"
-								: `${t("checkout.placeOrder") || "Place Order"} - `}
-					{!isProcessing && isFormValid && !isLoadingPrices && <Price amount={total} />}
-				</Button>
+				{!submitFirst && submitButton}
 			</CardContent>
 		</Card>
 	);

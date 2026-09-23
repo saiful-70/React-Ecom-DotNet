@@ -45,6 +45,7 @@ const bn03: VariantDescriptor = {
     bundles: true,
     cookieConsent: true,
     languageSwitcher: true,
+    onlinePayments: true,
   },
 };
 

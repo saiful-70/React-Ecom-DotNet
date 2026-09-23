@@ -7,12 +7,11 @@ import { Button } from "@/components/shared/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { ABSOLUTE_ROUTES } from "@/lib/absolute-routes";
 import { useAtomValue } from "jotai";
-import { HelpCircle, Leaf, Menu, Moon, Phone, ShoppingCart, Sun, User, X } from "lucide-react";
+import { Menu, Moon, ShoppingCart, Sun, User, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import { VariantSwitcher } from "@/components/shared/VariantSwitcher";
 import { useFeature } from "@/components/shared/providers/variant-provider";
-import { usePathname } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { MobileNavigationClient } from "./MobileNavigationClient";
@@ -32,8 +31,6 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 
 	const { t } = useTranslation();
 	// const setMiniProfile = useSetAtom(miniProfileAtom);
-	const pathname = usePathname();
-	const isHome = pathname === "/";
 	const { theme, setTheme } = useTheme();
 	const { itemCount } = useCart();
 	const businessSettings = useAtomValue(businessSettingsAtom);
@@ -56,38 +53,6 @@ export const Header = ({ categories = [] }: HeaderProps) => {
 
 	return (
 		<>
-			{/* Top utility bar — phone · tagline · customer help (home page only) */}
-			{isHome && (
-			<div className="hidden border-b border-secondary-foreground/10 bg-secondary text-secondary-foreground/90 sm:block">
-				<div className="container mx-auto">
-					<div className="flex h-9 items-center justify-between text-xs">
-						{businessSettings?.contact_phone ? (
-							<a
-								href={`tel:${businessSettings.contact_phone}`}
-								className="flex items-center gap-1.5 hover:text-secondary-foreground"
-							>
-								<Phone className="h-3.5 w-3.5" />
-								<span>{businessSettings.contact_phone}</span>
-							</a>
-						) : (
-							<span />
-						)}
-						<span className="flex items-center gap-1.5 font-medium">
-							<Leaf className="h-3.5 w-3.5 text-accent" />
-							{t("topBar.tagline")}
-						</span>
-						<Link
-							href="/profile"
-							className="flex items-center gap-1.5 hover:text-secondary-foreground"
-						>
-							<HelpCircle className="h-3.5 w-3.5" />
-							{t("topBar.customerHelp")}
-						</Link>
-					</div>
-				</div>
-			</div>
-			)}
-
 			<header className="sticky top-0 z-50 border-b border-secondary-foreground/10 bg-secondary text-secondary-foreground">
 			<div className="container mx-auto">
 				<div className="flex items-center justify-between h-16">

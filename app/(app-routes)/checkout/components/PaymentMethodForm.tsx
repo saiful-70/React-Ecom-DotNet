@@ -63,9 +63,9 @@ export function PaymentMethodForm({
 }: PaymentMethodFormProps) {
   const { t } = useTranslation();
   const onlinePayments = useFeature("onlinePayments");
-  const options = onlinePayments
-    ? PAYMENT_OPTIONS
-    : PAYMENT_OPTIONS.filter((o) => o.value === "cod");
+
+  // COD-only: the shipping form already shows the fixed COD choice.
+  if (!onlinePayments) return null;
 
   return (
     <Card>
@@ -84,7 +84,7 @@ export function PaymentMethodForm({
           disabled={disabled}
         >
           <div className="space-y-3">
-            {options.map(
+            {PAYMENT_OPTIONS.map(
               ({
                 value,
                 Icon,

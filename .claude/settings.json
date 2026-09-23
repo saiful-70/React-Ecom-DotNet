@@ -73,7 +73,7 @@
         ]
       },
       {
-        "matcher": "Bash|mcp__graft__|Read|Grep|Glob",
+        "matcher": "Bash|mcp__graft__",
         "hooks": [
           {
             "type": "command",

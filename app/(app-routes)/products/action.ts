@@ -242,11 +242,17 @@ export async function getProductDetails(
 
   // Normalize response - /product-details endpoint returns product directly in data
   if (response.success && response.data && typeof response.data === "object") {
+    const product = response.data as Product;
+    // The backend can send a placeholder attribute (name "[]", no values) for
+    // products without attributes; it rendered as a bare "[]:" label on the PDP.
+    product.attributes = (product.attributes ?? []).filter(
+      (attr) => attr.values?.length && attr.name && attr.name !== "[]",
+    );
     return {
       success: true,
       message: response.message,
       data: {
-        product: response.data, // Wrap product in nested structure
+        product, // Wrap product in nested structure
       },
     };
   }

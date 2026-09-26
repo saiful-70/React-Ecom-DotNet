@@ -14,7 +14,7 @@ const bn02: VariantDescriptor = {
   id: "bn-02",
   market: "bn",
   template: "bazar",
-  name: "Bengali — Flexiload Counter",
+  name: "Flexiload Counter",
   description:
     "Second Bengali demo on the bazar template: tariff-board offers, SIM-coloured departments, phone-first ordering, mobile bottom nav.",
   theme: {

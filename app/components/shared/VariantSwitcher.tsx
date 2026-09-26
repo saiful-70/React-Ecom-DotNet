@@ -13,12 +13,6 @@ import {
 import { useVariant } from "@/components/shared/providers/variant-provider";
 import { DEMO_PREFIX, SHOWCASE_MODE } from "@/lib/config/variant.config";
 import { listVariants } from "@/variants/registry";
-import type { Market } from "@/variants/types";
-
-const MARKET_LABELS: Record<Market, string> = {
-	intl: "International",
-	bn: "Bengali",
-};
 
 /**
  * Header control to jump between demo variants. Rendered only in showcase mode
@@ -29,10 +23,6 @@ export function VariantSwitcher() {
 	const active = useVariant();
 
 	if (!SHOWCASE_MODE) return null;
-
-	const markets = Array.from(
-		new Set(listVariants().map((v) => v.market))
-	) as Market[];
 
 	return (
 		<DropdownMenu>
@@ -59,26 +49,19 @@ export function VariantSwitcher() {
 				<DropdownMenuItem asChild>
 					<a href={DEMO_PREFIX}>All demos gallery</a>
 				</DropdownMenuItem>
-				{markets.map((market) => (
-					<div key={market}>
-						<DropdownMenuSeparator />
-						<DropdownMenuLabel className="text-xs text-muted-foreground">
-							{MARKET_LABELS[market]}
-						</DropdownMenuLabel>
-						{listVariants(market).map((v) => (
-							<DropdownMenuItem key={v.id} asChild>
-								<a
-									href={`${DEMO_PREFIX}/${v.id}`}
-									className="flex items-center justify-between"
-								>
-									<span className="truncate">{v.name}</span>
-									{v.id === active.id && (
-										<Check className="h-4 w-4 shrink-0" />
-									)}
-								</a>
-							</DropdownMenuItem>
-						))}
-					</div>
+				<DropdownMenuSeparator />
+				{listVariants().map((v) => (
+					<DropdownMenuItem key={v.id} asChild>
+						<a
+							href={`${DEMO_PREFIX}/${v.id}`}
+							className="flex items-center justify-between"
+						>
+							<span className="truncate">{v.name}</span>
+							{v.id === active.id && (
+								<Check className="h-4 w-4 shrink-0" />
+							)}
+						</a>
+					</DropdownMenuItem>
 				))}
 			</DropdownMenuContent>
 		</DropdownMenu>

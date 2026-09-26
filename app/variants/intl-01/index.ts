@@ -15,7 +15,7 @@ const intl01: VariantDescriptor = {
   id: "intl-01",
   market: "intl",
   template: "global",
-  name: "International — Mail-Order Index",
+  name: "Mail-Order Index",
   description:
     "The international marketplace: catalogue-index UI, numbered product plates, honest availability lines, English-first.",
   theme: {

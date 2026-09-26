@@ -18,7 +18,7 @@ const bn03: VariantDescriptor = {
   id: "bn-03",
   market: "bn",
   template: "pantry",
-  name: "Bengali — Natural Pantry",
+  name: "Natural Pantry",
   description:
     "Single-brand Bengali natural-food shop on the pantry template: photography-led shelf, purity proof rail, pack-size tiles, cash-on-delivery order form on the product page.",
   theme: {

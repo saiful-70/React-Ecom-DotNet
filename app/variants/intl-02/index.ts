@@ -16,7 +16,7 @@ const intl02: VariantDescriptor = {
   id: "intl-02",
   market: "intl",
   template: "premium",
-  name: "International — Atelier",
+  name: "Atelier",
   description:
     "Premium single-brand store on the premium template: lacquer field, specimen PDP, label-panel buy box, editorial sections.",
   theme: {

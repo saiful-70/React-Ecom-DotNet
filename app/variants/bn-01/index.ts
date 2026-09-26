@@ -13,7 +13,7 @@ const bn01: VariantDescriptor = {
   id: "bn-01",
   market: "bn",
   template: "classic",
-  name: "Bengali — Open Shopfront",
+  name: "Open Shopfront",
   description:
     "The flagship Bengali storefront on the classic template: banner carousel, white photography-led retail UI, orange ordering, Bengali-first, full feature set.",
   theme: {

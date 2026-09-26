@@ -2,7 +2,7 @@
 
 import { VariantLink as Link } from "@/components/shared/ui/variant-link";
 import Image from "next/image";
-import { Heart, ShoppingCart, Star, Eye } from "lucide-react";
+import { Heart, ShoppingCart, Star, Eye, Zap } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/shared/ui/button";
 import { Badge } from "@/components/shared/ui/badge";
@@ -20,6 +20,7 @@ import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
 import Price from "@/components/shared/Price";
 import { cn } from "@/lib/utils/utils";
+import { buyNowCheckoutHref } from "@/lib/utils/buy-now";
 
 interface ProductCardItemProps {
 	product: Product;
@@ -46,10 +47,9 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 		? product.thumbnail_image
 		: fallbackImage;
 
-	const handleAddToCart = (e: React.MouseEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
-
+	// Adds the first variant (or the product) to the cart; returns the line
+	// identity, or null when out of stock.
+	const addLine = (): { id: number; variant_id?: number } | null => {
 		// Get the first variant if product has variants
 		const variant =
 			product.variants && product.variants.length > 0
@@ -67,7 +67,7 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 		// Check if out of stock
 		if (stock <= 0) {
 			toast.error(t("products.outOfStock") || "Out of stock!");
-			return;
+			return null;
 		}
 
 		// Add to cart with variant information if available
@@ -83,10 +83,24 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 			tax: product.tax ? parseFloat(product.tax) : 0,
 			tax_type: product.tax_type || "exclude",
 		});
+		return { id: product.id, variant_id: variant?.id };
+	};
+
+	const handleAddToCart = (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (!addLine()) return;
 		toast.success(t("products.addToCart"), {
 			description: `${product.name} ${t("productCard.addedToCart") || "added to cart"
 				}`,
 		});
+	};
+
+	const handleBuyNow = (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		const line = addLine();
+		if (line) router.push(buyNowCheckoutHref(line.id, line.variant_id, 1));
 	};
 
 	const handleToggleWishlist = async (e: React.MouseEvent) => {
@@ -215,7 +229,7 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 				</div>
 
 				{/* Add to Cart Overlay - Desktop only */}
-				<div className="hidden lg:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-secondary/80 via-secondary/30 to-transparent p-4 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-300">
+				<div className="hidden lg:flex flex-col gap-2 absolute bottom-0 left-0 right-0 bg-gradient-to-t from-secondary/80 via-secondary/30 to-transparent p-4 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-300">
 					<Button
 						className="w-full shadow-warm-md font-medium"
 						onClick={handleAddToCart}
@@ -226,6 +240,16 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 							? t("products.outOfStock")
 							: t("products.addToCart")}
 					</Button>
+					{!isOutOfStock && (
+						<Button
+							variant="secondary"
+							className="w-full shadow-warm-md font-medium"
+							onClick={handleBuyNow}
+						>
+							<Zap className="w-4 h-4 mr-2" />
+							{t("productDetails.buyNow")}
+						</Button>
+					)}
 				</div>
 			</div>
 
@@ -271,6 +295,16 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 				</div>
 
 				{/* Mobile Action Buttons - Always at bottom */}
+				{!isOutOfStock && (
+					<Button
+						variant="secondary"
+						className="w-full lg:hidden mt-2 text-[10px] sm:text-xs h-7 sm:h-8 px-2"
+						onClick={handleBuyNow}
+					>
+						<Zap className="w-3 h-3 mr-1" />
+						{t("productDetails.buyNow")}
+					</Button>
+				)}
 				<div className="flex gap-1 sm:gap-2 lg:hidden mt-2">
 					<Button
 						className="flex-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2"

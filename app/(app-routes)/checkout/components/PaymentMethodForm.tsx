@@ -9,7 +9,7 @@ import {
 } from "@/components/shared/ui/card";
 import { Label } from "@/components/shared/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/shared/ui/radio-group";
-import { Banknote, CreditCard, Wallet } from "lucide-react";
+import { Banknote, CreditCard, PhoneCall, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface PaymentMethodFormProps {
@@ -91,7 +91,7 @@ export function PaymentMethodForm({
                 <Label
                   key={value}
                   htmlFor={`payment-${value}`}
-                  className="flex items-start space-x-3 border rounded-lg p-3 cursor-pointer hover:bg-accent transition-colors has-[:checked]:border-primary"
+                  className="flex items-start space-x-3 border rounded-lg p-3 cursor-pointer hover:border-primary/40 hover:bg-muted/50 transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
                 >
                   <RadioGroupItem
                     value={value}
@@ -113,12 +113,19 @@ export function PaymentMethodForm({
           </div>
         </RadioGroup>
 
-        {paymentMethod !== "cod" ? (
+        {paymentMethod === "cod" ? (
+          // Call-to-confirm is a trust signal for BD shoppers: a human
+          // verifies before dispatch.
+          <p className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground">
+            <PhoneCall className="h-4 w-4 shrink-0" aria-hidden />
+            {t("checkout.callToConfirm")}
+          </p>
+        ) : (
           <p className="mt-4 text-sm text-muted-foreground">
             {t("checkout.paymentRedirectNotice") ||
               "You will be redirected to complete the payment after the order is created."}
           </p>
-        ) : null}
+        )}
       </CardContent>
     </Card>
   );

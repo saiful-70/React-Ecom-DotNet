@@ -17,11 +17,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/shared/ui/select";
-import {
-	RadioGroup,
-	RadioGroupItem,
-} from "@/components/shared/ui/radio-group";
-import { PhoneCall, Truck, Wallet } from "lucide-react";
+import { Truck } from "lucide-react";
 import Price from "@/components/shared/Price";
 import { useEffect } from "react";
 import type { FormData, FormErrors } from "@/(app-routes)/checkout/model";
@@ -168,30 +164,6 @@ export function ShippingAddressForm({
 							{t(errors.address)}
 						</p>
 					)}
-				</div>
-
-				{/* Payment method — COD is the only supported method (the order
-				    payload always sends "cod"), shown pre-selected for clarity. */}
-				<div>
-					<Label className="flex items-center mb-2">
-						{t("checkout.paymentMethod")}
-					</Label>
-					<RadioGroup value="cod" className="gap-2">
-						<Label
-							htmlFor="payment-cod"
-							className="flex cursor-pointer items-center gap-2.5 rounded-md border border-primary/40 bg-primary/5 px-3 py-3 font-medium"
-						>
-							<RadioGroupItem value="cod" id="payment-cod" />
-							<Wallet className="h-4 w-4 text-primary" />
-							{t("checkout.cashOnDelivery")}
-						</Label>
-					</RadioGroup>
-					{/* Call-to-confirm is itself a trust signal for BD shoppers:
-					    it says a human verifies before dispatch. */}
-					<p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-						<PhoneCall className="h-3.5 w-3.5 shrink-0" aria-hidden />
-						{t("checkout.callToConfirm")}
-					</p>
 				</div>
 			</CardContent>
 		</Card>

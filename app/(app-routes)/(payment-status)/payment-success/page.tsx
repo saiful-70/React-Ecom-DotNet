@@ -25,5 +25,11 @@ export default async function PaymentSuccessPage({
 	const order_id = params.order_id;
 	const order_tracking_no = params.order_tracking_no;
 
-	return <PaymentSuccess orderId={order_id} orderTrackingNo={order_tracking_no} />;
+	return (
+		<PaymentSuccess
+			orderId={order_id}
+			orderTrackingNo={order_tracking_no}
+			sessionId={params.session_id}
+		/>
+	);
 }

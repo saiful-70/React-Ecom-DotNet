@@ -503,6 +503,18 @@ export function CheckoutPage() {
 			return;
 		}
 
+		// Stripe/PayPal initiate require a JWT. Stop guests before the order is
+		// created, or they end up with an unpaid order they can't pay.
+		if (isGatewayPaymentMethod(paymentMethod) && !miniProfile) {
+			toast.error(t("checkout.gatewayLoginRequired"));
+			router.push(
+				`${ABSOLUTE_ROUTES.LOGIN}?redirect=${encodeURIComponent(
+					window.location.pathname + window.location.search
+				)}`
+			);
+			return;
+		}
+
 		setIsProcessing(true);
 
 		try {

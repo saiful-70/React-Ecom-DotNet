@@ -264,7 +264,8 @@
     "cities": {
       "insideDhaka": "Inside Dhaka",
       "outsideDhaka": "Outside Dhaka"
-    }
+    },
+    "gatewayLoginRequired": "Please log in to pay by card or PayPal."
   },
   "login": {
     "title": "Welcome Back",
@@ -654,7 +655,11 @@
     "detailInfo": "Detail information will be included below.",
     "continueShopping": "Continue Shopping",
     "viewOrderDetails": "View Order Details",
-    "trackOrder": "Track Order"
+    "trackOrder": "Track Order",
+    "confirming": "Confirming your payment…",
+    "paidTitle": "Payment received",
+    "paidDescription": "Your payment is confirmed. Thank you for your order!",
+    "stillProcessing": "Your payment is still processing. Refresh this page in a minute, or check the order in your profile."
   },
   "paymentFailed": {
     "orderId": "Order ID",

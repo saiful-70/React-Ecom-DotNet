@@ -61,6 +61,24 @@ export async function getOrderDetails(id: string) {
     }>();
 }
 
+/**
+ * Lower-cased `payment_status` of an order, or null when it can't be read.
+ * The Stripe return page polls this: only the webhook marks an order paid,
+ * and it can land a few seconds after the buyer is back.
+ */
+export async function getOrderPaymentStatus(
+  orderId: string
+): Promise<string | null> {
+  // The payment guide documents `order_id`; the order page sends `id`.
+  const res = await new ApiClient(API_ROUTES.ORDER.ORDER_DETAILS)
+    .withMethod("GET")
+    .withCookieHeaders(await cookies())
+    .withParams({ id: orderId, order_id: orderId })
+    .execute<{ success: boolean; data: OrderDetailsModel | null }>();
+  const status = res.success ? res.data?.payment_status : undefined;
+  return status ? status.toLowerCase() : null;
+}
+
 export interface Order {
   id: number;
   order_number?: string;

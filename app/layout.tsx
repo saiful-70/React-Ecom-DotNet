@@ -42,7 +42,10 @@ import { buildVariantThemeCss } from "./variants/theme";
 import { PER_PAGE_PARAMS } from "./lib/enums";
 import { MaintenancePageContent } from "./components/shared/MaintenancePage";
 import { ChatWidget } from "./components/chat";
-import { CookieBanner } from "./components/shared/CookieConsent";
+import {
+	CookieBanner,
+	ImpliedConsent,
+} from "./components/shared/CookieConsent";
 import { GoogleAnalytics, MetaPixel } from "./lib/analytics";
 import { getTemplate } from "./templates/registry";
 import { AnalyticsTracker } from "./components/analytics/AnalyticsTracker";
@@ -216,7 +219,11 @@ export default async function RootLayout({
 								}
 							/>
 							{variant.features.chatWidget && <ChatWidget />}
-							{variant.features.cookieConsent && <CookieBanner />}
+							{variant.features.cookieConsent ? (
+								<CookieBanner />
+							) : (
+								<ImpliedConsent />
+							)}
 						</>
 					)}
 					{children}

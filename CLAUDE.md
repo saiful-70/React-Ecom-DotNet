@@ -15,7 +15,7 @@ This branch is the live deploy for one client. Variant `bn-01` (classic template
   - **Checkout is COD only:** the `onlinePayments` flag is off.
   - **Order button position:** the order button sits above the line items (`submitFirst` in `OrderSummary`).
   - **Header:** no top utility bar in the classic header.
-  - **No cookie-consent banner:** the `cookieConsent` flag is off.
+  - **No cookie-consent banner:** the `cookieConsent` flag is off. All cookie categories are always granted (`ImpliedConsent`), and the footer "Cookie settings" link is hidden.
 - Commit scope: `fix(bdbazar): …` / `feat(bdbazar): …`.
 
 ## Commands

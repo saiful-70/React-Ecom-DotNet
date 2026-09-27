@@ -23,6 +23,7 @@ import { toast } from "@/components/shared/ui/sonner";
 import { subscribeNewsletter } from "@/lib/actions/newsletter";
 import { Category } from "../shared/models/category";
 import { CookieSettingsButton } from "../shared/CookieConsent";
+import { useFeature } from "@/components/shared/providers/variant-provider";
 
 interface Props {
 	categories?: Category[];
@@ -33,6 +34,7 @@ export const Footer = ({ categories = [] }: Props) => {
 	const businessSettings = useAtomValue(businessSettingsAtom);
 	const [email, setEmail] = useState("");
 	const [isSubscribing, setIsSubscribing] = useState(false);
+	const cookieConsentEnabled = useFeature("cookieConsent");
 
 	const handleSubscribe = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -293,7 +295,7 @@ export const Footer = ({ categories = [] }: Props) => {
 						>
 							{t("footer.legal.termsOfService")}
 						</a>
-						<CookieSettingsButton />
+						{cookieConsentEnabled && <CookieSettingsButton />}
 					</div>
 				</div>
 			</div>

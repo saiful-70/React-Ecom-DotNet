@@ -6,6 +6,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 DebuggerMind — Next.js 15 (App Router) e-commerce frontend. React 19, TypeScript, Tailwind, shadcn/ui (Radix), Jotai. Talks to an external backend API (the "DotNet" in the repo name); there is no local backend in this repo. Bengali (`bn`) is the primary user-facing language.
 
+## Client: bdbazaronline.com (branch `client/bdbazar`)
+
+This branch is the live deploy for one client. Variant `bn-01` (classic template), Bangladesh market, Bengali first, BDT.
+
+- Put client-specific behaviour behind variant feature flags or bn-01 data, not hardcoded in shared components.
+- Differences from `main`:
+  - **Checkout is COD only:** the `onlinePayments` flag is off.
+  - **Order button position:** the order button sits above the line items (`submitFirst` in `OrderSummary`).
+  - **Header:** no top utility bar in the classic header.
+  - **No cookie-consent banner:** the `cookieConsent` flag is off.
+- Commit scope: `fix(bdbazar): …` / `feat(bdbazar): …`.
+
 ## Commands
 
 ```bash

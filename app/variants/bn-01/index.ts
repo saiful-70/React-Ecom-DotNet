@@ -40,7 +40,7 @@ const bn01: VariantDescriptor = {
     topSelling: true,
     campaigns: true,
     bundles: true,
-    cookieConsent: true,
+    cookieConsent: false,
     languageSwitcher: true,
     onlinePayments: false,
   },

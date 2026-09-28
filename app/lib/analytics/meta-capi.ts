@@ -30,7 +30,11 @@ const sha256 = (value: string) =>
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
-const normalizePhone = (phone: string) => phone.replace(/[^0-9]/g, "");
+// Meta needs the country code; BD checkout collects local 01XXXXXXXXX.
+const normalizePhone = (phone: string) => {
+  const digits = phone.replace(/[^0-9]/g, "");
+  return /^01\d{9}$/.test(digits) ? `88${digits}` : digits;
+};
 
 const buildUserData = (u: MetaCapiUserData) => {
   const data: Record<string, unknown> = {};

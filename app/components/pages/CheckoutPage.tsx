@@ -60,6 +60,10 @@ import { useVariant } from "@/components/shared/providers/variant-provider";
 import { findCountry, DEFAULT_COUNTRY_CODE } from "@/lib/data/countries";
 import { calculateItemTax } from "@/lib/utils/tax-calculator";
 import { rememberPaypalHandoff } from "@/lib/utils/paypal-handoff";
+import {
+	trackUnifiedBeginCheckout,
+	trackUnifiedPurchase,
+} from "@/lib/analytics";
 
 export function CheckoutPage() {
 	const { t } = useTranslation();
@@ -467,6 +471,28 @@ export function CheckoutPage() {
 	// equals `freeShippingBase + finalShipping` (gross + shipping).
 	const calculatedTotal = calculatedSubtotal + calculatedTax + finalShipping;
 
+	const analyticsItems = () =>
+		items.map((i) => ({
+			item_id: i.id.toString(),
+			item_name: i.name,
+			price: i.price,
+			quantity: i.quantity,
+		}));
+	const analyticsUser = () => ({
+		email: miniProfile?.email,
+		phone: formData.phone || miniProfile?.phone,
+		externalId: miniProfile?.id?.toString(),
+	});
+
+	// Meta InitiateCheckout: once per visit, after re-pricing settles.
+	const checkoutTrackedRef = useRef(false);
+	useEffect(() => {
+		if (checkoutTrackedRef.current || isLoadingPrices || items.length === 0)
+			return;
+		checkoutTrackedRef.current = true;
+		trackUnifiedBeginCheckout(calculatedTotal, analyticsItems(), analyticsUser());
+	},[isLoadingPrices, items.length]);
+
 	// Shipping is only "known" once we have a real signal that determined it:
 	// a global (no-city) template, a chosen city with its API rate, or a
 	// bundle free-delivery perk. Otherwise a shippingCost of 0 is just the
@@ -595,6 +621,19 @@ export function CheckoutPage() {
 				// Mark as placed first so clearing the cart doesn't render the
 				// empty-checkout state before the success-page navigation lands.
 				setOrderPlaced(true);
+
+				trackUnifiedPurchase(
+					String(
+						response.data?.order_id ??
+							response.data?.order_number ??
+							response.data?.order_tracking_number ??
+							""
+					),
+					calculatedTotal,
+					"BDT",
+					analyticsItems(),
+					analyticsUser()
+				);
 
 				toast.success(t("checkout.orderPlacedSuccess"), {
 					description: `${

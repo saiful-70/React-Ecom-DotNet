@@ -20,6 +20,7 @@ import { useVariantRouter as useRouter } from "@/hooks/use-variant-router";
 import { toggleWishlist } from "@/(app-routes)/(auth)/action";
 import Price from "@/components/shared/Price";
 import { cn } from "@/lib/utils/utils";
+import { trackUnifiedAddToCart } from "@/lib/analytics";
 
 interface ProductCardItemProps {
 	product: Product;
@@ -83,6 +84,7 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 			tax: product.tax ? parseFloat(product.tax) : 0,
 			tax_type: product.tax_type || "exclude",
 		});
+		trackUnifiedAddToCart(product.id.toString(), product.name, price, 1);
 		toast.success(t("products.addToCart"), {
 			description: `${product.name} ${t("productCard.addedToCart") || "added to cart"
 				}`,

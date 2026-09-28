@@ -168,7 +168,6 @@ export function ComboLanding({ combo }: ComboLandingProps) {
 
   if (!selectedTier) return null;
 
-  const includedItems = selectedTier.items;
   // Blocked when sold out, or when a per-unit choice is missing / out of stock.
   const soldOut =
     selectedTier.is_available === false || !unitsFor(selectedTier).isReady;
@@ -190,8 +189,9 @@ export function ComboLanding({ combo }: ComboLandingProps) {
 
       {/* Hero: gallery + summary */}
       <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
-        {/* Gallery */}
-        <div>
+        {/* Gallery. min-w-0: the scrolling thumbnail strip would otherwise
+            widen the grid track (and every column in it) past the viewport. */}
+        <div className="min-w-0">
           <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border bg-muted shadow-warm-sm">
             <CartLineImage
               src={gallery[activeImage] ?? combo.banner}
@@ -241,16 +241,92 @@ export function ComboLanding({ combo }: ComboLandingProps) {
 
         {/* Summary */}
         <div className="flex flex-col gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold leading-tight">
-              {combo.title}
-            </h1>
-            {combo.description && (
-              <p className="mt-2 text-sm sm:text-base text-muted-foreground leading-relaxed">
-                {combo.description}
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight">
+            {combo.title}
+          </h1>
+          {/* Offer picker sits right under the title so the order controls
+              show before the long description on mobile (client request). */}
+          <div className="flex flex-col gap-6">
+            {/* Tier selector */}
+            <section>
+              <h2 className="mb-3 flex items-center gap-1.5 text-lg font-bold">
+                <Gift className="size-4 text-primary" />
+                {t("bundle.selectCombo")}
+              </h2>
+              <BundleTierList
+                bundle={combo}
+                selectedTierId={selectedTierId}
+                onSelect={setSelectedTierId}
+                showComposition
+                renderUnits={(tier) => {
+                  const tierUnits = unitsFor(tier);
+                  if (!tierUnits.hasPicker) return null;
+                  return (
+                    <BundleUnitPicker
+                      slots={tierUnits.slots}
+                      selections={tierUnits.selections}
+                      issues={tierUnits.issues}
+                      axesFor={axesFor}
+                      onAxisChange={(slotKey, item, optionName, value) =>
+                        setAxisValue(tier, slotKey, item, optionName, value)
+                      }
+                      showItemName={tier.items.length > 1}
+                    />
+                  );
+                }}
+              />
+            </section>
+
+            {/* Purchase panel — in-flow at every breakpoint (attached, not floating) */}
+            <section className="rounded-2xl border border-border bg-card p-4 shadow-warm sm:p-5">
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("bundle.totalPrice")}
+                  </div>
+                  <div className="text-2xl font-bold text-destructive">
+                    <Price amount={selectedTier.price} />
+                  </div>
+                </div>
+                {selectedTier.savings > 0 && (
+                  <div className="rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-bold text-primary">
+                    {t("bundle.youSaveTotal")}{" "}
+                    <Price amount={selectedTier.savings} />
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <Button
+                  variant="outline"
+                  onClick={() => handleAddToCart(selectedTier)}
+                  disabled={soldOut}
+                  className="h-12 flex-1 border-primary text-sm font-bold text-primary hover:bg-primary/10 hover:text-primary sm:text-base"
+                >
+                  <ShoppingCart className="mr-1.5 size-5" />
+                  {t("bundle.addComboToCart")}
+                </Button>
+                <Button
+                  onClick={() => handleBuyNow(selectedTier)}
+                  disabled={soldOut}
+                  className="h-12 flex-1 text-sm font-bold sm:text-base"
+                >
+                  <ShoppingBag className="mr-1.5 size-5" />
+                  {t("bundle.buyNow")}
+                </Button>
+              </div>
+
+              <p className="mt-3 flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                <ShieldCheck className="size-3.5" />
+                {t("bundle.secureCheckout")}
               </p>
-            )}
+            </section>
           </div>
+          {combo.description && (
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              {combo.description}
+            </p>
+          )}
 
           {/* Highlights (optional, backend-provided selling points) */}
           {combo.highlights?.length ? (
@@ -314,113 +390,6 @@ export function ComboLanding({ combo }: ComboLandingProps) {
           />
         </section>
       )}
-
-      {/* What's included */}
-      <section className="mt-8">
-        <h2 className="mb-3 flex items-center gap-1.5 text-lg font-bold">
-          <Gift className="size-4 text-primary" />
-          {t("bundle.whatsIncluded")}
-        </h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {includedItems.map((item, i) => (
-            <div
-              key={`${item.product_id}-${i}`}
-              className="flex items-center gap-3 rounded-xl border border-border bg-card p-2.5 shadow-warm-sm"
-            >
-              <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-muted">
-                <CartLineImage
-                  src={item.thumbnail_image}
-                  alt={item.name}
-                  fill
-                  sizes="56px"
-                  className="object-cover"
-                />
-                <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground shadow-sm">
-                  {item.qty}
-                </span>
-              </div>
-              <p className="min-w-0 flex-1 text-sm font-medium leading-tight">
-                {item.name}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Tier selector */}
-      <section className="mt-8">
-        <h2 className="mb-3 flex items-center gap-1.5 text-lg font-bold">
-          <Gift className="size-4 text-primary" />
-          {t("bundle.selectCombo")}
-        </h2>
-        <BundleTierList
-          bundle={combo}
-          selectedTierId={selectedTierId}
-          onSelect={setSelectedTierId}
-          showComposition
-          renderUnits={(tier) => {
-            const tierUnits = unitsFor(tier);
-            if (!tierUnits.hasPicker) return null;
-            return (
-              <BundleUnitPicker
-                slots={tierUnits.slots}
-                selections={tierUnits.selections}
-                issues={tierUnits.issues}
-                axesFor={axesFor}
-                onAxisChange={(slotKey, item, optionName, value) =>
-                  setAxisValue(tier, slotKey, item, optionName, value)
-                }
-                showItemName={tier.items.length > 1}
-              />
-            );
-          }}
-        />
-      </section>
-
-      {/* Purchase panel — in-flow at every breakpoint (attached, not floating) */}
-      <section className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-warm sm:p-5">
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <div>
-            <div className="text-xs text-muted-foreground">
-              {t("bundle.totalPrice")}
-            </div>
-            <div className="text-2xl font-bold text-destructive">
-              <Price amount={selectedTier.price} />
-            </div>
-          </div>
-          {selectedTier.savings > 0 && (
-            <div className="rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-bold text-primary">
-              {t("bundle.youSaveTotal")}{" "}
-              <Price amount={selectedTier.savings} />
-            </div>
-          )}
-        </div>
-
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <Button
-            variant="outline"
-            onClick={() => handleAddToCart(selectedTier)}
-            disabled={soldOut}
-            className="h-12 flex-1 border-primary text-sm font-bold text-primary hover:bg-primary/10 hover:text-primary sm:text-base"
-          >
-            <ShoppingCart className="mr-1.5 size-5" />
-            {t("bundle.addComboToCart")}
-          </Button>
-          <Button
-            onClick={() => handleBuyNow(selectedTier)}
-            disabled={soldOut}
-            className="h-12 flex-1 text-sm font-bold sm:text-base"
-          >
-            <ShoppingBag className="mr-1.5 size-5" />
-            {t("bundle.buyNow")}
-          </Button>
-        </div>
-
-        <p className="mt-3 flex items-center justify-center gap-1 text-xs text-muted-foreground">
-          <ShieldCheck className="size-3.5" />
-          {t("bundle.secureCheckout")}
-        </p>
-      </section>
 
       {/* Terms (optional) */}
       {combo.terms && (
